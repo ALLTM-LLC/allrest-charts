@@ -1,0 +1,47 @@
+apiVersion: v1
+entries:
+  allrest-pdfgen:
+  - apiVersion: v2
+    appVersion: 0.1.0
+    created: "2023-06-03T16:31:40.149114+02:00"
+    description: A Helm chart for Allrestaurant Pdfgen
+    digest: cc4f0287394fc9cc3a0e5eb50693db8456f7c1c184a00dacb09a6868895f1d69
+    name: allrest-pdfgen
+    type: application
+    urls:
+    - https://github.com/ALLTM-LLC/charts/charts/allrest-pdfgen-0.1.0.tgz
+    version: 0.1.0
+  allrest-php:
+  - apiVersion: v2
+    appVersion: 0.1.0
+    created: "2023-06-03T16:31:40.149495+02:00"
+    description: A Helm chart for Allrestaurants PHP frontend
+    digest: a63ad50c5000edff2500ddb51204bdbe2c4a5310a67bdf95c57d8cc0525a057e
+    name: allrest-php
+    type: application
+    urls:
+    - https://github.com/ALLTM-LLC/charts/charts/allrest-php-0.1.0.tgz
+    version: 0.1.0
+  alltm-admin-panel:
+  - apiVersion: v2
+    appVersion: 0.1.0
+    created: "2023-06-03T16:31:40.149858+02:00"
+    description: A Helm chart for Kubernetes Admin interface
+    digest: f58926ff865de4f7a9f9887ee9e7c378365687dae3545347f271453f32016fdc
+    name: alltm-admin-panel
+    type: application
+    urls:
+    - https://github.com/ALLTM-LLC/charts/charts/alltm-admin-panel-0.1.8.tgz
+    version: 0.1.8
+  alltm-api:
+  - apiVersion: v2
+    appVersion: 0.1.0
+    created: "2023-06-03T16:31:40.150136+02:00"
+    description: A Helm chart for Allrestaurants API
+    digest: 3b15d91bbbed85a3055df6269719a7f3cffa5501f0489699329fd281430bd32f
+    name: alltm-api
+    type: application
+    urls:
+    - https://github.com/ALLTM-LLC/charts/charts/alltm-api-0.1.0.tgz
+    version: 0.1.0
+generated: "2023-06-03T16:31:40.147255+02:00"

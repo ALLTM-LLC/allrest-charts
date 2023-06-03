@@ -1,0 +1,80 @@
+{{- range $services := .Values.allrest_services}}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: {{ $services.name }}
+    app-id: {{ $.Chart.Name }}
+    {{- if $services.extraLabels }}
+    {{- range $name, $value := $services.extraLabels }}
+    {{ $name }}: {{ $value }}
+    {{- end }}
+    {{- end }}
+  name: {{ $services.name }}
+spec:
+  replicas: {{ $.Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ $services.name }}
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        rollme: {{ randAlphaNum 5 | quote }}
+      labels:
+        app: {{ $services.name }}
+        app-id: {{ $.Chart.Name  }}
+        {{- if $services.extraLabels }}
+        {{- range $name, $value := $services.extraLabels }}
+        {{ $name }}: {{ $value }}
+        {{- end }}
+        {{- end }}
+    spec:
+      containers:
+      - name: {{ $services.name }}
+        {{- if $services.env }}
+        env:
+        {{- range $name, $value := $services.env }}
+        - name: {{ $name }}
+          value: {{ $value }}
+        {{- end }}
+        {{- end }}
+        {{- if $services.envSecretName }}
+        env:
+        {{- range $name, $value := $services.envFrom }}
+        - name: {{ $name }}
+          valueFrom:
+            secretKeyRef:
+               key: {{ $value }}
+               name: {{ $services.envSecretName }}
+        {{- end }}
+        {{- end }}          
+        {{- if $services.repo }}
+        image: {{ $services.repo }}/{{ $services.imagename }}:{{ $services.versionTag }}
+        {{- else }}
+        image: {{ $.Values.registryLocation }}/{{ $services.imagename }}:{{ $services.versionTag }}
+        {{- end }}          
+        imagePullPolicy: Always
+        ports:
+        - containerPort: {{ $services.port }}
+          protocol: TCP
+        {{- if $services.configmap }}
+        volumeMounts:
+        - name: mnt
+          mountPath: /app/appsettings.json
+          subPath: appsettings.json
+      volumes:
+        - name: mnt
+          configMap:
+            name: {{ $services.configmap }}
+      {{- end }}          
+      {{- if $services.imagePullSecrets }}
+      imagePullSecrets:
+        - name: {{ $services.imagePullSecrets }}
+      {{- end }}          
+{{- end }}

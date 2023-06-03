@@ -1,0 +1,24 @@
+# Default values for allrest.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 2
+registryLocation: "registry.digitalocean.com/allrest-container-registry"
+dbUsername: "xxxxx"
+dbPassword: "xxxxx"
+dbUrl: "xxxxx"
+
+# Service Specific Values
+allrest_services:
+  allrest-pdfgen: 
+      name: allrest-pdfgen
+      envSecretName: db-user-pass
+      envFrom:
+        DB_USERNAME: "username"
+        DB_PASSWORD: "password"
+        DB_URL: "url"
+      imagename: allrest-pdfgen
+      imagePullSecrets: allrest-container-registry
+      versionTag: "latest"
+      port: 8080
+      targetPort: 8080

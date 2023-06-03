@@ -1,0 +1,40 @@
+apiVersion: v1
+data:
+  appsettings.json: |
+    {
+      "Urls": "{{ .Values.Urls }}",
+      "Logging": {
+        "LogLevel": {
+          "Default": "Information",
+          "Microsoft": "Warning",
+          "Hangfire": "Information",
+          "Microsoft.Hosting.Lifetime": "Information"
+        }
+      },
+      "AllowedHosts": "{{ .Values.allowedHosts }}",
+      "ConnectionStrings": {
+        "AllRestaurantsMySQL": "server=allrest-db-mysql-frank05-2023-do-user-14106229-0.b.db.ondigitalocean.com;uid=doadmin;pwd=AVNS_bxQBN6khuXyTyNYRtGz;database=allrest-app-admin;port=25060;AllowUserVariables=True;CharSet=utf8;",
+        "HangfireMySQL": "server=allrest-db-mysql-frank05-2023-do-user-14106229-0.b.db.ondigitalocean.com;uid=doadmin;pwd=AVNS_bxQBN6khuXyTyNYRtGz;database=hangfire;port=25060;AllowUserVariables=True;CharSet=utf8;"
+      },
+      "AppSettings": {
+        "Secret": "{{ .Values.appSettings.secret }}",
+        "ServerKey": "{{ .Values.appSettings.serverKey }}",
+        "SenderId": "{{ .Values.appSettings.senderId }}",
+        "SendGridKey": "{{ .Values.appSettings.sendGridKey }}"
+      },
+      "AllRestaurantsAuth": {
+        "grant_type": "{{ .Values.auth.grant_type }}",
+        "client_id": "{{ .Values.auth.client_id }}",
+        "client_secret": "{{ .Values.auth.client_secret }}"
+      },
+      "LettuceEncrypt": {
+        "AcceptTermsOfService": true,
+        "DomainNames": [
+          "{{ .Values.le.domainNames }}"
+        ],
+        "EmailAddress": "{{ .Values.le.emailAddress }}"
+      }
+    }
+kind: ConfigMap
+metadata:
+  name: cm-appsettings-api

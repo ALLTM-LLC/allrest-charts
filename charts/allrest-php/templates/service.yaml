@@ -1,0 +1,21 @@
+{{- range $services := .Values.allrest_services}}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: {{ $services.name }}
+  name: {{ $services.name }}-service
+spec:
+  ports:
+  - port: {{ $services.port }}
+    protocol: TCP
+    {{- if $services.targetPort }}
+    targetPort: {{ $services.targetPort }}
+    {{- else }}
+    targetPort: 80
+    {{- end }}
+  selector:
+    app: {{ $services.name }}
+  type: ClusterIP
+{{- end }}
