@@ -13,8 +13,8 @@ data:
       },
       "AllowedHosts": "{{ .Values.allowedHosts }}",
       "ConnectionStrings": {
-        "AllRestaurantsMySQL": "server=allrest-db-mysql-frank05-2023-do-user-14106229-0.b.db.ondigitalocean.com;uid=doadmin;pwd=AVNS_bxQBN6khuXyTyNYRtGz;database=allrest-app-admin;port=25060;AllowUserVariables=True;CharSet=utf8;",
-        "HangfireMySQL": "server=allrest-db-mysql-frank05-2023-do-user-14106229-0.b.db.ondigitalocean.com;uid=doadmin;pwd=AVNS_bxQBN6khuXyTyNYRtGz;database=hangfire;port=25060;AllowUserVariables=True;CharSet=utf8;"
+        "AllRestaurantsMySQL": "server={{ .Values.appSettings.secret }};uid={{ .Values.appSettings.secret }};pwd={{ .Values.appSettings.secret }};database={{ .Values.appSettings.secret }};port=25060;AllowUserVariables=True;CharSet=utf8;",
+        "HangfireMySQL": "server={{ .Values.appSettings.secret }};uid={{ .Values.appSettings.secret }};pwd={{ .Values.appSettings.secret }};database={{ .Values.appSettings.secret }};port=25060;AllowUserVariables=True;CharSet=utf8;"
       },
       "AppSettings": {
         "Secret": "{{ .Values.appSettings.secret }}",
