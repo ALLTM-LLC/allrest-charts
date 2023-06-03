@@ -9,7 +9,7 @@ entries:
     name: allrest-pdfgen
     type: application
     urls:
-    - https://github.com/ALLTM-LLC/charts/charts/allrest-pdfgen-0.1.0.tgz
+    - https://alltm-llc.github.io/allrest-charts/charts/charts/allrest-pdfgen-0.1.0.tgz
     version: 0.1.0
   allrest-php:
   - apiVersion: v2
@@ -20,7 +20,7 @@ entries:
     name: allrest-php
     type: application
     urls:
-    - https://github.com/ALLTM-LLC/charts/charts/allrest-php-0.1.0.tgz
+    - https://alltm-llc.github.io/allrest-charts/charts/charts/allrest-php-0.1.0.tgz
     version: 0.1.0
   alltm-admin-panel:
   - apiVersion: v2
@@ -31,7 +31,7 @@ entries:
     name: alltm-admin-panel
     type: application
     urls:
-    - https://github.com/ALLTM-LLC/charts/charts/alltm-admin-panel-0.1.8.tgz
+    - https://alltm-llc.github.io/allrest-charts/charts/charts/alltm-admin-panel-0.1.8.tgz
     version: 0.1.8
   alltm-api:
   - apiVersion: v2
@@ -42,6 +42,6 @@ entries:
     name: alltm-api
     type: application
     urls:
-    - https://github.com/ALLTM-LLC/charts/charts/alltm-api-0.1.0.tgz
+    - https://alltm-llc.github.io/allrest-charts/charts/charts/alltm-api-0.1.0.tgz
     version: 0.1.0
 generated: "2023-06-03T16:31:40.147255+02:00"
