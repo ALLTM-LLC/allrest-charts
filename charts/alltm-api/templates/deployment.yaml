@@ -61,7 +61,7 @@ spec:
         {{- end }}          
         imagePullPolicy: Always
         ports:
-        - containerPort: {{ $services.port }}
+        - containerPort: {{ $services.targetPort }}
           protocol: TCP
         {{- if $services.configmap }}
         volumeMounts:
