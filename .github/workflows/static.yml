@@ -31,6 +31,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Package HELM charts
+        run: |
+          cd charts
+          helm package allrest-php
+          helm package allrest-pdfgen
+          helm package alltm-admin-panel
+          helm package alltm-api
       - name: Setup Pages
         uses: actions/configure-pages@v3
       - name: Upload artifact
