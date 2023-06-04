@@ -16,3 +16,24 @@ allrest_services:
       port: 8080
       targetPort: 8080      
       ingressUrl: "api.allrestaurants.eu"
+
+appsettings:
+  Urls: "x.com"
+  allowedHosts: "x"
+  dbUrl: "db.com"
+  dbNameAllrest: "db1"
+  dbNameHangfire: "db2"
+  dbUser: "x"
+  dbPassword: "z"
+  mail:
+    secret: "x"
+    serverKey: "y"
+    senderId: "z"
+    sendGridKey: "a"
+  auth:
+    grant_type: "a"
+    client_id: "b"
+    client_secret: "c"
+  le:
+    domainNames: "z"
+    emailAddress: "z@com"

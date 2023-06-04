@@ -1,0 +1,40 @@
+apiVersion: v1
+data:
+  appsettings.json: |
+    {
+      "Urls": "{{ .Values.appsettings.Urls }}",
+      "Logging": {
+        "LogLevel": {
+          "Default": "Information",
+          "Microsoft": "Warning",
+          "Hangfire": "Information",
+          "Microsoft.Hosting.Lifetime": "Information"
+        }
+      },
+      "AllowedHosts": "{{ .Values.appsettings.allowedHosts }}",
+      "ConnectionStrings": {
+        "AllRestaurantsMySQL": "server={{ .Values.appsettings.dbUrl }};uid={{ .Values.appsettings.dbUser }};pwd={{ .Values.appsettings.dbPassword }};database={{ .Values.appsettings.dbNameAllrest }};port=25060;AllowUserVariables=True;CharSet=utf8;",
+        "HangfireMySQL": "server={{ .Values.appsettings.dbUrl }};uid={{ .Values.appsettings.dbUser }};pwd={{ .Values.appsettings.dbPassword }};database={{ .Values.appsettings.dbNameHangfire }};port=25060;AllowUserVariables=True;CharSet=utf8;"
+      },
+      "AppSettings": {
+        "Secret": "{{ .Values.appsettings.mail.secret }}",
+        "ServerKey": "{{ .Values.appsettings.mail.serverKey }}",
+        "SenderId": "{{ .Values.appsettings.mail.senderId }}",
+        "SendGridKey": "{{ .Values.appsettings.mail.sendGridKey }}"
+      },
+      "AllRestaurantsAuth": {
+        "grant_type": "{{ .Values.appsettings.auth.grant_type }}",
+        "client_id": "{{ .Values.appsettings.auth.client_id }}",
+        "client_secret": "{{ .Values.appsettings.auth.client_secret }}"
+      },
+      "LettuceEncrypt": {
+        "AcceptTermsOfService": true,
+        "DomainNames": [
+          "{{ .Values.appsettings.le.domainNames }}"
+        ],
+        "EmailAddress": "{{ .Values.appsettings.le.emailAddress }}"
+      }
+    }
+kind: ConfigMap
+metadata:
+  name: cm-appsettings-api

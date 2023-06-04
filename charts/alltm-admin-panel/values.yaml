@@ -5,27 +5,6 @@
 replicaCount: 2
 registryLocation: "registry.digitalocean.com/allrest-container-registry"
 
-Urls: "x.com"
-
-allowedHosts: "x"
-dbUrl: "db.com"
-dbNameAllrest: "db1"
-dbNameHangfire: "db2"
-dbUser: "x"
-dbPassword: "z"
-appSettings:
-   secret: "x"
-   serverKey: "y"
-   senderId: "z"
-   sendGridKey: "a"
-auth:
-   grant_type: "a"
-   client_id: "b"
-   client_secret: "c"
-le:
-   domainNames: "z"
-   emailAddress: "z@com"
-
 # Service Specific Values
 allrest_services:            
   alltm-admin-panel: 
