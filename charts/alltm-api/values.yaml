@@ -3,14 +3,14 @@
 # Declare variables to be passed into your templates.
 
 replicaCount: 2
-registryLocation: "registry.digitalocean.com/allrest-container-registry"
+registryLocation: "registry.digitalocean.com/tstrreg"
 
 # Service Specific Values
 allrest_services:
   alltm-api: 
       name: alltm-api
       imagename: alltm-api
-      imagePullSecrets: allrest-container-registry
+      imagePullSecrets: tstrreg
       configmap: cm-appsettings-api
       versionTag: "latest"
       port: 80

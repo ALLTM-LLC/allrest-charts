@@ -3,14 +3,14 @@
 # Declare variables to be passed into your templates.
 
 replicaCount: 2
-registryLocation: "registry.digitalocean.com/allrest-container-registry"
+registryLocation: "registry.digitalocean.com/tstrreg"
 
 # Service Specific Values
 allrest_services:            
   alltm-admin-panel: 
       name: alltm-admin-panel
       imagename: alltm-admin-panel
-      imagePullSecrets: allrest-container-registry
+      imagePullSecrets: tstrreg
       versionTag: "latest"
       port: 80
       ingressUrl: "adminpanel.allrestaurants.eu"
