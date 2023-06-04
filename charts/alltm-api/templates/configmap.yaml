@@ -13,7 +13,7 @@ data:
       },
       "AllowedHosts": "{{ .Values.appsettings.allowedHosts }}",
       "ConnectionStrings": {
-        "AllRestaurantsMySQL": "server={{ .Values.appsettings.dbUrl }};uid={{ .Values.appsettings.dbUser }};pwd={{ .Values.appsettings.dbPassword }};database={{ .Values.appsettings.dbNameAllrest }};port=25060;AllowUserVariables=True;CharSet=utf8;",
+        "AllRestaurantsMySQL": "server={{ .Values.appsettings.dbUrl }};uid={{ .Values.appsettings.dbUser }};pwd={{ .Values.appsettings.dbPassword }};database={{ .Values.appsettings.dbNameAllrest }}-app-admin;port=25060;AllowUserVariables=True;CharSet=utf8;",
         "HangfireMySQL": "server={{ .Values.appsettings.dbUrl }};uid={{ .Values.appsettings.dbUser }};pwd={{ .Values.appsettings.dbPassword }};database={{ .Values.appsettings.dbNameHangfire }};port=25060;AllowUserVariables=True;CharSet=utf8;"
       },
       "AppSettings": {

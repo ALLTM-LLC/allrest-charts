@@ -13,7 +13,7 @@ allrest_services:
       imagePullSecrets: allrest-container-registry
       configmap: cm-appsettings-api
       versionTag: "latest"
-      port: 8080
+      port: 80
       targetPort: 8080      
       ingressUrl: "api.allrestaurants.eu"
 
