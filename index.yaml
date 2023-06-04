@@ -31,8 +31,8 @@ entries:
     name: alltm-admin-panel
     type: application
     urls:
-    - https://alltm-llc.github.io/allrest-charts/charts/alltm-admin-panel-0.1.8.tgz
-    version: 0.1.8
+    - https://alltm-llc.github.io/allrest-charts/charts/alltm-admin-panel-0.1.0.tgz
+    version: 0.1.0
   alltm-api:
   - apiVersion: v2
     appVersion: 0.1.0
