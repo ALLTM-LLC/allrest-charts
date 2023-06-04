@@ -24,7 +24,7 @@ data:
       },
       "AllRestaurantsAuth": {
         "grant_type": "{{ .Values.appsettings.auth.grant_type }}",
-        "client_id": "{{ .Values.appsettings.auth.client_id }}",
+        "client_id": {{ .Values.appsettings.auth.client_id }},
         "client_secret": "{{ .Values.appsettings.auth.client_secret }}"
       },
       "LettuceEncrypt": {
