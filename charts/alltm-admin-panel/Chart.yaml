@@ -1,6 +1,6 @@
 apiVersion: v2
-name: alltm-admin-panel
-description: A Helm chart for Kubernetes Admin interface
+name: alltm-admin-panel 
+description: A Helm chart for Kubernetes Admin-panel interface
 
 # A chart can be either an 'application' or a 'library' chart.
 #
