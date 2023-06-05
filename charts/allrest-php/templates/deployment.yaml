@@ -66,8 +66,8 @@ spec:
         {{- if $services.configmap }}
         volumeMounts:
         - name: mnt
-          mountPath: /app/appsettings.json
-          subPath: appsettings.json
+          mountPath: {{ $services.mountPath }}
+          subPath: {{ $services.subPath }}
       volumes:
         - name: mnt
           configMap:
