@@ -3,7 +3,7 @@
 # Declare variables to be passed into your templates.
 
 replicaCount: 2
-registryLocation: "registry.digitalocean.com/tstrreg"
+registryLocation: "registry.digitalocean.com/registry-062023"
 
 cors_allow_origin: "a, b, c"
 cors_allow_headers: "x"
@@ -18,11 +18,11 @@ allrest_services:
   allrest-php: 
       name: allrest-php
       imagename: allrest
-      repo: registry.digitalocean.com/tstrreg
+      repo: registry.digitalocean.com/registry-062023
       configmap: cm-php-fpm
       mountPath: "/etc/php/8.1/fpm/pool.d/www.conf"
       subPath: "www.conf"
-      imagePullSecrets: tstrreg
+      imagePullSecrets: registry-062023
       versionTag: "latest"
       port: 80
       ingressUrl: "www.allrestaurants.eu"
