@@ -3,7 +3,7 @@
 # Declare variables to be passed into your templates.
 
 replicaCount: 2
-registryLocation: "registry.digitalocean.com/tstrreg"
+registryLocation: "registry.digitalocean.com/registry-062023"
 dbUsername: "xxxxx"
 dbPassword: "xxxxx"
 dbUrl: "xxxxx"
@@ -18,7 +18,7 @@ allrest_services:
         DB_PASSWORD: "password"
         DB_URL: "url"
       imagename: allrest-pdfgen
-      imagePullSecrets: tstrreg
+      imagePullSecrets: registry-062023
       versionTag: "latest"
       port: 8080
       targetPort: 8080
