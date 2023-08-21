@@ -21,10 +21,10 @@ allrest_services:
         DB_USERNAME: "username"
         DB_PASSWORD: "password"
         DB_URL: "url"
-        DO_SPACE_URL: "do.space.url"
-        DO_SPACE_ACCESS-KEY: "do.space.access-key"
-        DO_SPACE_SECRET-KEY: "do.space.secret-key"
-        DO_SPACE_REGION: "do.space.region"
+        SPACE_URL: "do.space.url"
+        SPACE_ACCESS_KEY: "do.space.access-key"
+        SPACE_SECRET_KEY: "do.space.secret-key"
+        SPACE_REGION: "do.space.region"
       imagename: allrest-pdfgen
       imagePullSecrets: registry-062023
       versionTag: "latest"
