@@ -7,6 +7,10 @@ registryLocation: "registry.digitalocean.com/registry-062023"
 dbUsername: "xxxxx"
 dbPassword: "xxxxx"
 dbUrl: "xxxxx"
+doSpaceUrl: "xxxx"
+doSpaceAccessKey: "xxxx"
+doSpaceSecretKey: "xxxx"
+doSpaceRegion: "xxxx"
 
 # Service Specific Values
 allrest_services:
@@ -17,6 +21,10 @@ allrest_services:
         DB_USERNAME: "username"
         DB_PASSWORD: "password"
         DB_URL: "url"
+        DO_SPACE_URL: "do.space.url"
+        DO_SPACE_ACCESS-KEY: "do.space.access-key"
+        DO_SPACE_SECRET-KEY: "do.space.secret-key"
+        DO_SPACE_REGION: "do.space.region"
       imagename: allrest-pdfgen
       imagePullSecrets: registry-062023
       versionTag: "latest"
