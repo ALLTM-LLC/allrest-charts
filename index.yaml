@@ -58,12 +58,12 @@ entries:
   allsupplier-api:
     - apiVersion: v2
       appVersion: 0.1.0
-      created: "2023-11-17T16:44:46.766316+01:00"
+      created: "2023-11-23T16:36:51.904714+01:00"
       description: A Helm chart for Allrestaurants API
-      digest: 56d32e4db7662c847f7b843e8b885ed8090ce3af63fc60b300f8be4f0688613a
+      digest: e1d0ddf7a17ddc18bb26d8013554c0edfced2b00933f7409e5324e60dfadef68
       name: allsupplier-api
       type: application
       urls:
-        - https://alltm-llc.github.io/allrest-charts/allsupplier-api-0.1.0.tgz
+        - https://alltm-llc.github.io/allrest-charts/charts/allsupplier-api-0.1.0.tgz
       version: 0.1.0
-generated: "2023-06-03T16:31:40.147255+02:00"
+generated: "2023-11-23T16:36:51.901883+01:00"
