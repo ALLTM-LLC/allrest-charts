@@ -50,6 +50,13 @@ spec:
     http:
       paths:
       - pathType: Prefix
+        path: "/api/v1/auth/allsupplier"
+        backend:
+          service:
+            name: allsupplier-api-service
+            port:
+              number: 80
+      - pathType: Prefix
         path: "/"
         backend:
           service:
@@ -59,6 +66,13 @@ spec:
   - host: {{ .Values.mainUrl }}
     http:
       paths:
+      - pathType: Prefix
+        path: "/api/v1/auth/allsupplier"
+        backend:
+          service:
+            name: allsupplier-api-service
+            port:
+              number: 80
       - pathType: Prefix
         path: "/"
         backend:
