@@ -10,14 +10,16 @@ metadata:
     nginx.ingress.kubernetes.io/cors-allow-headers: "{{ .Values.cors_allow_headers }}"
     nginx.ingress.kubernetes.io/limit-connections: "20"
     nginx.ingress.kubernetes.io/limit-rpm: "300"
-    nginx.ingress.kubernetes.io/server-snippet: |
-      location ~* /sitemap_images/(.*) {
-        rewrite ^/sitemap_images/(.*)$ https://allrest-ams3-space-cdn-06-2023.ams3.digitaloceanspaces.com/$1 redirect;
-      }
-      if ($host ~* ^www\.(.*)) {
-        set $base $1;
-        rewrite ^/(.*)$ https://$base/$1 permanent;
-      }
+    #TODO digital ocean doesnt allow the use of server-snippet anymore, so we need to find another solution
+#    nginx.ingress.kubernetes.io/server-snippet: |
+#      location ~* /sitemap_images/(.*) {
+#        rewrite ^/sitemap_images/(.*)$ https://allrest-ams3-space-cdn-06-2023.ams3.digitaloceanspaces.com/$1 redirect;
+#      }
+#      if ($host ~* ^www\.(.*)) {
+#        set $base $1;
+#        rewrite ^/(.*)$ https://$base/$1 permanent;
+#      }
+
     #nginx.ingress.kubernetes.io/cors-allow-headers: "DNT,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization"
 
 spec:
