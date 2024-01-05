@@ -56,14 +56,14 @@ spec:
     http:
       paths:
       - pathType: Prefix
-        path: "/api/v1/auth/allsupplier"
+        path: "/api/v1/allsupplier"
         backend:
           service:
             name: allsupplier-api-service
             port:
               number: 80
       - pathType: Prefix
-        path: "/v1/auth/allrest/"
+        path: "/api/v1/allrest/"
         backend:
           service:
             name: allrest-api-service
@@ -80,14 +80,14 @@ spec:
     http:
       paths:
       - pathType: Prefix
-        path: "/api/v1/auth/allsupplier"
+        path: "/api/v1/allsupplier"
         backend:
           service:
             name: allsupplier-api-service
             port:
               number: 80
       - pathType: Prefix
-        path: "/v1/auth/allrest"
+        path: "/api/v1/allrest"
         backend:
           service:
             name: allrest-api-service
@@ -104,14 +104,14 @@ spec:
     http:
       paths:
       - pathType: Prefix
-        path: "/api/v1/auth/allsupplier"
+        path: "/api/v1/allsupplier"
         backend:
           service:
             name: allsupplier-api-service
             port:
               number: 80
       - pathType: Prefix
-        path: "/v1/auth/allrest"
+        path: "/api/v1/allrest"
         backend:
           service:
             name: allrest-api-service
