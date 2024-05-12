@@ -80,6 +80,13 @@ spec:
     http:
       paths:
       - pathType: Prefix
+        backend:
+           service:
+             name: allrest-pdfgen-service
+             port:
+               number: 8080
+        path: /uploadCsv
+      - pathType: Prefix
         path: "/api/v1/allsupplier"
         backend:
           service:
@@ -99,7 +106,7 @@ spec:
           service:
             name: allrest-php-service
             port:
-              number: 80              
+              number: 80
   - host: "{{ .Values.allUrl }}"
     http:
       paths:
