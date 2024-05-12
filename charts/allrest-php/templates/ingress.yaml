@@ -80,7 +80,7 @@ spec:
     http:
       paths:
       - pathType: Prefix
-        path: /uploadCsv
+        path: "/uploadCsv"
         backend:
            service:
              name: allrest-pdfgen-service
