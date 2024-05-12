@@ -16,6 +16,9 @@ doSpaceRegion: "xxxx"
 allrest_services:
   allrest-pdfgen: 
       name: allrest-pdfgen
+      env:
+        SPRING_SECURITY_USER_NAME: "username"
+        SPRING_SECURITY_USER_PASSWORD: "password"
       envSecretName: db-user-pass
       envFrom:
         DB_USERNAME: "username"

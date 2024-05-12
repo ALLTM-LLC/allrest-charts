@@ -1,16 +1,16 @@
 apiVersion: v1
 entries:
   allrest-pdfgen:
-  - apiVersion: v2
-    appVersion: 0.1.0
-    created: "2023-06-03T16:31:40.149114+02:00"
-    description: A Helm chart for Allrestaurant Pdfgen
-    digest: cc4f0287394fc9cc3a0e5eb50693db8456f7c1c184a00dacb09a6868895f1d69
-    name: allrest-pdfgen
-    type: application
-    urls:
-    - https://alltm-llc.github.io/allrest-charts/charts/allrest-pdfgen-0.1.0.tgz
-    version: 0.1.0
+    - apiVersion: v2
+      appVersion: 0.1.0
+      created: "2024-05-12T23:17:35.934692+02:00"
+      description: A Helm chart for Allrestaurant Pdfgen
+      digest: 97c05a5507c71ff5e72804c7b3eb6ab2d1eff184a67b83661d3a736ba556e382
+      name: allrest-pdfgen
+      type: application
+      urls:
+        - https://alltm-llc.github.io/allrest-charts/charts/allrest-pdfgen-0.2.0.tgz
+      version: 0.2.0
   allrest-php:
   - apiVersion: v2
     appVersion: 0.1.0

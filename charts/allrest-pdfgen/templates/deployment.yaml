@@ -45,7 +45,6 @@ spec:
         {{- end }}
         {{- end }}
         {{- if $services.envSecretName }}
-        env:
         {{- range $name, $value := $services.envFrom }}
         - name: {{ $name }}
           valueFrom:
@@ -53,12 +52,12 @@ spec:
                key: {{ $value }}
                name: {{ $services.envSecretName }}
         {{- end }}
-        {{- end }}          
+        {{- end }}
         {{- if $services.repo }}
         image: {{ $services.repo }}/{{ $services.imagename }}:{{ $services.versionTag }}
         {{- else }}
         image: {{ $.Values.registryLocation }}/{{ $services.imagename }}:{{ $services.versionTag }}
-        {{- end }}          
+        {{- end }}
         imagePullPolicy: Always
         ports:
         - containerPort: {{ $services.port }}
@@ -72,9 +71,9 @@ spec:
         - name: mnt
           configMap:
             name: {{ $services.configmap }}
-      {{- end }}          
+      {{- end }}
       {{- if $services.imagePullSecrets }}
       imagePullSecrets:
         - name: {{ $services.imagePullSecrets }}
-      {{- end }}          
+      {{- end }}
 {{- end }}
