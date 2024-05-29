@@ -94,6 +94,13 @@ spec:
             port:
               number: 80
       - pathType: Prefix
+        path: "/docs-allsupplier"
+        backend:
+          service:
+            name: allsupplier-api-service
+            port:
+              number: 80
+      - pathType: Prefix
         path: "/api/v1/allrest"
         backend:
           service:
