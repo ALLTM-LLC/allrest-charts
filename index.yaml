@@ -12,16 +12,16 @@ entries:
         - https://alltm-llc.github.io/allrest-charts/charts/allrest-pdfgen-0.2.0.tgz
       version: 0.2.0
   allrest-php:
-  - apiVersion: v2
-    appVersion: 0.1.0
-    created: "2023-06-03T16:31:40.149495+02:00"
-    description: A Helm chart for Allrestaurants PHP frontend
-    digest: a63ad50c5000edff2500ddb51204bdbe2c4a5310a67bdf95c57d8cc0525a057e
-    name: allrest-php
-    type: application
-    urls:
-    - https://alltm-llc.github.io/allrest-charts/charts/allrest-php-0.1.0.tgz
-    version: 0.1.0
+    - apiVersion: v2
+      appVersion: 0.1.0
+      created: "2024-07-11T15:00:18.996941+02:00"
+      description: A Helm chart for Allrestaurants PHP frontend
+      digest: 308f97657513f4bc5ec090d37ed2809d917ecf7b2db38ded920225a846c179d5
+      name: allrest-php
+      type: application
+      urls:
+        - https://alltm-llc.github.io/allrest-charts/charts/allrest-php-0.1.0.tgz
+      version: 0.1.0
   alltm-admin-panel:
   - apiVersion: v2
     appVersion: 0.1.0

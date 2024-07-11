@@ -3,7 +3,7 @@ To update the helm chart repository, run the following commands:
 
 ```bash
  ~/projects/allrest-charts/charts/allsupplier-api/ [main] helm package .   
- ~/projects/allrest-charts/charts/allsupplier-api/ [main] helm repo index . --url http	s://alltm-llc.github.io/allrest-charts/charts/
+ ~/projects/allrest-charts/charts/allsupplier-api/ [main] helm repo index . --url https://alltm-llc.github.io/allrest-charts/charts/
 ```
 This will create a new version of the chart and update the index.yaml file.
 
