@@ -63,6 +63,20 @@ spec:
             port:
               number: 80
       - pathType: Prefix
+        path: "/api/allsupplier"
+        backend:
+          service:
+            name: allsupplier-api-service
+            port:
+              number: 80
+      - pathType: Prefix
+        path: "/api/documentation"
+        backend:
+          service:
+            name: allsupplier-api-service
+            port:
+              number: 80
+      - pathType: Prefix
         path: "/api/v1/allrest/"
         backend:
           service:
@@ -94,6 +108,20 @@ spec:
             port:
               number: 80
       - pathType: Prefix
+        path: "/api/allsupplier"
+        backend:
+          service:
+            name: allsupplier-api-service
+            port:
+              number: 80
+      - pathType: Prefix
+        path: "/api/documentation"
+        backend:
+          service:
+            name: allsupplier-api-service
+            port:
+              number: 80
+      - pathType: Prefix
         path: "/docs-allsupplier"
         backend:
           service:
@@ -119,6 +147,20 @@ spec:
       paths:
       - pathType: Prefix
         path: "/api/v1/allsupplier"
+        backend:
+          service:
+            name: allsupplier-api-service
+            port:
+              number: 80
+      - pathType: Prefix
+        path: "/api/allsupplier"
+        backend:
+          service:
+            name: allsupplier-api-service
+            port:
+              number: 80
+      - pathType: Prefix
+        path: "/api/documentation"
         backend:
           service:
             name: allsupplier-api-service
