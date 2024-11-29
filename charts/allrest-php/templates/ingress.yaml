@@ -101,6 +101,13 @@ spec:
              port:
                number: 8080
       - pathType: Prefix
+        path: "/generateSupplier"
+        backend:
+           service:
+             name: allrest-pdfgen-service
+             port:
+               number: 8080
+      - pathType: Prefix
         path: "/api/v1/allsupplier"
         backend:
           service:
