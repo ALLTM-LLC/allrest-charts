@@ -12,12 +12,13 @@ data:
     listen.group = www-data
     
     pm = ondemand
-    pm.max_children = 500
+    pm.max_children = 100
     pm.start_servers = 10
     pm.process_idle_timeout = 10s
     pm.process_idle_timeout = 10s
     pm.max_requests = 1000
     
+    php_admin_value[memory_limit] = 256M
     php_admin_flag[log_errors] = on
     php_admin_value[error_log] = /var/log/php-fpm-error.log
     pm.status_path = /status
