@@ -49,7 +49,7 @@ jobs:
         with:
           # Upload entire repository
           name: github-pages
-          path: './charts/*.tgz'  # Upload only the packaged charts
+          path: '.'  # Upload only the packaged charts
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
