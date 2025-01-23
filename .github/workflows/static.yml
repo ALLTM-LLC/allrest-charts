@@ -34,14 +34,19 @@ jobs:
       - name: Package HELM charts
         run: |
           cd charts
-          helm package allrest-php
-          helm package allrest-pdfgen
-          helm package alltm-admin-panel
-          helm package alltm-api
-          helm package allsupplier-api
-          helm package allrest-api
-          helm package redis
+          helm package allrest-php --dependency-update
+          helm package allrest-pdfgen --dependency-update
+          helm package alltm-admin-panel --dependency-update
+          helm package alltm-api --dependency-update
+          helm package allsupplier-api --dependency-update
+          helm package allrest-api --dependency-update
+          helm package redis --dependency-update
           ls -la
+      - name: Check for symlinks
+        run: |
+          echo "Checking for symlinks..."
+          find charts -type l -exec ls -la {} \;
+          
       - name: Setup Pages
         uses: actions/configure-pages@v3
       - name: Upload artifact
@@ -49,7 +54,7 @@ jobs:
         with:
           # Upload entire repository
           name: github-pages
-          path: '.'  # Upload only the packaged charts
+          path: './charts/*.tgz'  # Upload only the packaged charts
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
