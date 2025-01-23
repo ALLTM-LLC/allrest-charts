@@ -42,24 +42,6 @@ jobs:
           helm package allrest-api --dependency-update
           helm package redis --dependency-update
           ls -la
-      - name: Extract and inspect .tgz files
-        run: |
-          mkdir extracted_contents
-          for chart in charts/*.tgz; do
-            echo "Extracting $chart..."
-            tar -xvzf "$chart" -C extracted_contents/
-          done
-          echo "Contents of extracted charts:"
-          find extracted_contents
-
-      - name: Repackage charts without metadata
-        run: |
-          mkdir fixed_charts
-          for chart in charts/*.tgz; do
-            echo "Repackaging $chart without symlinks or extra metadata..."
-            tar --dereference -cvzf fixed_charts/$(basename "$chart") -C extracted_contents .
-          done
-          ls -la fixed_charts
           
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -68,7 +50,7 @@ jobs:
         with:
           # Upload entire repository
           name: github-pages
-          path: fixed_charts/*.tgz
+          path: '.'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
