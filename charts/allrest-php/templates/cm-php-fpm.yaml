@@ -13,7 +13,7 @@ data:
     
     pm = ondemand
     pm.max_children = 55
-    pm.start_servers = 2
+    pm.start_servers = 3
     pm.process_idle_timeout = 10s
     pm.max_requests = 1000
     
