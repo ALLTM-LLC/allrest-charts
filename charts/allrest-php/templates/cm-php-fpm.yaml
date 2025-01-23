@@ -12,7 +12,7 @@ data:
     listen.group = www-data
     
     pm = ondemand
-    pm.max_children = 50
+    pm.max_children = 55
     pm.start_servers = 2
     pm.process_idle_timeout = 10s
     pm.max_requests = 1000
