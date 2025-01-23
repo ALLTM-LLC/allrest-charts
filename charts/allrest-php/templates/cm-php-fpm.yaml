@@ -13,9 +13,11 @@ data:
     
     pm = ondemand
     pm.max_children = 55
-    pm.start_servers = 3
-    pm.process_idle_timeout = 10s
+    pm.start_servers = 5
+    pm.max_spare_servers = 10
+    pm.process_idle_timeout = 30s
     pm.max_requests = 1000
+    listen.backlog = 1024
     
     php_admin_value[memory_limit] = 256M
     php_admin_flag[log_errors] = on
