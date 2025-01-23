@@ -13,6 +13,7 @@ data:
     
     pm = ondemand
     pm.max_children = 28
+    pm.start_servers = 10
     pm.process_idle_timeout = 10s
     php_admin_value[memory_limit] = 256M
     pm.process_idle_timeout = 10s
