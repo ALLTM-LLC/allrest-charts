@@ -15,9 +15,9 @@ data:
     pm.max_children = 500
     pm.start_servers = 20
     pm.min_spare_servers = 10
-    pm.max_spare_servers = 100
-    pm.process_idle_timeout = 15s
-    pm.max_requests = 2000
+    pm.max_spare_servers = 300
+    pm.process_idle_timeout = 30s
+    pm.max_requests = 1000
     listen.backlog = 4096
     
     php_admin_value[memory_limit] = 128M
