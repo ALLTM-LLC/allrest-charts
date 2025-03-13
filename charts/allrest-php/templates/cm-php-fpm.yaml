@@ -17,11 +17,10 @@ data:
     pm.min_spare_servers = 10
     pm.max_spare_servers = 100
     pm.process_idle_timeout = 30s
-    pm.max_requests = 1000
+    pm.max_requests = 2000
     listen.backlog = 4096
     
     php_admin_value[memory_limit] = 256M
     php_admin_flag[log_errors] = on
     php_admin_value[error_log] = /var/log/php-fpm-error.log
     pm.status_path = /status
-
