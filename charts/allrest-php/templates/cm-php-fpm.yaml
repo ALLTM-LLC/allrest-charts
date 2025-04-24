@@ -7,8 +7,11 @@ data:
     [www]
     user = www-data
     group = www-data
-    listen = 9000
-
+    listen = /run/php/php8.1-fpm.sock
+    listen.owner = www-data
+    listen.group = www-data
+    
+    
     pm = dynamic
     pm.max_children = 180
     pm.start_servers = 30
