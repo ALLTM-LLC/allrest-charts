@@ -4,24 +4,37 @@ metadata:
   name: cm-php-fpm
 data:
   www.conf: |
-    [www]
-    user = www-data
-    group = www-data
-    listen = /run/php/php8.1-fpm.sock
-    listen.owner = www-data
-    listen.group = www-data
-    
-    
-    pm = dynamic
-    pm.max_children = 180
-    pm.start_servers = 30
-    pm.min_spare_servers = 10
-    pm.max_spare_servers = 100
-    pm.process_idle_timeout = 20s
-    pm.max_requests = 5000
-    listen.backlog = 4096
-    
-    php_admin_value[memory_limit] = 256M
-    php_admin_flag[log_errors] = on
-    php_admin_value[error_log] = /var/log/php-fpm-error.log
-    pm.status_path = /status
+  [www]
+user = www-data
+group = www-data
+listen = /run/php/php8.1-fpm.sock
+listen.owner = www-data
+listen.group = www-data
+listen.mode = 0660
+
+; --- Process management ---
+pm = dynamic
+pm.max_children = 40                ; Max PHP processes (based on memory)
+pm.start_servers = 10              ; Number of processes on startup
+pm.min_spare_servers = 5
+pm.max_spare_servers = 15
+pm.max_requests = 500              ; Recycle after 500 requests to avoid memory leaks
+pm.process_idle_timeout = 20s
+
+; --- Socket backlog queue ---
+listen.backlog = 1024
+
+; --- PHP settings ---
+php_admin_value[memory_limit] = 256M
+php_admin_flag[log_errors] = on
+php_admin_value[error_log] = /var/log/php-fpm-error.log
+php_admin_value[post_max_size] = 100M
+php_admin_value[upload_max_filesize] = 100M
+
+; --- Status path for metrics ---
+pm.status_path = /status
+
+; --- Slow log (optional) ---
+; php_admin_flag[slowlog] = on
+; php_admin_value[request_slowlog_timeout] = 5s
+; php_admin_value[slowlog] = /var/log/php-fpm-slow.log
