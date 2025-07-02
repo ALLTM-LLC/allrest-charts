@@ -12,12 +12,12 @@ data:
     listen.group = www-data
 
     pm = dynamic
-    pm.max_children = 70
+    pm.max_children = 50
     pm.start_servers = 10
     pm.min_spare_servers = 5
     pm.max_spare_servers = 15
     pm.process_idle_timeout = 20s
-    pm.max_requests = 1000
+    pm.max_requests = 700
     listen.backlog = 4096
 
     php_admin_value[memory_limit] = 256M
