@@ -18,7 +18,7 @@ data:
     pm.min_spare_servers = 3
     pm.max_spare_servers = 6
     pm.process_idle_timeout = 10s
-    pm.max_requests = 1000
+    pm.max_requests = 2000
     request_terminate_timeout = 120s
     listen.backlog = 1024
 
