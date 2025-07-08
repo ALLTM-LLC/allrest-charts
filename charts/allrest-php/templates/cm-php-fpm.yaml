@@ -14,16 +14,23 @@ data:
     ; === PHP-FPM Process Management ===
     pm = dynamic
     pm.max_children = 45           
-    pm.start_servers = 10
-    pm.min_spare_servers = 4
+    pm.start_servers = 8
+    pm.min_spare_servers = 8
     pm.max_spare_servers = 12
-    pm.max_requests = 2000
+    pm.max_requests = 1500
     pm.process_idle_timeout = 10s
-    request_terminate_timeout = 180s
+    request_terminate_timeout = 60s
     listen.backlog = 2048
 
     ; === Upload & Timeout Settings ===
     php_admin_value[memory_limit] = 512M
+    php_admin_value[upload_max_filesize] = 100M
+    php_admin_value[post_max_size] = 120M
+    php_admin_value[max_file_uploads] = 20
+    php_admin_value[max_execution_time] = 180
+    php_admin_value[max_input_time] = 180
+    php_admin_value[realpath_cache_size] = 4096k
+    php_admin_value[realpath_cache_ttl] = 600
 
 
     ; === Logging and Monitoring ===
