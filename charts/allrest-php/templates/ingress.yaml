@@ -22,15 +22,21 @@ metadata:
     nginx.ingress.kubernetes.io/limit-connections: "30"
     nginx.ingress.kubernetes.io/limit-whitelist: "143.198.249.29"
 
-    # === Compression for performance ===
+    # === Compression ===
     nginx.ingress.kubernetes.io/enable-gzip: "true"
     nginx.ingress.kubernetes.io/enable-brotli: "true"
-    nginx.ingress.kubernetes.io/gzip-types: "text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript"
+    nginx.ingress.kubernetes.io/gzip-types: >-
+      text/plain text/css application/json application/javascript
+      text/xml application/xml application/xml+rss text/javascript
 
     # === CORS Support ===
     nginx.ingress.kubernetes.io/enable-cors: "true"
-    nginx.ingress.kubernetes.io/cors-allow-origin: "https://adminpanel.allrestaurants.eu, https://allrestaurants.eu, https://www.allrestaurants.eu, https://allrestaurants.info"
-    nginx.ingress.kubernetes.io/cors-allow-headers: "DNT,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization"
+    nginx.ingress.kubernetes.io/cors-allow-origin: >-
+      https://adminpanel.allrestaurants.eu, https://allrestaurants.eu,
+      https://www.allrestaurants.eu, https://allrestaurants.info
+    nginx.ingress.kubernetes.io/cors-allow-headers: >-
+      DNT,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,
+      Cache-Control,Content-Type,Range,Authorization
 
     # === HTTPS Enforcement ===
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
@@ -38,205 +44,200 @@ metadata:
 
     # === Security & Bot Filtering ===
     nginx.ingress.kubernetes.io/configuration-snippet: |
-    set $block_bot 0;
-    if ($http_user_agent ~* "(Googlebot|Bingbot|Slurp|DuckDuckBot|facebot|facebookexternalhit|Twitterbot|LinkedInBot|WhatsApp)") {
-    set $block_bot 0;
-    }
-    if ($http_user_agent ~* "(AhrefsBot|SemrushBot|MJ12bot|DotBot|Baiduspider|YandexBot|Scrapy|python-requests|curl|wget|crawler|axios|node-fetch|postman|http\\sclient|okhttp|Go-http-client|Java|bot)") {
-    set $block_bot 1;
-    }
-    if ($http_user_agent = "") {
-    set $block_bot 1;
-    }
-    if ($block_bot = 1) {
-    return 403;
-    }
+      # Bot filtering
+      set $block_bot 0;
 
-    # Security Headers
-    add_header X-Frame-Options "SAMEORIGIN" always;
-    add_header X-Content-Type-Options "nosniff" always;
-    add_header X-XSS-Protection "1; mode=block" always;
-    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+      if ($http_user_agent ~* "(Googlebot|Bingbot|Slurp|DuckDuckBot|facebot|facebookexternalhit|Twitterbot|LinkedInBot|WhatsApp)") {
+        set $block_bot 0;
+      }
 
-    # Static file caching via if-condition (safe in all locations)
-    if ($request_uri ~* "\.(js|css|png|jpg|jpeg|gif|ico|woff|woff2|ttf|svg)$") {
-    add_header Cache-Control "public, max-age=2592000" always;
-    }
+      if ($http_user_agent ~* "(AhrefsBot|SemrushBot|MJ12bot|DotBot|Baiduspider|YandexBot|Scrapy|python-requests|curl|wget|crawler|axios|node-fetch|postman|http\\sclient|okhttp|Go-http-client|Java|bot)") {
+        set $block_bot 1;
+      }
 
-    #TODO digital ocean doesnt allow the use of server-snippet anymore, so we need to find another solution
-#    nginx.ingress.kubernetes.io/server-snippet: |
-#      location ~* /sitemap_images/(.*) {
-#        rewrite ^/sitemap_images/(.*)$ https://allrest-ams3-space-cdn-06-2023.ams3.digitaloceanspaces.com/$1 redirect;
-#      }
-#      if ($host ~* ^www\.(.*)) {
-#        set $base $1;
-#        rewrite ^/(.*)$ https://$base/$1 permanent;
-#      }
+      if ($http_user_agent = "") {
+        set $block_bot 1;
+      }
 
-    #nginx.ingress.kubernetes.io/cors-allow-headers: "DNT,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization"
+      if ($block_bot = 1) {
+        return 403;
+      }
+
+      # Security Headers
+      add_header X-Frame-Options "SAMEORIGIN" always;
+      add_header X-Content-Type-Options "nosniff" always;
+      add_header X-XSS-Protection "1; mode=block" always;
+      add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+
+      # Cache for static files
+      if ($request_uri ~* "\.(js|css|png|jpg|jpeg|gif|ico|woff|woff2|ttf|svg)$") {
+        add_header Cache-Control "public, max-age=2592000" always;
+      }
 
 spec:
   tls:
-  - hosts:
-    - "{{ .Values.allUrl }}"
-    - "{{ .Values.mainUrl }}"
-    secretName: ssl-nginx-eu-new # this secret will be created automatically by the cert-manager issuer
-    # then it will create a CSR --> kubectl get certificaterequest
-    # then it will create a CRT with the same name a the private key "letsencrypt-nginx-new" --> kubectl get certificate -o wide
-    
+    - hosts:
+        - "{{ .Values.allUrl }}"
+        - "{{ .Values.mainUrl }}"
+      secretName: ssl-nginx-eu-new
+
   rules:
-  - host: {{ .Values.adminUrl }}
-    http:
-      paths:
-      - pathType: Prefix
-        path: "/"
-        backend:
-          service:
-            name: alltm-admin-panel-service
-            port:
-              number: 80       
-  - host: {{ .Values.apiUrl }}
-    http:
-      paths:
-      - pathType: Prefix
-        path: "/"
-        backend:
-          service:
-            name: alltm-api-service
-            port:
-              number: 80     
-  - host: {{ .Values.wwwUrl }}
-    http:
-      paths:
-      - pathType: Prefix
-        path: "/api/v1/allsupplier"
-        backend:
-          service:
-            name: allsupplier-api-service
-            port:
-              number: 80
-      - pathType: Prefix
-        path: "/api/allsupplier"
-        backend:
-          service:
-            name: allsupplier-api-service
-            port:
-              number: 80
-      - pathType: Prefix
-        path: "/api/documentation"
-        backend:
-          service:
-            name: allsupplier-api-service
-            port:
-              number: 80
-      - pathType: Prefix
-        path: "/api/v1/allrest/"
-        backend:
-          service:
-            name: allrest-api-service
-            port:
-              number: 80
-      - pathType: Prefix
-        path: "/"
-        backend:
-          service:
-            name: allrest-php-service
-            port:
-              number: 80              
-  - host: {{ .Values.mainUrl }}
-    http:
-      paths:
-      - pathType: Prefix
-        path: "/uploadCsv"
-        backend:
-           service:
-             name: allrest-pdfgen-service
-             port:
-               number: 8080
-      - pathType: Prefix
-        path: "/generateSupplier"
-        backend:
-           service:
-             name: allrest-pdfgen-service
-             port:
-               number: 8080
-      - pathType: Prefix
-        path: "/api/v1/allsupplier"
-        backend:
-          service:
-            name: allsupplier-api-service
-            port:
-              number: 80
-      - pathType: Prefix
-        path: "/api/allsupplier"
-        backend:
-          service:
-            name: allsupplier-api-service
-            port:
-              number: 80
-      - pathType: Prefix
-        path: "/api/documentation"
-        backend:
-          service:
-            name: allsupplier-api-service
-            port:
-              number: 80
-      - pathType: Prefix
-        path: "/docs-allsupplier"
-        backend:
-          service:
-            name: allsupplier-api-service
-            port:
-              number: 80
-      - pathType: Prefix
-        path: "/api/v1/allrest"
-        backend:
-          service:
-            name: allrest-api-service
-            port:
-              number: 80
-      - pathType: Prefix
-        path: "/"
-        backend:
-          service:
-            name: allrest-php-service
-            port:
-              number: 80
-  - host: "{{ .Values.allUrl }}"
-    http:
-      paths:
-      - pathType: Prefix
-        path: "/api/v1/allsupplier"
-        backend:
-          service:
-            name: allsupplier-api-service
-            port:
-              number: 80
-      - pathType: Prefix
-        path: "/api/allsupplier"
-        backend:
-          service:
-            name: allsupplier-api-service
-            port:
-              number: 80
-      - pathType: Prefix
-        path: "/api/documentation"
-        backend:
-          service:
-            name: allsupplier-api-service
-            port:
-              number: 80
-      - pathType: Prefix
-        path: "/api/v1/allrest"
-        backend:
-          service:
-            name: allrest-api-service
-            port:
-              number: 80
-      - pathType: Prefix
-        path: "/"
-        backend:
-          service:
-            name: allrest-php-service
-            port:
-              number: 80
+    - host: {{ .Values.adminUrl }}
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: alltm-admin-panel-service
+                port:
+                  number: 80
+
+    - host: {{ .Values.apiUrl }}
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: alltm-api-service
+                port:
+                  number: 80
+
+    - host: {{ .Values.wwwUrl }}
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/api/v1/allsupplier"
+            backend:
+              service:
+                name: allsupplier-api-service
+                port:
+                  number: 80
+          - pathType: Prefix
+            path: "/api/allsupplier"
+            backend:
+              service:
+                name: allsupplier-api-service
+                port:
+                  number: 80
+          - pathType: Prefix
+            path: "/api/documentation"
+            backend:
+              service:
+                name: allsupplier-api-service
+                port:
+                  number: 80
+          - pathType: Prefix
+            path: "/api/v1/allrest/"
+            backend:
+              service:
+                name: allrest-api-service
+                port:
+                  number: 80
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: allrest-php-service
+                port:
+                  number: 80
+
+    - host: {{ .Values.mainUrl }}
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/uploadCsv"
+            backend:
+              service:
+                name: allrest-pdfgen-service
+                port:
+                  number: 8080
+          - pathType: Prefix
+            path: "/generateSupplier"
+            backend:
+              service:
+                name: allrest-pdfgen-service
+                port:
+                  number: 8080
+          - pathType: Prefix
+            path: "/api/v1/allsupplier"
+            backend:
+              service:
+                name: allsupplier-api-service
+                port:
+                  number: 80
+          - pathType: Prefix
+            path: "/api/allsupplier"
+            backend:
+              service:
+                name: allsupplier-api-service
+                port:
+                  number: 80
+          - pathType: Prefix
+            path: "/api/documentation"
+            backend:
+              service:
+                name: allsupplier-api-service
+                port:
+                  number: 80
+          - pathType: Prefix
+            path: "/docs-allsupplier"
+            backend:
+              service:
+                name: allsupplier-api-service
+                port:
+                  number: 80
+          - pathType: Prefix
+            path: "/api/v1/allrest"
+            backend:
+              service:
+                name: allrest-api-service
+                port:
+                  number: 80
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: allrest-php-service
+                port:
+                  number: 80
+
+    - host: "{{ .Values.allUrl }}"
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/api/v1/allsupplier"
+            backend:
+              service:
+                name: allsupplier-api-service
+                port:
+                  number: 80
+          - pathType: Prefix
+            path: "/api/allsupplier"
+            backend:
+              service:
+                name: allsupplier-api-service
+                port:
+                  number: 80
+          - pathType: Prefix
+            path: "/api/documentation"
+            backend:
+              service:
+                name: allsupplier-api-service
+                port:
+                  number: 80
+          - pathType: Prefix
+            path: "/api/v1/allrest"
+            backend:
+              service:
+                name: allrest-api-service
+                port:
+                  number: 80
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: allrest-php-service
+                port:
+                  number: 80
