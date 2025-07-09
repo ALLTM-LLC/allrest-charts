@@ -3,13 +3,66 @@ kind: Ingress
 metadata:
   name: allrest-ingress
   annotations:
-    kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/proxy-body-size: 50m
+kubernetes.io/ingress.class: nginx
+    cert-manager.io/issuer: letsencrypt-nginx-issuer
+
+    # === Upload Limits & Timeouts ===
+    nginx.ingress.kubernetes.io/proxy-body-size: "200m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "60"
+
+    # === Buffering for large uploads ===
+    nginx.ingress.kubernetes.io/proxy-buffering: "on"
+    nginx.ingress.kubernetes.io/proxy-request-buffering: "on"
+
+    # === Rate Limiting ===
+    nginx.ingress.kubernetes.io/limit-rps: "15"
+    nginx.ingress.kubernetes.io/limit-burst: "30"
+    nginx.ingress.kubernetes.io/limit-connections: "30"
+    nginx.ingress.kubernetes.io/limit-whitelist: "143.198.249.29"
+
+    # === Compression for performance ===
+    nginx.ingress.kubernetes.io/enable-gzip: "true"
+    nginx.ingress.kubernetes.io/enable-brotli: "true"
+    nginx.ingress.kubernetes.io/gzip-types: "text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript"
+
+    # === CORS Support ===
     nginx.ingress.kubernetes.io/enable-cors: "true"
-    nginx.ingress.kubernetes.io/cors-allow-origin: "{{ .Values.cors_allow_origin }}"
-    nginx.ingress.kubernetes.io/cors-allow-headers: "{{ .Values.cors_allow_headers }}"
-    nginx.ingress.kubernetes.io/limit-connections: "20"
-    nginx.ingress.kubernetes.io/limit-rpm: "300"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "https://adminpanel.allrestaurants.eu, https://allrestaurants.eu, https://www.allrestaurants.eu, https://allrestaurants.info"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "DNT,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization"
+
+    # === HTTPS Enforcement ===
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+
+    # === Security & Bot Filtering ===
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      set $block_bot 0;
+      if ($http_user_agent ~* "(Googlebot|Bingbot|Slurp|DuckDuckBot|facebot|facebookexternalhit|Twitterbot|LinkedInBot|WhatsApp)") {
+        set $block_bot 0;
+      }
+      if ($http_user_agent ~* "(AhrefsBot|SemrushBot|MJ12bot|DotBot|Baiduspider|YandexBot|Scrapy|python-requests|curl|wget|crawler|axios|node-fetch|postman|http\\sclient|okhttp|Go-http-client|Java|bot)") {
+        set $block_bot 1;
+      }
+      if ($http_user_agent = "") {
+        set $block_bot 1;
+      }
+      if ($block_bot = 1) {
+        return 403;
+      }
+
+      # Security Headers
+      add_header X-Frame-Options "SAMEORIGIN" always;
+      add_header X-Content-Type-Options "nosniff" always;
+      add_header X-XSS-Protection "1; mode=block" always;
+      add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+
+      # Cache for static files
+      location ~* \.(js|css|png|jpg|jpeg|gif|ico|woff|woff2|ttf|svg)$ {
+        expires 30d;
+        add_header Cache-Control "public";
+      }
     #TODO digital ocean doesnt allow the use of server-snippet anymore, so we need to find another solution
 #    nginx.ingress.kubernetes.io/server-snippet: |
 #      location ~* /sitemap_images/(.*) {
