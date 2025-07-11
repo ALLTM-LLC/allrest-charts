@@ -23,8 +23,8 @@ data:
     listen.backlog = 2048
 
     ; === Upload & Timeout Settings ===
-    php_admin_value[memory_limit] = 6M
-    php_admin_value[upload_max_filesize] = 100M
+    php_admin_value[memory_limit] = 512M
+    php_admin_value[upload_max_filesize] = 6M
     php_admin_value[post_max_size] = 100M
     php_admin_value[max_file_uploads] = 20
     php_admin_value[max_execution_time] = 180
