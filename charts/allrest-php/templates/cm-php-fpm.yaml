@@ -7,6 +7,7 @@ data:
     [www]
     user = www-data
     group = www-data
+    listen = /run/php/php8.1-fpm.sock
     listen.owner = www-data
     listen.group = www-data
 
