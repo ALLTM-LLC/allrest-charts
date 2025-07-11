@@ -7,7 +7,7 @@ data:
     [www]
     user = www-data
     group = www-data
-    listen = /run/php/php8.1-fpm.sock
+    listen = 9000
     listen.owner = www-data
     listen.group = www-data
 
@@ -22,9 +22,23 @@ data:
     request_terminate_timeout = 300s
     listen.backlog = 2048
 
- ; === Logging and Monitoring ===
+    ; === Upload & Timeout Settings ===
+    php_admin_value[memory_limit] = 6M
+    php_admin_value[upload_max_filesize] = 100M
+    php_admin_value[post_max_size] = 100M
+    php_admin_value[max_file_uploads] = 20
+    php_admin_value[max_execution_time] = 180
+    php_admin_value[max_input_time] = 180
+    php_admin_value[realpath_cache_size] = 4096k
+    php_admin_value[realpath_cache_ttl] = 600
+
+    ; === Logging and Monitoring ===
     php_admin_flag[log_errors] = on
     php_admin_value[error_log] = /proc/self/fd/2
     pm.status_path = /status
     ping.path = /ping
     ping.response = pong
+
+    ; === Slow log for uploads or timeouts ===
+    slowlog = /proc/self/fd/2
+    request_slowlog_timeout = 5s
