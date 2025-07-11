@@ -25,12 +25,12 @@ data:
     ; === Upload & Timeout Settings ===
     php_admin_value[memory_limit] = 512M
     php_admin_value[upload_max_filesize] = 5M
-    php_admin_value[post_max_size] = 100M
-    php_admin_value[max_file_uploads] = 20
-    php_admin_value[max_execution_time] = 180
-    php_admin_value[max_input_time] = 180
-    php_admin_value[realpath_cache_size] = 4096k
-    php_admin_value[realpath_cache_ttl] = 600
+    # php_admin_value[post_max_size] = 100M
+    # php_admin_value[max_file_uploads] = 20
+    # php_admin_value[max_execution_time] = 180
+    # php_admin_value[max_input_time] = 180
+    # php_admin_value[realpath_cache_size] = 4096k
+    # php_admin_value[realpath_cache_ttl] = 600
 
     ; === Logging and Monitoring ===
     php_admin_flag[log_errors] = on
@@ -40,5 +40,5 @@ data:
     ping.response = pong
 
     ; === Slow log for uploads or timeouts ===
-    slowlog = /proc/self/fd/2
-    request_slowlog_timeout = 5s
+    # slowlog = /proc/self/fd/2
+    # request_slowlog_timeout = 5s
