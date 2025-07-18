@@ -28,7 +28,7 @@ data:
     ; === Upload Settings ===
     php_admin_value[upload_max_filesize] = 6M
     php_admin_value[post_max_size] = 100M
-    php_admin_value[max_file_uploads] = 25
+    php_admin_value[max_file_uploads] = 20
 
     ; === Logging ===
     catch_workers_output = yes
