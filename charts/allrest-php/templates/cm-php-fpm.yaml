@@ -26,7 +26,7 @@ data:
     php_admin_value[memory_limit] = 512M
 
     ; === Upload Settings ===
-    php_admin_value[upload_max_filesize] = 10M
+    php_admin_value[upload_max_filesize] = 6M
     php_admin_value[post_max_size] = 100M
     php_admin_value[max_file_uploads] = 25
 
