@@ -27,7 +27,7 @@ data:
 
     ; === Upload Settings ===
     php_admin_value[upload_max_filesize] = 10M
-    php_admin_value[post_max_size] = 150M
+    php_admin_value[post_max_size] = 100M
     php_admin_value[max_file_uploads] = 25
 
     ; === Logging ===
