@@ -7,41 +7,91 @@ metadata:
     cert-manager.io/issuer: letsencrypt-nginx-issuer
 
     # === Upload Limits & Timeouts ===
-    nginx.ingress.kubernetes.io/proxy-body-size: "150m"
-    nginx.ingress.kubernetes.io/proxy-read-timeout: "180"
-    nginx.ingress.kubernetes.io/proxy-send-timeout: "180"
+    nginx.ingress.kubernetes.io/proxy-body-size: "200m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"         
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"         
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "120"      
+    
+    # Optional extra timeouts (sometimes honored by newer ingress versions)
+    nginx.ingress.kubernetes.io/send-timeout: "600"
+    nginx.ingress.kubernetes.io/client-body-timeout: "600"
 
-    # === Proxy Buffering ===
-    nginx.ingress.kubernetes.io/proxy-buffer-size: "128k"
-    nginx.ingress.kubernetes.io/proxy-buffers-number: "8"
-    nginx.ingress.kubernetes.io/proxy-buffering: "on"
+    # === Buffering for large uploads ===
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"
+    nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
+
+    # === Rate Limiting ===
+    nginx.ingress.kubernetes.io/limit-rps: "20"
+    nginx.ingress.kubernetes.io/limit-burst: "30"
+    nginx.ingress.kubernetes.io/limit-connections: "30"
+    nginx.ingress.kubernetes.io/limit-whitelist: "143.198.249.29"
+
+    # === Compression ===
+    nginx.ingress.kubernetes.io/enable-gzip: "true"
+    nginx.ingress.kubernetes.io/enable-brotli: "true"
+    nginx.ingress.kubernetes.io/gzip-types: >-
+      text/plain text/css application/json application/javascript
+      text/xml application/xml application/xml+rss text/javascript
 
     # === CORS Support ===
     nginx.ingress.kubernetes.io/enable-cors: "true"
-    nginx.ingress.kubernetes.io/cors-allow-origin: "*"
-    nginx.ingress.kubernetes.io/cors-allow-methods: "PUT, GET, POST, OPTIONS, DELETE"
-    nginx.ingress.kubernetes.io/cors-allow-headers: "DNT,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Authorization"
-    nginx.ingress.kubernetes.io/enable-cors-preflight: "true"
-
-    # === Security & Bot Filtering ===
-    nginx.ingress.kubernetes.io/configuration-snippet: |
-      more_set_headers "X-Frame-Options: SAMEORIGIN";
-      more_set_headers "X-XSS-Protection: 1; mode=block";
-      more_set_headers "X-Content-Type-Options: nosniff";
-      more_set_headers "Referrer-Policy: no-referrer-when-downgrade";
-      more_set_headers "Access-Control-Allow-Credentials: true";
+    nginx.ingress.kubernetes.io/cors-allow-origin: >-
+      https://adminpanel.allrestaurants.eu, https://allrestaurants.eu,
+      https://www.allrestaurants.eu, https://allrestaurants.info
+    nginx.ingress.kubernetes.io/cors-allow-headers: >-
+      DNT,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,
+      Cache-Control,Content-Type,Range,Authorization
 
     # === HTTPS Enforcement ===
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
 
-    # === Compression (gzip) ===
-    nginx.ingress.kubernetes.io/server-snippet: |
-      gzip on;
-      gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+    # === Security & Bot Filtering ===
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      # Bot filtering
+      set $block_bot 0;
 
-      if ($http_user_agent ~* (AhrefsBot|MJ12bot|SemrushBot|DotBot|BLEXBot|crawler|spider|scrapy|python|Go-http-client)) {
-          return 403;
+      if ($http_user_agent ~* "(Googlebot|Bingbot|Slurp|DuckDuckBot|facebot|facebookexternalhit|Twitterbot|LinkedInBot|WhatsApp)") {
+        set $block_bot 0;
+      }
+
+      if ($http_user_agent ~* "(AhrefsBot|SemrushBot|MJ12bot|DotBot|Baiduspider|YandexBot|Scrapy|python-requests|curl|wget|crawler|axios|node-fetch|postman|http\\sclient|okhttp|Go-http-client|Java|bot)") {
+        set $block_bot 1;
+      }
+
+      if ($http_user_agent = "") {
+        set $block_bot 1;
+      }
+
+      if ($block_bot = 1) {
+        return 403;
+      }
+
+      # Security Headers
+      add_header X-Frame-Options "SAMEORIGIN" always;
+      add_header X-Content-Type-Options "nosniff" always;
+      add_header X-XSS-Protection "1; mode=block" always;
+      add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+
+      # Cache for static files
+      if ($request_uri ~* "\.(js|css|png|jpg|jpeg|gif|ico|woff|woff2|ttf|svg)$") {
+        add_header Cache-Control "public, max-age=2592000" always;
+      }
+
+      # Handle OPTIONS requests for full browser CORS (important for Firefox/Edge)
+      if ($request_method = OPTIONS ) {
+        add_header Access-Control-Allow-Origin "$http_origin" always;
+        add_header Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE, OPTIONS" always;
+        add_header Access-Control-Allow-Headers "Authorization,Content-Type,Accept,Origin,User-Agent,DNT,Cache-Control,X-Mx-ReqToken" always;
+        add_header Access-Control-Allow-Credentials "true" always;
+        add_header Content-Length 0;
+        add_header Content-Type "text/plain charset=UTF-8";
+        return 204;
+      }
+
+      # Browser caching for static files
+      if ($request_uri ~* "\.(js|css|png|jpg|jpeg|gif|ico|woff|woff2|ttf|svg)$") {
+        add_header Cache-Control "public, max-age=2592000" always;
       }
 
 spec:
@@ -211,3 +261,4 @@ spec:
                 name: allrest-php-service
                 port:
                   number: 80
+
