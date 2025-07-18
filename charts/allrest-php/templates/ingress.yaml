@@ -7,7 +7,7 @@ metadata:
     cert-manager.io/issuer: letsencrypt-nginx-issuer
 
     # === Upload Limits & Timeouts ===
-    nginx.ingress.kubernetes.io/proxy-body-size: "200m"
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "600"         
     nginx.ingress.kubernetes.io/proxy-send-timeout: "600"         
     nginx.ingress.kubernetes.io/proxy-connect-timeout: "120"      
