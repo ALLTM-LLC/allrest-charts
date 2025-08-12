@@ -11,8 +11,6 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-read-timeout: "600"         
     nginx.ingress.kubernetes.io/proxy-send-timeout: "600"         
     nginx.ingress.kubernetes.io/proxy-connect-timeout: "120"      
-    
-    # Optional extra timeouts (sometimes honored by newer ingress versions)
     nginx.ingress.kubernetes.io/send-timeout: "600"
     nginx.ingress.kubernetes.io/client-body-timeout: "600"
 
@@ -32,12 +30,12 @@ metadata:
     nginx.ingress.kubernetes.io/enable-brotli: "true"
     nginx.ingress.kubernetes.io/gzip-types: >-
       text/plain text/css application/json application/javascript
-      text/xml application/xml application/xml+rss text/javascript
+      text/xml application/xml application/xml+rss text/javascript image/svg+xml
 
     # === CORS Support ===
     nginx.ingress.kubernetes.io/enable-cors: "true"
     nginx.ingress.kubernetes.io/cors-allow-origin: >-
-      https://adminpanel.allrestaurants.eu, https://allrestaurants.eu, https://*.allrestaurants.eu
+      https://adminpanel.allrestaurants.eu, https://allrestaurants.eu, https://*.allrestaurants.eu,
       https://www.allrestaurants.eu, https://allrestaurants.info
     nginx.ingress.kubernetes.io/cors-allow-headers: >-
       DNT,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,
@@ -49,21 +47,30 @@ metadata:
 
     # === Security & Bot Filtering ===
     nginx.ingress.kubernetes.io/configuration-snippet: |
-      # Bot filtering
+      # Default allow
       set $block_bot 0;
 
-      if ($http_user_agent ~* "(Googlebot|Bingbot|Slurp|DuckDuckBot|facebot|facebookexternalhit|Twitterbot|LinkedInBot|WhatsApp|AhrefsBot)") {
+      # Always allow sitemap requests
+      if ($request_uri ~* "/sitemap.*\.xml(\.gz)?$") {
         set $block_bot 0;
       }
 
-      if ($http_user_agent ~* "(SemrushBot|MJ12bot|DotBot|Baiduspider|YandexBot|Scrapy|python-requests|curl|wget|crawler|axios|node-fetch|postman|http\\sclient|okhttp|Go-http-client|Java|bot)") {
+      # Whitelist major bots
+      if ($http_user_agent ~* "(googlebot|bingbot|duckduckbot|yandexbot|twitterbot|facebookexternalhit|facebot|meta-externalagent|pinterestbot)") {
+        set $block_bot 0;
+      }
+
+      # Block known bad bots & scrapers
+      if ($http_user_agent ~* "(semrushbot|mj12bot|dotbot|blexbot|baiduspider|scrapy|python-requests|curl|wget|crawler|axios|node-fetch|postman|http\\sclient|okhttp|go-http-client|java)") {
         set $block_bot 1;
       }
 
+      # Block empty UA
       if ($http_user_agent = "") {
         set $block_bot 1;
       }
 
+      # Apply block
       if ($block_bot = 1) {
         return 403;
       }
@@ -79,7 +86,7 @@ metadata:
         add_header Cache-Control "public, max-age=2592000" always;
       }
 
-      # Handle OPTIONS requests for full browser CORS (important for Firefox/Edge)
+      # Handle OPTIONS for CORS
       if ($request_method = OPTIONS ) {
         add_header Access-Control-Allow-Origin "$http_origin" always;
         add_header Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE, OPTIONS" always;
@@ -88,11 +95,6 @@ metadata:
         add_header Content-Length 0;
         add_header Content-Type "text/plain charset=UTF-8";
         return 204;
-      }
-
-      # Browser caching for static files
-      if ($request_uri ~* "\.(js|css|png|jpg|jpeg|gif|ico|woff|woff2|ttf|svg)$") {
-        add_header Cache-Control "public, max-age=2592000" always;
       }
 
 spec:
@@ -262,4 +264,3 @@ spec:
                 name: allrest-php-service
                 port:
                   number: 80
-
