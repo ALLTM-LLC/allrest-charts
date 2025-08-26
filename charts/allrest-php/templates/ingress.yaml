@@ -56,7 +56,7 @@ metadata:
       }
 
       # Whitelist major bots
-      if ($http_user_agent ~* "(googlebot|bingbot|duckduckbot|yandexbot|twitterbot|facebookexternalhit|facebot|meta-externalagent|pinterestbot|adidxbot)") {
+      if ($http_user_agent ~* "(googlebot|bingbot|duckduckbot|yandexbot|twitterbot|facebookexternalhit|facebot|meta-externalagent|pinterestbot|adidxbot|AhrefsBot)") {
         set $block_bot 0;
       }
 
