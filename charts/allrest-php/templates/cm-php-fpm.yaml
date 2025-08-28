@@ -22,11 +22,14 @@ data:
     request_terminate_timeout = 300s
     listen.backlog = 2048
 
-    ; === Upload & Timeout Settings ===
-    php_admin_value[memory_limit] = 512M
+   ; === Upload Settings ===
+    php_admin_value[file_uploads] = On
     php_admin_value[upload_max_filesize] = 5M
-    php_admin_value[post_max_size] = 150M
     php_admin_value[max_file_uploads] = 20
+    php_admin_value[post_max_size] = 120M
+
+    ; === Memory / Execution ===
+    php_admin_value[memory_limit] = 512M
     php_admin_value[max_execution_time] = 180
     php_admin_value[max_input_time] = 180
     php_admin_value[realpath_cache_size] = 4096k
