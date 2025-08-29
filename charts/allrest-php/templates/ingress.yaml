@@ -1,40 +1,44 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: allrestaurants-ingress
-  namespace: allrestaurants
+  name: allrest-ingress
   annotations:
-    kubernetes.io/ingress.class: "nginx"
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/issuer: letsencrypt-nginx-issuer
 
-    # === SSL / HTTPS / Redirects ===
+    # === Upload Limits & Timeouts ===
+    nginx.ingress.kubernetes.io/proxy-body-size: "200m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "60"
+
+    # === Buffering for large uploads ===
+    nginx.ingress.kubernetes.io/proxy-buffering: "on"
+    nginx.ingress.kubernetes.io/proxy-request-buffering: "on"
+
+    # === Rate Limiting ===
+    nginx.ingress.kubernetes.io/limit-rps: "15"
+    nginx.ingress.kubernetes.io/limit-burst: "30"
+    nginx.ingress.kubernetes.io/limit-connections: "30"
+    nginx.ingress.kubernetes.io/limit-whitelist: "143.198.249.29"
+
+    # === Compression for frontend speed ===
+    nginx.ingress.kubernetes.io/enable-gzip: "true"
+    nginx.ingress.kubernetes.io/enable-brotli: "true"
+    nginx.ingress.kubernetes.io/gzip-types: "text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript"
+
+    # === CORS support ===
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "https://adminpanel.allrestaurants.eu https://allrestaurants.eu https://www.allrestaurants.eu https://allrestaurants.info"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "DNT,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization"
+
+    # === HTTPS Enforcement ===
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-    nginx.ingress.kubernetes.io/proxy-body-size: "200m"
 
-    # === Timeout & Buffering ===
-    nginx.ingress.kubernetes.io/proxy-read-timeout: "180"
-    nginx.ingress.kubernetes.io/proxy-send-timeout: "180"
-    nginx.ingress.kubernetes.io/proxy-buffering: "on"
-    nginx.ingress.kubernetes.io/proxy-buffers-number: "16"
-    nginx.ingress.kubernetes.io/proxy-buffers-size: "16k"
-    nginx.ingress.kubernetes.io/proxy-max-temp-file-size: "0"
 
-    # === CORS ===
-    nginx.ingress.kubernetes.io/enable-cors: "true"
-    nginx.ingress.kubernetes.io/cors-allow-origin: "*"
-    nginx.ingress.kubernetes.io/cors-allow-methods: "PUT, GET, POST, OPTIONS"
-    nginx.ingress.kubernetes.io/cors-allow-headers: "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range"
-    nginx.ingress.kubernetes.io/cors-expose-headers: "Content-Length,Content-Range"
-    nginx.ingress.kubernetes.io/cors-allow-credentials: "true"
-
-    # === GZIP ===
+    # === Security & Bot Filtering ===
     nginx.ingress.kubernetes.io/configuration-snippet: |
-      gzip on;
-      gzip_types text/plain text/css application/javascript application/json image/svg+xml;
-      gzip_min_length 256;
-      gzip_comp_level 5;
-
-      # === Security & Bot Filtering ===
       set $block_bot 0;
 
       # ✅ Allow good bots (search engines, social)
@@ -63,29 +67,65 @@ metadata:
       add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
 
 spec:
-  rules:
-  - host: allrestaurants.eu
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: allrest-frontend
-            port:
-              number: 80
-  - host: mapi.allrestaurants.eu
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: allrest-api
-            port:
-              number: 80
   tls:
-  - hosts:
-    - allrestaurants.eu
-    - mapi.allrestaurants.eu
-    secretName: allrestaurants-tls
+    - hosts:
+        - "*.allrestaurants.eu"
+        - allrestaurants.eu
+        - allrestaurants.info
+      secretName: letsencrypt-nginx-eu-new
+
+  rules:
+    - host: adminpanel.allrestaurants.eu
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: alltm-admin-panel-service
+                port:
+                  number: 80
+
+    - host: api.allrestaurants.eu
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: alltm-api-service
+                port:
+                  number: 80
+
+    - host: allrestaurants.eu
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: allrest-php-service
+                port:
+                  number: 80
+
+    - host: "*.allrestaurants.eu"
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: allrest-php-service
+                port:
+                  number: 80
+
+    - host: allrestaurants.info
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: allrest-php-service
+                port:
+                  number: 80
