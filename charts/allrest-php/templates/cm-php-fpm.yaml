@@ -16,10 +16,10 @@ data:
     pm.max_children = 60
     pm.start_servers = 15
     pm.min_spare_servers = 15
-    pm.max_spare_servers = 50
+    pm.max_spare_servers = 10
     pm.max_requests = 1500
-    pm.process_idle_timeout = 15s
-    request_terminate_timeout = 300s
+    pm.process_idle_timeout = 20s
+    request_terminate_timeout = 60s
     listen.backlog = 4096
 
     ; === Upload & Timeout Settings ===
