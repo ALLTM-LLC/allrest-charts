@@ -1,38 +1,44 @@
-[www]
-user = www-data
-group = www-data
-listen = /run/php/php8.1-fpm.sock
-listen.owner = www-data
-listen.group = www-data
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-php-fpm
+data:
+  www.conf: |
+    [www]
+    user = www-data
+    group = www-data
+    listen = /run/php/php8.1-fpm.sock
+    listen.owner = www-data
+    listen.group = www-data
 
-; === PHP-FPM Process Management ===
-pm = dynamic
-pm.max_children = 34
-pm.start_servers = 8
-pm.min_spare_servers = 5
-pm.max_spare_servers = 10
-pm.max_requests = 1500
-pm.process_idle_timeout = 10s
-request_terminate_timeout = 60s
-listen.backlog = 1024
+    ; === PHP-FPM Process Management ===
+    pm = dynamic
+    pm.max_children = 34
+    pm.start_servers = 8
+    pm.min_spare_servers = 5
+    pm.max_spare_servers = 10
+    pm.max_requests = 1500
+    pm.process_idle_timeout = 10s
+    request_terminate_timeout = 60s
+    listen.backlog = 1024
 
-; === PHP Settings ===
-php_admin_value[memory_limit] = 256M
-php_admin_value[upload_max_filesize] = 5M
-php_admin_value[post_max_size] = 150M
-php_admin_value[max_file_uploads] = 20
-php_admin_value[max_execution_time] = 60
-php_admin_value[max_input_time] = 60
-php_admin_value[realpath_cache_size] = 4096k
-php_admin_value[realpath_cache_ttl] = 600
+    ; === PHP Settings ===
+    php_admin_value[memory_limit] = 256M
+    php_admin_value[upload_max_filesize] = 5M
+    php_admin_value[post_max_size] = 150M
+    php_admin_value[max_file_uploads] = 20
+    php_admin_value[max_execution_time] = 60
+    php_admin_value[max_input_time] = 60
+    php_admin_value[realpath_cache_size] = 4096k
+    php_admin_value[realpath_cache_ttl] = 600
 
-; === Logging and Monitoring ===
-php_admin_flag[log_errors] = on
-php_admin_value[error_log] = /proc/self/fd/2
-pm.status_path = /status
-ping.path = /ping
-ping.response = pong
+    ; === Logging and Monitoring ===
+    php_admin_flag[log_errors] = on
+    php_admin_value[error_log] = /proc/self/fd/2
+    pm.status_path = /status
+    ping.path = /ping
+    ping.response = pong
 
-; === Slow Request Logging ===
-slowlog = /proc/self/fd/2
-request_slowlog_timeout = 5s
+    ; === Slow Request Logging ===
+    slowlog = /proc/self/fd/2
+    request_slowlog_timeout = 5s
