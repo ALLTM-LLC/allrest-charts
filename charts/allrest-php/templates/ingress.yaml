@@ -30,7 +30,7 @@ metadata:
     # === CORS ===
     nginx.ingress.kubernetes.io/enable-cors: "true"
     nginx.ingress.kubernetes.io/cors-allow-origin: "https://adminpanel.allrestaurants.eu https://allrestaurants.eu https://www.allrestaurants.eu https://allrestaurants.info"
-    nginx.ingress.kubernetes.io/cors-allow-headers: "DNT,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Authorization,Range"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "DNT,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Authorization,Range,Access-Control-Allow-Origin"
 
     # === HTTPS Enforcement ===
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
@@ -61,18 +61,14 @@ metadata:
         return 429;
       }
 
-      # ❌ Block common exploit paths
-      if ($request_uri ~* "(wp-admin|wp-login\.php|xmlrpc\.php|phpmyadmin|\.env|\.git|vendor|composer\.json)") {
-          return 403;
-      }
-
       # Final block if $block_bot is set
       if ($block_bot = 1) {
         return 403;
       }
 
-      # ✅ Security headers delete-add_header X-Content-Type-Options "nosniff" always-
+      # ✅ Security headers
       add_header X-Frame-Options "SAMEORIGIN" always;
+      add_header X-Content-Type-Options "nosniff" always;
       add_header X-XSS-Protection "1; mode=block" always;
       add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
 
