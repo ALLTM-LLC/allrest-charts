@@ -55,13 +55,13 @@ metadata:
         set $block_bot 1;
       }
 
-      # ❌ Block deep pagination (page >=100) - consider other query params if applicable
+      # ❌ Block deep pagination (page >=100)
       if ($arg_page ~ "^[1-9]\d{2,}$") {
         add_header Retry-After 3600;
         return 429;
       }
 
-      # ❌ Block common exploit paths (already good)
+      # ❌ Block common exploit paths
       if ($request_uri ~* "(wp-admin|wp-login\.php|xmlrpc\.php|phpmyadmin|\.env|\.git|vendor|composer\.json)") {
           return 403;
       }
@@ -76,6 +76,16 @@ metadata:
       add_header X-Content-Type-Options "nosniff" always;
       add_header X-XSS-Protection "1; mode=block" always;
       add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+
+    # === MIME-Type Fix for CSS/JS (nosniff issue) ===
+    nginx.ingress.kubernetes.io/server-snippet: |
+      location ~* \.css$ {
+        types { text/css css; }
+      }
+      location ~* \.js$ {
+        types { application/javascript js; }
+      }
+
 
 spec:
   tls:
