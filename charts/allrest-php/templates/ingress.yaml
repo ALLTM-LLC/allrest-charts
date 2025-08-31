@@ -79,10 +79,10 @@ metadata:
 
     # === MIME-Type Fix for CSS/JS (nosniff issue) ===
     nginx.ingress.kubernetes.io/server-snippet: |
-      location ~* \.css$ {
+      location ~* \.css($|\?) {
         types { text/css css; }
       }
-      location ~* \.js$ {
+      location ~* \.js($|\?) {
         types { application/javascript js; }
       }
 
