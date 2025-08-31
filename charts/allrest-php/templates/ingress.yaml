@@ -46,7 +46,7 @@ metadata:
       }
 
       # ❌ Block known bad bots and generic crawlers
-      if ($http_user_agent ~* "(scrapy|ahrefsbot|semrushbot|mj12bot|python-requests|curl|wget|axios|node-fetch|postman|httpclient|okhttp|go-http-client|masscan|nmap|nikto|sqlmap|dirbuster|wpscan|acunetix|nessus|openvas|arachni|nuclei|shodan|censys|fofa|zoomeye|burpsuite|zap|bot )") {
+      if ($http_user_agent ~* "(SemrushBot|AhrefsBot|MJ12bot|DotBot|Baiduspider|Scrapy|python-requests|curl|wget|crawler|axios|node-fetch|postman|http\sclient|okhttp|Go-http-client|bot )") {
         set $block_bot 1;
       }
 
