@@ -4,30 +4,30 @@ metadata:
   name: allrest-ingress
   annotations:
     kubernetes.io/ingress.class: nginx
-    cert-manager.io/issuer: letsencrypt-nginx-issuer
+    cert-manager.io/issuer: comodo-eu-cert
 
     # === Upload Limits & Timeouts ===
     nginx.ingress.kubernetes.io/proxy-body-size: "200m"
-    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
-    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
-    nginx.ingress.kubernetes.io/proxy-connect-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "120"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "120"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "10"
 
     # === Buffering for large uploads ===
     nginx.ingress.kubernetes.io/proxy-buffering: "on"
     nginx.ingress.kubernetes.io/proxy-request-buffering: "on"
 
-    # === Rate Limiting ===
-    nginx.ingress.kubernetes.io/limit-rps: "15"
-    nginx.ingress.kubernetes.io/limit-burst: "30"
-    nginx.ingress.kubernetes.io/limit-connections: "30"
+    # === Rate Limiting (per IP) ===
+    nginx.ingress.kubernetes.io/limit-rps: "20"
+    nginx.ingress.kubernetes.io/limit-burst: "10"
+    nginx.ingress.kubernetes.io/limit-connections: "20"
     nginx.ingress.kubernetes.io/limit-whitelist: "143.198.249.29"
 
-    # === Compression for frontend speed ===
+    # === Compression ===
     nginx.ingress.kubernetes.io/enable-gzip: "true"
     nginx.ingress.kubernetes.io/enable-brotli: "true"
     nginx.ingress.kubernetes.io/gzip-types: "text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript"
 
-    # === CORS support ===
+    # === CORS ===
     nginx.ingress.kubernetes.io/enable-cors: "true"
     nginx.ingress.kubernetes.io/cors-allow-origin: "https://adminpanel.allrestaurants.eu https://allrestaurants.eu https://www.allrestaurants.eu https://allrestaurants.info"
     nginx.ingress.kubernetes.io/cors-allow-headers: "DNT,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization"
@@ -36,26 +36,37 @@ metadata:
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
 
-
     # === Security & Bot Filtering ===
     nginx.ingress.kubernetes.io/configuration-snippet: |
       set $block_bot 0;
 
-      # ✅ Allow good bots (search engines, social)
-      if ($http_user_agent ~* "(Googlebot|Bingbot|Slurp|DuckDuckBot|facebot|facebookexternalhit|Twitterbot|LinkedInBot|WhatsApp)") {
+      # ✅ Allow good bots (expanded list if needed )
+      if ($http_user_agent ~* "(Googlebot|Bingbot|facebot|facebookexternalhit|Twitterbot|LinkedInBot|WhatsApp )") {
         set $block_bot 0;
       }
 
-      # ❌ Block known scrapers or suspicious agents
-      if ($http_user_agent ~* "(SemrushBot|AhrefsBot|MJ12bot|DotBot|Baiduspider|Scrapy|python-requests|curl|wget|crawler|axios|node-fetch|postman|http\sclient|okhttp|Go-http-client|Java|bot)") {
+      # ❌ Block known bad bots and generic crawlers
+      if ($http_user_agent ~* "(scrapy|ahrefsbot|semrushbot|mj12bot|python-requests|curl|wget|axios|node-fetch|postman|httpclient|okhttp|go-http-client|masscan|nmap|nikto|sqlmap|dirbuster|wpscan|acunetix|nessus|openvas|arachni|nuclei|shodan|censys|fofa|zoomeye|burpsuite|zap|bot )") {
         set $block_bot 1;
       }
 
       # ❌ Block empty User-Agent headers
-      if ($http_user_agent = "") {
+      if ($http_user_agent = "" ) {
         set $block_bot 1;
       }
 
+      # ❌ Block deep pagination (page >=100) - consider other query params if applicable
+      if ($arg_page ~ "^[1-9]\d{2,}$") {
+        add_header Retry-After 3600;
+        return 429;
+      }
+
+      # ❌ Block common exploit paths (already good)
+      if ($request_uri ~* "(wp-admin|wp-login\.php|xmlrpc\.php|phpmyadmin|\.env|\.git|vendor|composer\.json)") {
+          return 403;
+      }
+
+      # Final block if $block_bot is set
       if ($block_bot = 1) {
         return 403;
       }
@@ -69,12 +80,16 @@ metadata:
 spec:
   tls:
     - hosts:
-        - "*.allrestaurants.eu"
+        - adminpanel.allrestaurants.eu
+        - api.allrestaurants.eu
+        - allsupplier.allrestaurants.eu
         - allrestaurants.eu
-        - allrestaurants.info
-      secretName: letsencrypt-nginx-eu-new
+      secretName: comodo-eu-cert
 
   rules:
+    # ================================================================
+    # Admin Panel
+    # ================================================================
     - host: adminpanel.allrestaurants.eu
       http:
         paths:
@@ -86,17 +101,34 @@ spec:
                 port:
                   number: 80
 
+    # ================================================================
+    # API (mobile apps )
+    # ================================================================
     - host: api.allrestaurants.eu
       http:
         paths:
-          - pathType: Prefix
-            path: "/"
+          - path: "/"
+            pathType: Prefix
             backend:
               service:
-                name: alltm-api-service
+                name: allrest-api-service   # AllRestaurants mobile app
                 port:
                   number: 80
 
+    - host: allsupplier.allrestaurants.eu
+      http:
+        paths:
+          - path: "/"
+            pathType: Prefix
+            backend:
+              service:
+                name: allsupplier-api-service  # AllSuppliers mobile app
+                port:
+                  number: 80
+
+    # ================================================================
+    # Public Website
+    # ================================================================
     - host: allrestaurants.eu
       http:
         paths:
@@ -108,6 +140,7 @@ spec:
                 port:
                   number: 80
 
+    # Wildcard subdomains & allrestaurants.info
     - host: "*.allrestaurants.eu"
       http:
         paths:
