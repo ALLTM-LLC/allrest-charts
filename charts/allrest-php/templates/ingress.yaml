@@ -76,16 +76,6 @@ metadata:
       add_header X-XSS-Protection "1; mode=block" always;
       add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
 
-    # === MIME-Type Fix for CSS/JS (nosniff issue) ===
-    nginx.ingress.kubernetes.io/server-snippet: |
-      location ~* \.css($|\?) {
-        types { text/css css; }
-      }
-      location ~* \.js($|\?) {
-        types { application/javascript js; }
-      }
-
-
 spec:
   tls:
     - hosts:
