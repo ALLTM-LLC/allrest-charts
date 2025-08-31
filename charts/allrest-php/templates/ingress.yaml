@@ -84,7 +84,7 @@ spec:
         - api.allrestaurants.eu
         - allsupplier.allrestaurants.eu
         - allrestaurants.eu
-      secretName: comodo-eu-cert
+      secretName: ssl-nginx-eu-new
 
   rules:
     # ================================================================
