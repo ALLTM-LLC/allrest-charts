@@ -55,8 +55,8 @@ metadata:
         set $block_bot 1;
       }
 
-      # ❌ Block deep pagination (page >=100)
-      if ($arg_page ~ "^[1-9]\d{2,}$") {
+      # ❌ Block deep pagination (page >=50)
+      if ($arg_page ~ "^(5[1-9]|[6-9]\d|\d{3,})$") {
         add_header Retry-After 3600;
         return 429;
       }
