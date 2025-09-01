@@ -85,7 +85,7 @@ spec:
     # ================================================================
     # Admin Panel
     # ================================================================
-    - host: adminpanel.allrestaurants.eu
+    - host: allrestaurants.eu
       http:
         paths:
           - pathType: Prefix
