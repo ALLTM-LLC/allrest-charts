@@ -99,7 +99,7 @@ spec:
     # ================================================================
     # API (mobile apps )
     # ================================================================
-    - host: api.allrestaurants.eu
+    - host: allrestaurants.eu
       http:
         paths:
           - path: "/api/v1/allrest/"
@@ -110,7 +110,7 @@ spec:
                 port:
                   number: 80
 
-    - host: allsupplier.allrestaurants.eu
+    - host: allrestaurants.eu
       http:
         paths:
           - path: "/api/v1/allsupplier"
