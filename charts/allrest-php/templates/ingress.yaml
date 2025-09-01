@@ -102,7 +102,7 @@ spec:
     - host: api.allrestaurants.eu
       http:
         paths:
-          - path: "/"
+          - path: "/api/v1/allrest/"
             pathType: Prefix
             backend:
               service:
@@ -113,7 +113,7 @@ spec:
     - host: allsupplier.allrestaurants.eu
       http:
         paths:
-          - path: "/"
+          - path: "/api/v1/allsupplier"
             pathType: Prefix
             backend:
               service:
