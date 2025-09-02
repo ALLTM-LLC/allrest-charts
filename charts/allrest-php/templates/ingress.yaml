@@ -17,9 +17,9 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-request-buffering: "on"
 
     # === Rate Limiting (per IP) ===
-    nginx.ingress.kubernetes.io/limit-rps: "20"
-    nginx.ingress.kubernetes.io/limit-burst: "20"
-    nginx.ingress.kubernetes.io/limit-connections: "100"
+    nginx.ingress.kubernetes.io/limit-rps: "100"
+    nginx.ingress.kubernetes.io/limit-burst: "50"
+    nginx.ingress.kubernetes.io/limit-connections: "200"
     nginx.ingress.kubernetes.io/limit-whitelist: "143.198.249.29"
 
     # === Compression ===
@@ -40,12 +40,12 @@ metadata:
     nginx.ingress.kubernetes.io/configuration-snippet: |
       set $block_bot 0;
 
-      # ✅ Allow good bots (expanded list if needed )
+      # ✅ Allow good bots
       if ($http_user_agent ~* "(Googlebot|Bingbot|facebot|facebookexternalhit|Twitterbot|LinkedInBot|WhatsApp )") {
         set $block_bot 0;
       }
 
-      # ❌ Block known bad bots and generic crawlers
+      # ❌ Block known bad bots
       if ($http_user_agent ~* "(SemrushBot|AhrefsBot|MJ12bot|DotBot|Baiduspider|Scrapy|python-requests|curl|wget|crawler|axios|node-fetch|postman|http\sclient|okhttp|Go-http-client|bot )") {
         set $block_bot 1;
       }
@@ -72,6 +72,11 @@ metadata:
       add_header X-XSS-Protection "1; mode=block" always;
       add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
 
+      # ✅ Cache static assets
+      location ~* \.(svg|js|css|png|jpg|jpeg|gif|ico|woff2?)$ {
+        add_header Cache-Control "public, max-age=2592000";
+      }
+
 spec:
   tls:
     - hosts:
@@ -97,32 +102,28 @@ spec:
                   number: 80
 
     # ================================================================
-    # API (mobile apps )
+    # API (mobile apps)
     # ================================================================
     - host: allrestaurants.eu
       http:
         paths:
-          - path: "/api/v1/allrest/"
-            pathType: Prefix
+          - pathType: Prefix
+            path: "/api/v1/allrest/"
             backend:
               service:
-                name: allrest-api-service   # AllRestaurants mobile app
+                name: allrest-api-service
                 port:
                   number: 80
-
-    - host: allrestaurants.eu
-      http:
-        paths:
-          - path: "/api/v1/allsupplier"
-            pathType: Prefix
+          - pathType: Prefix
+            path: "/api/v1/allsupplier"
             backend:
               service:
-                name: allsupplier-api-service  # AllSuppliers mobile app
+                name: allsupplier-api-service
                 port:
                   number: 80
 
     # ================================================================
-    # Public Website
+    # Public Website (PHP backend)
     # ================================================================
     - host: allrestaurants.eu
       http:
@@ -135,7 +136,7 @@ spec:
                 port:
                   number: 80
 
-    # Wildcard subdomains & allrestaurants.info
+    # Wildcard subdomains
     - host: "*.allrestaurants.eu"
       http:
         paths:
@@ -155,5 +156,33 @@ spec:
             backend:
               service:
                 name: allrest-php-service
+                port:
+                  number: 80
+
+    # ================================================================
+    # Static files (SVG, JS, CSS)
+    # ================================================================
+    - host: allrestaurants.eu
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/svg/"
+            backend:
+              service:
+                name: allrest-static-service
+                port:
+                  number: 80
+          - pathType: Prefix
+            path: "/js/"
+            backend:
+              service:
+                name: allrest-static-service
+                port:
+                  number: 80
+          - pathType: Prefix
+            path: "/css/"
+            backend:
+              service:
+                name: allrest-static-service
                 port:
                   number: 80
