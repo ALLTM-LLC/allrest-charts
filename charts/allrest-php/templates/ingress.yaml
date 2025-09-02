@@ -73,9 +73,7 @@ metadata:
       add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
 
       # ✅ Cache static assets
-      location ~* \.(svg|js|css|png|jpg|jpeg|gif|ico|woff2?)$ {
-        add_header Cache-Control "public, max-age=2592000";
-      }
+      add_header Cache-Control "public, max-age=2592000";
 
 spec:
   tls:
