@@ -167,20 +167,20 @@ spec:
             path: "/svg/"
             backend:
               service:
-                name: allrest-static-service
+                name: allrest-php-service
                 port:
                   number: 80
           - pathType: Prefix
             path: "/js/"
             backend:
               service:
-                name: allrest-static-service
+                name: allrest-php-service
                 port:
                   number: 80
           - pathType: Prefix
             path: "/css/"
             backend:
               service:
-                name: allrest-static-service
+                name: allrest-php-service
                 port:
                   number: 80
