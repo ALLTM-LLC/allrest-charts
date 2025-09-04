@@ -206,11 +206,11 @@ spec:
                 name: allrest-php-service
                 port:
                   number: 80
-         - pathType: Prefix
-           path: /fonts/
-           backend:
-             service:
-               name: allrest-static-service
-               port:
-                 number: 80
+          - pathType: Prefix
+            path: /fonts/
+            backend:
+              service:
+                name: allrest-static-service
+                port:
+                  number: 80
      
