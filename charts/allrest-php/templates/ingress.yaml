@@ -55,10 +55,11 @@ metadata:
         set $block_bot 1;
       }
 
-      # ❌ Block deep pagination (page >=3)
-      if ($arg_page ~ "^[3-9]|[1-9]\d{1,}$") {
-        add_header Retry-After 3600;
-        return 429;
+      # ❌ Block deep pagination (page >=8)
+      if ($arg_page ~ "^(8|[1-9][0-9]+)$") {
+        limit_req zone=deep_pages burst=10 nodelay;
+        limit_req_status 429;
+        add_header Retry-After 1 always;
       }
 
       # Final block if $block_bot is set
@@ -205,3 +206,11 @@ spec:
                 name: allrest-php-service
                 port:
                   number: 80
+         - pathType: Prefix
+           path: /fonts/
+           backend:
+             service:
+               name: allrest-static-service
+               port:
+                 number: 80
+     
