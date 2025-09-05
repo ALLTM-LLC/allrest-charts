@@ -36,43 +36,47 @@ metadata:
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
 
-    # === Security & Bot Filtering ===
-    nginx.ingress.kubernetes.io/configuration-snippet: |
-      set $block_bot 0;
+  # === Security, Bot Filtering & Rate Limiting ===
+nginx.ingress.kubernetes.io/configuration-snippet: |
+  set $block_bot 0;
 
-      # ✅ Allow good bots
-      if ($http_user_agent ~* "(Googlebot|Bingbot|facebot|facebookexternalhit|Twitterbot|LinkedInBot|WhatsApp )") {
-        set $block_bot 0;
-      }
+  # ✅ Allow good bots
+  if ($http_user_agent ~* "(Googlebot|Bingbot|facebot|facebookexternalhit|Twitterbot|LinkedInBot|WhatsApp )") {
+    set $block_bot 0;
+  }
 
-      # ❌ Block known bad bots
-      if ($http_user_agent ~* "(SemrushBot|AhrefsBot|MJ12bot|DotBot|Baiduspider|Scrapy|python-requests|curl|wget|crawler|axios|node-fetch|postman|http\sclient|okhttp|Go-http-client|bot )") {
-        set $block_bot 1;
-      }
+  # ❌ Block known bad bots
+  if ($http_user_agent ~* "(SemrushBot|AhrefsBot|MJ12bot|DotBot|Baiduspider|Scrapy|python-requests|curl|wget|crawler|axios|node-fetch|postman|http\sclient|okhttp|Go-http-client|bot )") {
+    set $block_bot 1;
+  }
 
-      # ❌ Block empty User-Agent headers
-      if ($http_user_agent = "" ) {
-        set $block_bot 1;
-      }
+  # ❌ Block empty User-Agent headers
+  if ($http_user_agent = "" ) {
+    set $block_bot 1;
+  }
 
-      # ❌ Block deep pagination (page >=8)
-      if ($is_bot = 1) {
-        limit_req zone=bot_limit burst=8 nodelay;
-      }
-      # Final block if $block_bot is set
-      if ($block_bot = 1) {
-        return 403;
-      }
+  # Final block if $block_bot is set
+  if ($block_bot = 1) {
+    return 403;
+  }
 
-      # ✅ Security headers
-      add_header X-Frame-Options "SAMEORIGIN" always;
-      add_header X-Content-Type-Options "nosniff" always;
-      add_header X-XSS-Protection "1; mode=block" always;
-      add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+  # ✅ Security headers
+  add_header X-Frame-Options "SAMEORIGIN" always;
+  add_header X-Content-Type-Options "nosniff" always;
+  add_header X-XSS-Protection "1; mode=block" always;
+  add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
 
-      # ✅ Cache static assets
-      add_header Cache-Control "public, max-age=2592000";
-      add_header Access-Control-Allow-Origin "*" always;
+  # ✅ Cache static assets
+  add_header Cache-Control "public, max-age=2592000";
+  add_header Access-Control-Allow-Origin "*" always;
+
+  # === Apply Rate Limiting ===
+  # Limit requests using zones defined in ConfigMap:
+  # - req_zone: uses $limit_key (custom key)
+  # - req_zone_wl: uses $binary_remote_addr (IP-based)
+  limit_req zone=req_zone burst=10 nodelay;
+  limit_req zone=req_zone_wl burst=20 nodelay;
+
 spec:
   tls:
     - hosts:
@@ -211,7 +215,7 @@ spec:
                 port:
                   number: 80
           - pathType: Prefix
-            path: /favicon.ico/
+            path: /favicon.ico
             backend:
               service:
                 name: allrest-php-service
