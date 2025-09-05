@@ -177,7 +177,7 @@ spec:
                   number: 80
 
     # ================================================================
-    # Static files (SVG, JS, CSS)
+    # Static files (SVG, JS, CSS, favicon ,fonts)
     # ================================================================
     - host: allrestaurants.eu
       http:
@@ -211,7 +211,7 @@ spec:
                 port:
                   number: 80
           - pathType: Prefix
-            path: //favicon.ico/
+            path: /favicon.ico/
             backend:
               service:
                 name: allrest-php-service
