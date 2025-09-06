@@ -36,50 +36,48 @@ metadata:
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
 
-  # === Security, Bot Filtering & Rate Limiting ===
-nginx.ingress.kubernetes.io/configuration-snippet: |
-  set $block_bot 0;
+    # === Security, Bot Filtering & Rate Limiting ===
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      set $block_bot 0;
 
-  # ✅ Allow good bots
-  if ($http_user_agent ~* "(Googlebot|Bingbot|facebot|facebookexternalhit|Twitterbot|LinkedInBot|WhatsApp )") {
-    set $block_bot 0;
-  }
+      # ✅ Allow good bots
+      if ($http_user_agent ~* "(Googlebot|Bingbot|facebot|facebookexternalhit|Twitterbot|LinkedInBot|WhatsApp )") {
+        set $block_bot 0;
+      }
 
-  # ❌ Block known bad bots
-  if ($http_user_agent ~* "(SemrushBot|AhrefsBot|MJ12bot|DotBot|Baiduspider|Scrapy|python-requests|curl|wget|crawler|axios|node-fetch|postman|http\sclient|okhttp|Go-http-client|bot )") {
-    set $block_bot 1;
-  }
+      # ❌ Block known bad bots
+      if ($http_user_agent ~* "(SemrushBot|AhrefsBot|MJ12bot|DotBot|Baiduspider|Scrapy|python-requests|curl|wget|crawler|axios|node-fetch|postman|http\sclient|okhttp|Go-http-client|bot )") {
+        set $block_bot 1;
+      }
 
-  # ❌ Block empty User-Agent headers
-  if ($http_user_agent = "" ) {
-    set $block_bot 1;
-  }
-  # Extra limit only if deep pagination (?page>50)
-  if ($arg_page ~ "^(5[1-9]|[6-9][0-9]|[1-9][0-9]{2,})$") {
-    limit_req zone=req_zone_deep burst=1 nodelay;
-  }
-  
-  # Final block if $block_bot is set
-  if ($block_bot = 1) {
-    return 403;
-  }
+      # ❌ Block empty User-Agent headers
+      if ($http_user_agent = "") {
+        set $block_bot 1;
+      }
 
-  # ✅ Security headers
-  add_header X-Frame-Options "SAMEORIGIN" always;
-  add_header X-Content-Type-Options "nosniff" always;
-  add_header X-XSS-Protection "1; mode=block" always;
-  add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+      # Extra limit only if deep pagination (?page>50)
+      if ($arg_page ~ "^(5[1-9]|[6-9][0-9]|[1-9][0-9]{2,})$") {
+        limit_req zone=req_zone_deep burst=1 nodelay;
+      }
 
-  # ✅ Cache static assets
-  add_header Cache-Control "public, max-age=2592000";
-  add_header Access-Control-Allow-Origin "*" always;
+      # Final block if $block_bot is set
+      if ($block_bot = 1) {
+        return 403;
+      }
 
-  # === Apply Rate Limiting ===
-  # Limit requests using zones defined in ConfigMap:
-  # - req_zone: uses $limit_key (custom key)
-  # - req_zone_wl: uses $binary_remote_addr (IP-based)
-  limit_req zone=req_zone burst=10 nodelay;
-  limit_req zone=req_zone_wl burst=20 nodelay;
+      # ✅ Security headers
+      add_header X-Frame-Options "SAMEORIGIN" always;
+      add_header X-Content-Type-Options "nosniff" always;
+      add_header X-XSS-Protection "1; mode=block" always;
+      add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+
+      # ✅ Cache static assets
+      add_header Cache-Control "public, max-age=2592000";
+      add_header Access-Control-Allow-Origin "*" always;
+
+      # === Apply Rate Limiting ===
+      limit_req zone=req_zone burst=10 nodelay;
+      limit_req zone=req_zone_wl burst=20 nodelay;
 
 spec:
   tls:
@@ -89,6 +87,7 @@ spec:
         - allsupplier.allrestaurants.eu
         - allrestaurants.eu
         - {{ .Values.adminUrl }}
+        - {{ .Values.apiUrl }}
       secretName: ssl-nginx-eu-new
 
   rules:
@@ -105,6 +104,7 @@ spec:
                 name: alltm-admin-panel-service
                 port:
                   number: 80
+
     - host: {{ .Values.adminUrl }}
       http:
         paths:
@@ -126,6 +126,7 @@ spec:
                 name: alltm-api-service
                 port:
                   number: 80
+
     # ================================================================
     # API (mobile apps)
     # ================================================================
@@ -185,7 +186,7 @@ spec:
                   number: 80
 
     # ================================================================
-    # Static files (SVG, JS, CSS, favicon ,fonts)
+    # Static files (SVG, JS, CSS, favicon, fonts)
     # ================================================================
     - host: allrestaurants.eu
       http:
@@ -212,17 +213,16 @@ spec:
                 port:
                   number: 80
           - pathType: Prefix
-            path: /fonts/
+            path: "/fonts/"
             backend:
               service:
                 name: allrest-php-service
                 port:
                   number: 80
           - pathType: Prefix
-            path: /favicon.ico
+            path: "/favicon.ico"
             backend:
               service:
                 name: allrest-php-service
                 port:
                   number: 80
-     
