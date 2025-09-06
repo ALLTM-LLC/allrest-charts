@@ -71,10 +71,6 @@ metadata:
       add_header Cache-Control "public, max-age=2592000";
       add_header Access-Control-Allow-Origin "*" always;
 
-      # === Apply Rate Limiting ===
-      limit_req zone=req_zone burst=10 nodelay;
-      limit_req zone=req_zone_wl burst=20 nodelay;
-
 spec:
   tls:
     - hosts:
