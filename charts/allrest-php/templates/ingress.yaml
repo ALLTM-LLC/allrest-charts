@@ -18,7 +18,7 @@ metadata:
 
     # === Rate Limiting (per IP) ===
     nginx.ingress.kubernetes.io/limit-rps: "20"
-    nginx.ingress.kubernetes.io/limit-burst: "20"
+    nginx.ingress.kubernetes.io/limit-burst: "10"
     nginx.ingress.kubernetes.io/limit-connections: "10"
     nginx.ingress.kubernetes.io/limit-burst-multiplier: "5"
     nginx.ingress.kubernetes.io/limit-rate-after: "0"
