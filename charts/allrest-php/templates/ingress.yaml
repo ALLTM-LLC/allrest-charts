@@ -20,6 +20,7 @@ metadata:
     nginx.ingress.kubernetes.io/limit-rps: "20"
     nginx.ingress.kubernetes.io/limit-burst: "20"
     nginx.ingress.kubernetes.io/limit-connections: "50"
+    nginx.ingress.kubernetes.io/limit-burst-multiplier: "0"
 
     # ✅ Whitelist good bots + your own IP
     nginx.ingress.kubernetes.io/limit-whitelist: |
