@@ -38,6 +38,7 @@ metadata:
 
     # === Security, Bot Filtering & Rate Limiting ===
     nginx.ingress.kubernetes.io/configuration-snippet: |
+      large_client_header_buffers 4 16k;
       set $block_bot 0;
 
       # ✅ Allow good bots
@@ -53,11 +54,6 @@ metadata:
       # ❌ Block empty User-Agent headers
       if ($http_user_agent = "") {
         set $block_bot 1;
-      }
-
-      # Extra limit only if deep pagination (?page>50)
-      if ($arg_page ~ "^(5[1-9]|[6-9][0-9]|[1-9][0-9]{2,})$") {
-        limit_req zone=req_zone_deep burst=1 nodelay;
       }
 
       # Final block if $block_bot is set
