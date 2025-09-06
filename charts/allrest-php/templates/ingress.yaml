@@ -38,7 +38,6 @@ metadata:
 
     # === Security, Bot Filtering & Rate Limiting ===
     nginx.ingress.kubernetes.io/configuration-snippet: |
-      large_client_header_buffers 4 16k;
       set $block_bot 0;
 
       # ✅ Allow good bots
