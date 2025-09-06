@@ -17,9 +17,9 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-request-buffering: "on"
 
     # === Rate Limiting (per IP) ===
-    nginx.ingress.kubernetes.io/limit-rps: "50"
+    nginx.ingress.kubernetes.io/limit-rps: "40"
     nginx.ingress.kubernetes.io/limit-burst: "50"
-    nginx.ingress.kubernetes.io/limit-connections: "100"
+    nginx.ingress.kubernetes.io/limit-connections: "80"
     nginx.ingress.kubernetes.io/limit-whitelist: "143.198.249.29"
 
     # === Compression ===
@@ -54,7 +54,11 @@ nginx.ingress.kubernetes.io/configuration-snippet: |
   if ($http_user_agent = "" ) {
     set $block_bot 1;
   }
-
+  # Extra limit only if deep pagination (?page>50)
+  if ($arg_page ~ "^(5[1-9]|[6-9][0-9]|[1-9][0-9]{2,})$") {
+    limit_req zone=req_zone_deep burst=1 nodelay;
+  }
+  
   # Final block if $block_bot is set
   if ($block_bot = 1) {
     return 403;
