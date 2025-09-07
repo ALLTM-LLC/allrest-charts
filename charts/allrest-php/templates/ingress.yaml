@@ -8,9 +8,9 @@ metadata:
 
     # === Upload Limits & Timeouts ===
     nginx.ingress.kubernetes.io/proxy-body-size: "200m"
-    nginx.ingress.kubernetes.io/proxy-read-timeout: "180"
-    nginx.ingress.kubernetes.io/proxy-send-timeout: "180"
-    nginx.ingress.kubernetes.io/proxy-connect-timeout: "180"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "30"
 
     # === Buffering for large uploads ===
     nginx.ingress.kubernetes.io/proxy-buffering: "on"
