@@ -102,7 +102,7 @@ spec:
             path: "/"
             backend:
               service:
-                name: alltm-admin-panel-service
+                name: alltm-api-service
                 port:
                   number: 80
 
