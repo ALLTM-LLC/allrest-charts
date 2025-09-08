@@ -84,6 +84,7 @@ spec:
   tls:
     - hosts:
         - adminpanel.allrestaurants.eu
+        - admin.allrestaurants.eu
         - api.allrestaurants.eu
         - allsupplier.allrestaurants.eu
         - allrestaurants.eu
