@@ -34,7 +34,7 @@ metadata:
 
     # === CORS ===
     nginx.ingress.kubernetes.io/enable-cors: "true"
-    nginx.ingress.kubernetes.io/cors-allow-origin: "https://allrestaurants.eu, http://www.allrestaurants.eu, https://adminpanel.allrestaurants.eu, https://allrestaurants.info"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "https://allrestaurants.eu, http://www.allrestaurants.eu, https://adminpanel.allrestaurants.eu, https://www.adminpanel.allrestaurants.eu, https://allrestaurants.info"
     nginx.ingress.kubernetes.io/cors-allow-headers: "DNT,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Authorization,Range,Access-Control-Allow-Origin"
 
     # === HTTPS Enforcement ===
@@ -102,10 +102,19 @@ spec:
             path: "/"
             backend:
               service:
-                name: alltm-api-service
+                name: alltm-admin-panel-service
                 port:
                   number: 80
-
+    - host: adminpanel.allrestaurants.eu
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: alltm-admin-panel-service
+                port:
+                  number: 80
     - host: {{ .Values.adminUrl }}
       http:
         paths:
