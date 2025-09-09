@@ -15,6 +15,9 @@ metadata:
     # === Buffering for large uploads ===
     nginx.ingress.kubernetes.io/proxy-buffering: "on"
     nginx.ingress.kubernetes.io/proxy-request-buffering: "on"
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "16k"
+    nginx.ingress.kubernetes.io/proxy-buffers-number: "8"
+    nginx.ingress.kubernetes.io/proxy-busy-buffers-size: "64k"
 
     # === Rate Limiting (per IP) ===
     nginx.ingress.kubernetes.io/limit-rps: "30"
