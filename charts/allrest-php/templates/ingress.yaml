@@ -53,8 +53,8 @@ metadata:
         set $block_bot 1;
       }
 
-      # ❌ Block deep pagination (page >150)
-      if ($arg_page ~ "^(15[1-9]|1[6-9][0-9]|[2-9][0-9]{2,})$") {
+      # ❌ Block deep pagination (page >50)
+      if ($arg_page ~ "^(5[1-9]|[6-9][0-9]|[1-9][0-9]{2,})$") {
         return 403;
       }
 
