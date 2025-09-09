@@ -79,8 +79,8 @@ spec:
         - api.allrestaurants.eu
         - allsupplier.allrestaurants.eu
         - allrestaurants.eu
-        - {{ .Values.adminUrl }}
-        - {{ .Values.apiUrl }}
+        - "{{ .Values.allUrl }}"
+        - "{{ .Values.mainUrl }}"
       secretName: ssl-nginx-eu-new
 
   rules:
@@ -126,10 +126,17 @@ spec:
             path: "/"
             backend:
               service:
+                name: alltm-admin-panel-service
+                port:
+                  number: 80
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
                 name: alltm-api-service
                 port:
                   number: 80
-
     # ================================================================
     # API (mobile apps)
     # ================================================================
@@ -144,6 +151,14 @@ spec:
                 port:
                   number: 80
             path: "/api/v1/allsupplier"
+            backend:
+              service:
+                name: allsupplier-api-service
+                port:
+                  number: 80
+                  - pathType: Prefix
+
+            path: "/api/documentation"
             backend:
               service:
                 name: allsupplier-api-service
