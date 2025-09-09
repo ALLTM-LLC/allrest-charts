@@ -27,8 +27,8 @@ data:
     php_admin_value[upload_max_filesize] = 5M
     php_admin_value[post_max_size] = 150M
     php_admin_value[max_file_uploads] = 20
-    php_admin_value[max_execution_time] = 60
-    php_admin_value[max_input_time] = 60
+    php_admin_value[max_execution_time] = 90
+    php_admin_value[max_input_time] = 90
     php_admin_value[realpath_cache_size] = 4096k
     php_admin_value[realpath_cache_ttl] = 600
 
