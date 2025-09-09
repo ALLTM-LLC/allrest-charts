@@ -8,9 +8,9 @@ metadata:
 
     # === Upload Limits & Timeouts ===
     nginx.ingress.kubernetes.io/proxy-body-size: "200m"
-    nginx.ingress.kubernetes.io/proxy-read-timeout: "90"
-    nginx.ingress.kubernetes.io/proxy-send-timeout: "90"
-    nginx.ingress.kubernetes.io/proxy-connect-timeout: "30"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "180"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "180"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "50"
 
     # === Buffering for large uploads ===
     nginx.ingress.kubernetes.io/proxy-buffering: "on"
@@ -74,7 +74,6 @@ metadata:
 spec:
   tls:
     - hosts:
-        - adminpanel.allrestaurants.eu
         - admin.allrestaurants.eu
         - api.allrestaurants.eu
         - allsupplier.allrestaurants.eu
@@ -87,6 +86,27 @@ spec:
     # ================================================================
     # Admin Panel
     # ================================================================
+    - host: admin.allrestaurants.eu
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: alltm-admin-panel-service
+                port:
+                  number: 80
+    - host: {{ .Values.adminUrl }}
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: alltm-api-service
+                port:
+                  number: 80
+    
     - host: {{ .Values.adminUrl }}
       http:
         paths:
@@ -149,8 +169,8 @@ spec:
                   number: 80
             # Stricter rate limit for PHP pages
             annotations:
-              nginx.ingress.kubernetes.io/limit-rps: "50"
-              nginx.ingress.kubernetes.io/limit-burst: "100"
+              nginx.ingress.kubernetes.io/limit-rps: "100"
+              nginx.ingress.kubernetes.io/limit-burst: "50"
               nginx.ingress.kubernetes.io/limit-connections: "200"
 
     # Wildcard subdomains
