@@ -52,11 +52,6 @@ metadata:
         set $block_bot 1;
       }
 
-      # ❌ Block abusive "search" with empty/huge queries
-      if ($arg_q ~* "^.{100,}$") {
-        return 403;
-      }
-
       # ❌ Block deep pagination (page >150)
       if ($arg_page ~ "^(15[1-9]|1[6-9][0-9]|[2-9][0-9]{2,})$") {
         return 403;
