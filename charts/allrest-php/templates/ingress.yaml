@@ -104,11 +104,11 @@ spec:
             path: "/"
             backend:
               service:
-                name: alltm-api-service
+                name: alltm-admin-panel-service
                 port:
                   number: 80
     
-    - host: {{ .Values.adminUrl }}
+    - host: api.allrestaurants.eu
       http:
         paths:
           - pathType: Prefix
