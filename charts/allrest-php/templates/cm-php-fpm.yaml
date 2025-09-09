@@ -13,7 +13,7 @@ data:
 
     ; === PHP-FPM Process Management ===
     pm = dynamic
-    pm.max_children = 60
+    pm.max_children = 80
     pm.start_servers = 15
     pm.min_spare_servers = 15
     pm.max_spare_servers = 20
