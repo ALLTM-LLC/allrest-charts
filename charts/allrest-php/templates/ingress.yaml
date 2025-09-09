@@ -68,7 +68,7 @@ metadata:
       }
 
       # ❌ Block deep pagination (page >350)
-      if ($arg_page ~ "^(35[1-9]|3[6-9][0-9]|[4-9][0-9]{2,})$") {
+      if ($arg_page ~ "^(15[1-9]|1[6-9][0-9]|[2-9][0-9]{2,})$") {
         return 403;
       }
 
