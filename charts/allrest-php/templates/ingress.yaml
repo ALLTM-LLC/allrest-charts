@@ -28,7 +28,7 @@ metadata:
     nginx.ingress.kubernetes.io/limit-excess-action: "reject"
 
     # ✅ Whitelist good bots + your own IP
-    nginx.ingress.kubernetes.io/limit-whitelist: "143.198.249.29"
+    nginx.ingress.kubernetes.io/limit-whitelist: "143.198.249.29/32"
   
     # === Compression ===
     nginx.ingress.kubernetes.io/enable-gzip: "true"
@@ -61,6 +61,10 @@ metadata:
       # ❌ Block empty User-Agent headers
       if ($http_user_agent = "") {
         set $block_bot 1;
+      }
+      # ❌ Block abusive "search" with empty/huge queries
+      if ($arg_q ~* "^.{100,}$") {
+        return 403;
       }
 
       # ❌ Block deep pagination (page >350)
@@ -116,7 +120,7 @@ spec:
             path: "/"
             backend:
               service:
-                name: alltm-admin-panel-service
+                name: alltm-api-service
                 port:
                   number: 80
     - host: {{ .Values.adminUrl }}
