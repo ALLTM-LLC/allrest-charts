@@ -164,7 +164,8 @@ spec:
                 name: allrest-api-service
                 port:
                   number: 80
-          - path: "/api/v1/allsupplier"
+          - pathType: Prefix      
+            path: "/api/v1/allsupplier"
             backend:
               service:
                 name: allsupplier-api-service
