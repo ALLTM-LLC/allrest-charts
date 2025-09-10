@@ -65,13 +65,13 @@ metadata:
       }
 
       # ❌ Block deep pagination (page >20)
-      if ($arg_page ~ "^(2[1-9]|[3-9][0-9]|[1-9][0-9]{2,})$") {
+      if ($arg_page ~ "^(1[1-9]|[2-9][0-9]{1,})$") {
         return 403;
       }
 
       # Final block if $block_bot is set
       if ($block_bot = 1) {
-        return 403;
+        return 444;
       }
 
       # ✅ Security headers
