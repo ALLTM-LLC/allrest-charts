@@ -118,28 +118,7 @@ spec:
                 name: alltm-admin-panel-service
                 port:
                   number: 80
-    
-    # ================================================================
-    # API (admin + apps)
-    # ================================================================
-    - host: api.allrestaurants.eu
-      http:
-        paths:
-          - pathType: Prefix
-            path: "/"
-            backend:
-              service:
-                name: alltm-admin-panel-service
-                port:
-                  number: 80
-          - pathType: Prefix
-            path: "/"
-            backend:
-              service:
-                name: alltm-api-service
-                port:
-                  number: 80
-      
+
     - host: {{ .Values.apiUrl }}
       http:
         paths:
@@ -150,7 +129,6 @@ spec:
                 name: alltm-api-service
                 port:
                   number: 80
-
     # ================================================================
     # API (mobile apps)
     # ================================================================
@@ -164,25 +142,13 @@ spec:
                 name: allrest-api-service
                 port:
                   number: 80
-          - pathType: Prefix      
+          - pathType: Prefix
             path: "/api/v1/allsupplier"
             backend:
               service:
                 name: allsupplier-api-service
                 port:
                   number: 80
-          - pathType: Prefix
-            path: "/api/documentation"
-            backend:
-              service:
-                name: allsupplier-api-service
-                port:
-                  number: 80
-            # ⚠️ Per-path annotations don’t work here unless split into separate Ingress objects
-            # annotations:
-            #   nginx.ingress.kubernetes.io/limit-rps: "50"
-            #   nginx.ingress.kubernetes.io/limit-burst: "100"
-            #   nginx.ingress.kubernetes.io/limit-connections: "200"
 
     # ================================================================
     # Public Website (PHP backend)
@@ -197,11 +163,6 @@ spec:
                 name: allrest-php-service
                 port:
                   number: 80
-            # ⚠️ Same here, per-path annotations won’t apply
-            # annotations:
-            #   nginx.ingress.kubernetes.io/limit-rps: "100"
-            #   nginx.ingress.kubernetes.io/limit-burst: "50"
-            #   nginx.ingress.kubernetes.io/limit-connections: "200"
 
     # Wildcard subdomains
     - host: "*.allrestaurants.eu"
