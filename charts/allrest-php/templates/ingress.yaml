@@ -44,11 +44,17 @@ metadata:
     # === HTTPS Enforcement ===
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-
+    
+    # === Favicon as static file ===
+    nginx.ingress.kubernetes.io/server-snippet: |
+      location = /favicon.ico {
+        root /var/www/html/public;
+        access_log off;
+        log_not_found off;
+        expires 30d;
+      }
     # === Security, Bot Filtering & Rate Limiting ===
     nginx.ingress.kubernetes.io/configuration-snippet: |
-      rewrite ^/favicon.ico$ /static/favicon.ico break;
-      
       set $block_bot 0;
       # ✅ Allow good bots
       if ($http_user_agent ~* "(Googlebot|Bingbot|facebot|facebookexternalhit|Twitterbot|LinkedInBot|WhatsApp )") {
