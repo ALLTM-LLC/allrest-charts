@@ -53,6 +53,14 @@ metadata:
         log_not_found off;
         expires 30d;
       }
+    # Serve static assets directly with long cache
+      location ~* ^/(css|js|images|img|svg|fonts|documents)/ {
+        root /var/www/html/public;
+        access_log off;
+        log_not_found off;
+        expires 30d;
+        add_header Cache-Control "public, max-age=2592000" always;
+      }
     # === Security, Bot Filtering & Rate Limiting ===
     nginx.ingress.kubernetes.io/configuration-snippet: |
       set $block_bot 0;
