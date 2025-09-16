@@ -35,31 +35,26 @@ metadata:
     nginx.ingress.kubernetes.io/enable-brotli: "true"
     nginx.ingress.kubernetes.io/gzip-types: "text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript"
 
-    # === CORS ===
-    nginx.ingress.kubernetes.io/enable-cors: "true"
-    nginx.ingress.kubernetes.io/cors-allow-origin: "https://adminpanel.allrestaurants.eu, https://api.allrestaurants.eu, https://www.allrestaurants.eu"
-    nginx.ingress.kubernetes.io/cors-allow-headers: "DNT,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Authorization,Range,Access-Control-Allow-Origin"
-    nginx.ingress.kubernetes.io/cors-allow-credentials: "true"
-
     # === HTTPS Enforcement ===
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
     
     # === Favicon as static file ===
     nginx.ingress.kubernetes.io/server-snippet: |
-       location = /favicon.ico {
-         access_log off;
-         log_not_found off;
-         expires 30d;
-         add_header Cache-Control "public, max-age=2592000" always;
-       }
-      
-       location ~* ^/(css|js|images|img|svg|fonts|documents)/ {
-         access_log off;
-         log_not_found off;
-         expires 30d;
-         add_header Cache-Control "public, max-age=2592000" always;
-       }
+      location = /favicon.ico {
+        root /var/www/html/public;
+        access_log off;
+        log_not_found off;
+        expires 30d;
+      }
+    # Serve static assets directly with long cache
+      location ~* ^/(css|js|images|img|svg|fonts|documents)/ {
+        root /var/www/html/public;
+        access_log off;
+        log_not_found off;
+        expires 30d;
+        add_header Cache-Control "public, max-age=2592000" always;
+      }
     # === Security, Bot Filtering & Rate Limiting ===
     nginx.ingress.kubernetes.io/configuration-snippet: |
       set $block_bot 0;
@@ -104,7 +99,9 @@ metadata:
 
       # ✅ Cache static assets
       add_header Cache-Control "public, max-age=2592000";
-      add_header Access-Control-Allow-Origin "*" always;
+      # ✅ CORS settings
+      add_header 'Access-Control-Allow-Headers' "$http_access_control_request_headers" always;
+      add_header 'Access-Control-Allow-Origin' "https://admin.allrestaurants.eu" always;
 
 spec:
   tls:
