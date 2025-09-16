@@ -47,18 +47,17 @@ metadata:
 
     # === Security, Bot Filtering & Rate Limiting ===
     nginx.ingress.kubernetes.io/configuration-snippet: |
+      rewrite ^/favicon.ico$ /static/favicon.ico break;
+      
       set $block_bot 0;
-
       # ✅ Allow good bots
       if ($http_user_agent ~* "(Googlebot|Bingbot|facebot|facebookexternalhit|Twitterbot|LinkedInBot|WhatsApp )") {
         set $block_bot 0;
       }
-
       # ❌ Block known bad bots
       if ($http_user_agent ~* "(SemrushBot|AhrefsBot|MJ12bot|DotBot|Baiduspider|Scrapy|python-requests|curl|wget|crawler|axios|node-fetch|postman|http\sclient|okhttp|Go-http-client|bot )") {
         set $block_bot 1;
       }
-
       # ❌ Block empty User-Agent headers
       if ($http_user_agent = "") {
         set $block_bot 1;
@@ -83,13 +82,6 @@ metadata:
       # Final block if $block_bot is set
       if ($block_bot = 1) {
         return 444;
-      }
-      # ✅ Serve favicon.ico directly, don’t hit PHP
-      location = /favicon.ico {
-        access_log off;
-        log_not_found off;
-        expires 30d;
-        try_files /favicon.ico =204;
       }
 
       # ✅ Security headers
