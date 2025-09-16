@@ -86,10 +86,10 @@ metadata:
       }
       # ✅ Serve favicon.ico directly, don’t hit PHP
       location = /favicon.ico {
-        expires 30d;
-        log_not_found off;
         access_log off;
-        add_header Cache-Control "public, max-age=2592000" always;
+        log_not_found off;
+        expires 30d;
+        try_files /favicon.ico =204;
       }
 
       # ✅ Security headers
