@@ -254,10 +254,3 @@ spec:
                 name: allrest-php-service
                 port:
                   number: 80
-          - pathType: Exact
-            path: "/favicon.ico"
-            backend:
-              service:
-                name: allrest-php-service
-                port:
-                  number: 80
