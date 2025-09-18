@@ -8,8 +8,8 @@ metadata:
 
     # === Upload Limits & Timeouts ===
     nginx.ingress.kubernetes.io/proxy-body-size: "200m"
-    nginx.ingress.kubernetes.io/proxy-read-timeout: "180"
-    nginx.ingress.kubernetes.io/proxy-send-timeout: "180"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
     nginx.ingress.kubernetes.io/proxy-connect-timeout: "50"
 
     # === Rate Limiting (per IP) ===
@@ -22,7 +22,7 @@ metadata:
 
     # ✅ Whitelist good bots + your own IP
     nginx.ingress.kubernetes.io/limit-whitelist: "143.198.249.29/32"
-
+  
     # === Buffering for large uploads ===
     nginx.ingress.kubernetes.io/proxy-buffering: "on"
     nginx.ingress.kubernetes.io/proxy-request-buffering: "on"
@@ -39,17 +39,17 @@ metadata:
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
 
-    # === Security & Bot Filtering ===
+    # === Security & Bot Filtering + CORS ===
     nginx.ingress.kubernetes.io/configuration-snippet: |
       set $block_bot 0;
 
       # ✅ Allow good bots
-      if ($http_user_agent ~* "(Googlebot|Bingbot|facebot|facebookexternalhit|Twitterbot|LinkedInBot|WhatsApp )") {
+      if ($http_user_agent ~* "(Googlebot|Bingbot|facebot|facebookexternalhit|Twitterbot|LinkedInBot|WhatsApp)") {
         set $block_bot 0;
       }
 
       # ❌ Block known bad bots
-      if ($http_user_agent ~* "(SemrushBot|AhrefsBot|MJ12bot|DotBot|Baiduspider|Scrapy|python-requests|curl|wget|crawler|axios|node-fetch|postman|http\sclient|okhttp|Go-http-client|bot )") {
+      if ($http_user_agent ~* "(SemrushBot|AhrefsBot|MJ12bot|DotBot|Baiduspider|Scrapy|python-requests|curl|wget|crawler|axios|node-fetch|postman|http\sclient|okhttp|Go-http-client|bot)") {
         set $block_bot 1;
       }
 
@@ -87,10 +87,24 @@ metadata:
       # ✅ Cache static assets
       add_header Cache-Control "public, max-age=2592000";
 
-      # ✅ CORS settings
-      add_header 'Access-Control-Allow-Headers' "$http_access_control_request_headers" always;
-      add_header 'Access-Control-Allow-Origin' "https://admin.allrestaurants.eu" always;
-      add_header 'Access-Control-Allow-Credentials' "true" always;
+      # ✅ CORS settings for *.allrestaurants.eu + root
+      if ($http_origin ~* "^https://([a-z0-9-]+\.)*allrestaurants\.eu$") {
+        add_header 'Access-Control-Allow-Origin' "$http_origin" always;
+        add_header 'Access-Control-Allow-Credentials' "true" always;
+        add_header 'Access-Control-Allow-Methods' "GET, POST, OPTIONS, PUT, DELETE" always;
+        add_header 'Access-Control-Allow-Headers' "$http_access_control_request_headers" always;
+      }
+
+      # ✅ Handle OPTIONS preflight
+      if ($request_method = OPTIONS) {
+        add_header 'Access-Control-Allow-Origin' "$http_origin" always;
+        add_header 'Access-Control-Allow-Credentials' "true" always;
+        add_header 'Access-Control-Allow-Methods' "GET, POST, OPTIONS, PUT, DELETE" always;
+        add_header 'Access-Control-Allow-Headers' "$http_access_control_request_headers" always;
+        add_header 'Content-Length' 0;
+        add_header 'Content-Type' 'text/plain charset=UTF-8';
+        return 204;
+      }
 
 spec:
   tls:
@@ -226,6 +240,13 @@ spec:
                   number: 80
           - pathType: Prefix
             path: "/fonts/"
+            backend:
+              service:
+                name: allrest-php-service
+                port:
+                  number: 80
+          - pathType: Prefix
+            path: "/favicon.ico"
             backend:
               service:
                 name: allrest-php-service
