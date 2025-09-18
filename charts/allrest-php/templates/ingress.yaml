@@ -58,11 +58,6 @@ metadata:
         set $block_bot 1;
       }
 
-      # ❌ Block empty Referer headers for suspicious endpoints
-      if ($request_uri ~* "^/api/v1/adverts/" && $http_referer = "") {
-        set $block_bot 1;
-      }
-
       # === Dynamic Detection: Block deep pagination (except good bots) ===
       if ($arg_page ~ "^(2[1-9]|[3-9][0-9]|[1-9][0-9]{2,})$") {
         set $bad_pagination 1;
