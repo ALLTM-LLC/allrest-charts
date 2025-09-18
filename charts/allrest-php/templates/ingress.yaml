@@ -44,12 +44,12 @@ metadata:
       set $block_bot 0;
 
       # ✅ Allow good bots
-      if ($http_user_agent ~* "(Googlebot|Bingbot|facebot|facebookexternalhit|Twitterbot|LinkedInBot|WhatsApp)") {
+      if ($http_user_agent ~* "(Googlebot|Bingbot|facebot|facebookexternalhit|Twitterbot|LinkedInBot|WhatsApp )") {
         set $block_bot 0;
       }
 
       # ❌ Block known bad bots
-      if ($http_user_agent ~* "(SemrushBot|AhrefsBot|MJ12bot|DotBot|Baiduspider|Scrapy|python-requests|curl|wget|crawler|axios|node-fetch|postman|http\sclient|okhttp|Go-http-client|bot)") {
+      if ($http_user_agent ~* "(SemrushBot|AhrefsBot|MJ12bot|DotBot|Baiduspider|Scrapy|python-requests|curl|wget|crawler|axios|node-fetch|postman|http\sclient|okhttp|Go-http-client|bot )") {
         set $block_bot 1;
       }
 
@@ -254,7 +254,7 @@ spec:
                 name: allrest-php-service
                 port:
                   number: 80
-          - pathType: Prefix
+          - pathType: Exact
             path: "/favicon.ico"
             backend:
               service:
