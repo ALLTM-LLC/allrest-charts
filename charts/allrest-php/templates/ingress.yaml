@@ -26,9 +26,13 @@ metadata:
     # === Buffering for large uploads ===
     nginx.ingress.kubernetes.io/proxy-buffering: "on"
     nginx.ingress.kubernetes.io/proxy-request-buffering: "on"
-    nginx.ingress.kubernetes.io/proxy-buffer-size: "16k"
-    nginx.ingress.kubernetes.io/proxy-buffers-number: "8"
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "32k"
+    nginx.ingress.kubernetes.io/proxy-buffers-number: "16"
     nginx.ingress.kubernetes.io/proxy-busy-buffers-size: "64k"
+    
+    # === Concurrency & Keepalive ===
+    nginx.ingress.kubernetes.io/keepalive: "150"
+    nginx.ingress.kubernetes.io/proxy-next-upstream: "error timeout invalid_header http_502 http_503 http_504"
 
     # === Compression ===
     nginx.ingress.kubernetes.io/enable-gzip: "true"
