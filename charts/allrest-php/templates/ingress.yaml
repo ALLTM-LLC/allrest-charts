@@ -40,48 +40,56 @@ metadata:
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
 
     # === Security & Bot Filtering + CORS ===
-    nginx.ingress.kubernetes.io/configuration-snippet: |
-      # ✅ Use map from ConfigMap for bot detection
-      # if ($block_bot = 1) {
-      #   return 444;  # Fast drop for bad bots
-      # }
+nginx.ingress.kubernetes.io/configuration-snippet: |
+  # ✅ Initialize bot variable
+  set $block_bot 0;
 
-      # === Hard Limit: Block ALL requests beyond page=450 ===
-      if ($arg_page ~ "^(45[1-9]|4[6-9][0-9]|[5-9][0-9]{2,})$") {
-        return 403;
-      }
+  # ✅ Use map from ConfigMap (defined in http-snippet)
+  if ($block_bot) {
+    return 444;  # Fast drop for bad bots
+  }
 
-      # === Cache Pagination for Bots & Users ===
-      if ($arg_page ~ "^[0-9]+$") {
-        add_header Cache-Control "public, max-age=600" always;
-      }
+  # === Hard Limit: Block ALL requests beyond page=450 ===
+  if ($arg_page ~ "^(45[1-9]|4[6-9][0-9]|[5-9][0-9]{2,})$") {
+    return 403;
+  }
 
-      # ✅ Security headers
-      add_header X-Frame-Options "SAMEORIGIN" always;
-      add_header X-XSS-Protection "1; mode=block" always;
-      add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+  # === Micro-cache for crawling bots (5 min) ===
+  if ($http_user_agent ~* "bot|crawl|spider") {
+    add_header Cache-Control "public, max-age=300" always;
+  }
 
-      # ✅ Cache static assets (30 days)
-      add_header Cache-Control "public, max-age=2592000";
+  # === Cache Pagination for Users ===
+  if ($arg_page ~ "^[0-9]+$") {
+    add_header Cache-Control "public, max-age=600" always;
+  }
 
-      # ✅ CORS for *.allrestaurants.eu
-      if ($http_origin ~* "^https://([a-z0-9-]+\.)*allrestaurants\.eu$") {
-        add_header 'Access-Control-Allow-Origin' "$http_origin" always;
-        add_header 'Access-Control-Allow-Credentials' "true" always;
-        add_header 'Access-Control-Allow-Methods' "GET, POST, OPTIONS, PUT, DELETE" always;
-        add_header 'Access-Control-Allow-Headers' "$http_access_control_request_headers" always;
-      }
+  # ✅ Security headers
+  add_header X-Frame-Options "SAMEORIGIN" always;
+  add_header X-XSS-Protection "1; mode=block" always;
+  add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
 
-      # ✅ OPTIONS preflight handling
-      if ($request_method = OPTIONS) {
-        add_header 'Access-Control-Allow-Origin' "$http_origin" always;
-        add_header 'Access-Control-Allow-Credentials' "true" always;
-        add_header 'Access-Control-Allow-Methods' "GET, POST, OPTIONS, PUT, DELETE" always;
-        add_header 'Access-Control-Allow-Headers' "$http_access_control_request_headers" always;
-        add_header 'Content-Length' 0;
-        add_header 'Content-Type' 'text/plain charset=UTF-8';
-        return 204;
-      }
+  # ✅ Cache static assets (30 days)
+  add_header Cache-Control "public, max-age=2592000";
+
+  # ✅ CORS for *.allrestaurants.eu
+  if ($http_origin ~* "^https://([a-z0-9-]+\.)*allrestaurants\.eu$") {
+    add_header 'Access-Control-Allow-Origin' "$http_origin" always;
+    add_header 'Access-Control-Allow-Credentials' "true" always;
+    add_header 'Access-Control-Allow-Methods' "GET, POST, OPTIONS, PUT, DELETE" always;
+    add_header 'Access-Control-Allow-Headers' "$http_access_control_request_headers" always;
+  }
+
+  # ✅ OPTIONS preflight handling
+  if ($request_method = OPTIONS) {
+    add_header 'Access-Control-Allow-Origin' "$http_origin" always;
+    add_header 'Access-Control-Allow-Credentials' "true" always;
+    add_header 'Access-Control-Allow-Methods' "GET, POST, OPTIONS, PUT, DELETE" always;
+    add_header 'Access-Control-Allow-Headers' "$http_access_control_request_headers" always;
+    add_header 'Content-Length' 0;
+    add_header 'Content-Type' 'text/plain charset=UTF-8';
+    return 204;
+  }
 
 spec:
   tls:
