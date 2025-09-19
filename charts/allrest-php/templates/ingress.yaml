@@ -53,8 +53,8 @@ metadata:
         return 444;  # Fast drop for bad bots
       }
 
-      # === Hard Limit for bots/crawlers only page=50 ===
-      if ($arg_page ~ "^(5[1-9]|[6-9][0-9]|[1-9][0-9]{2,})$") {
+      # === Hard Limit for bots/crawlers only ===
+      if ($http_user_agent ~* "bot|crawl|spider") {
         if ($arg_page ~ "^(5[1-9]|[6-9][0-9]|[1-9][0-9]{2,})$") {
           return 403;
         }
