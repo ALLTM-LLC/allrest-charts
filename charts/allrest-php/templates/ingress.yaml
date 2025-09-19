@@ -13,8 +13,8 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-connect-timeout: "50"
 
     # === Rate Limiting (per IP) ===
-    nginx.ingress.kubernetes.io/limit-rps: "70"
-    nginx.ingress.kubernetes.io/limit-burst: "100"
+    nginx.ingress.kubernetes.io/limit-rps: "30"
+    nginx.ingress.kubernetes.io/limit-burst: "20"
     nginx.ingress.kubernetes.io/limit-connections: "300"
     nginx.ingress.kubernetes.io/limit-burst-multiplier: "2"
     nginx.ingress.kubernetes.io/limit-rate-after: "0"
