@@ -20,9 +20,9 @@ metadata:
     nginx.ingress.kubernetes.io/limit-rate-after: "0"
     nginx.ingress.kubernetes.io/limit-excess-action: "reject"
 
-    # ✅ Whitelist good bots + your own IP
+    # ✅ Whitelist your own IP + trusted bots
     nginx.ingress.kubernetes.io/limit-whitelist: "143.198.249.29/32"
-  
+
     # === Buffering for large uploads ===
     nginx.ingress.kubernetes.io/proxy-buffering: "on"
     nginx.ingress.kubernetes.io/proxy-request-buffering: "on"
@@ -41,22 +41,9 @@ metadata:
 
     # === Security & Bot Filtering + CORS ===
     nginx.ingress.kubernetes.io/configuration-snippet: |
-      set $block_bot 0;
-
-      # ✅ Allow good bots
-      if ($http_user_agent ~* "(Googlebot|Bingbot|facebot|facebookexternalhit|Twitterbot|LinkedInBot|WhatsApp )") {
-        set $block_bot 0;
-      }
-
-      # ❌ Block known bad bots
-      if ($http_user_agent ~* "(SemrushBot|AhrefsBot|MJ12bot|DotBot|Baiduspider|Scrapy|python-requests|curl|wget|crawler|axios|node-fetch|postman|http\sclient|okhttp|Go-http-client|bot )") {
-        set $block_bot 1;
-      }
-   
-
-      # ❌ Block empty User-Agent
-      if ($http_user_agent = "") {
-        set $block_bot 1;
+      # ✅ Use map from ConfigMap for bot detection
+      if ($block_bot = 1) {
+        return 444;  # Fast drop for bad bots
       }
 
       # === Hard Limit: Block ALL requests beyond page=450 ===
@@ -69,20 +56,15 @@ metadata:
         add_header Cache-Control "public, max-age=600" always;
       }
 
-      # ❌ Final block for bad bots
-      if ($block_bot = 1) {
-        return 444;
-      }
-
       # ✅ Security headers
       add_header X-Frame-Options "SAMEORIGIN" always;
       add_header X-XSS-Protection "1; mode=block" always;
       add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
-      
+
       # ✅ Cache static assets (30 days)
       add_header Cache-Control "public, max-age=2592000";
 
-      # ✅ CORS settings for *.allrestaurants.eu
+      # ✅ CORS for *.allrestaurants.eu
       if ($http_origin ~* "^https://([a-z0-9-]+\.)*allrestaurants\.eu$") {
         add_header 'Access-Control-Allow-Origin' "$http_origin" always;
         add_header 'Access-Control-Allow-Credentials' "true" always;
@@ -90,7 +72,7 @@ metadata:
         add_header 'Access-Control-Allow-Headers' "$http_access_control_request_headers" always;
       }
 
-      # ✅ Handle OPTIONS preflight
+      # ✅ OPTIONS preflight handling
       if ($request_method = OPTIONS) {
         add_header 'Access-Control-Allow-Origin' "$http_origin" always;
         add_header 'Access-Control-Allow-Credentials' "true" always;
