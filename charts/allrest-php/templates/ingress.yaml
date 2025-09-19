@@ -53,9 +53,11 @@ metadata:
         return 444;  # Fast drop for bad bots
       }
 
-      # === Hard Limit: Block ALL requests beyond page=450 ===
-      if ($arg_page ~ "^(20[1-9]|2[1-9][0-9]|[3-9][0-9]{2,})$") {
-        return 403;
+      # === Hard Limit for bots/crawlers only page=50 ===
+      if ($arg_page ~ "^(5[1-9]|[6-9][0-9]|[1-9][0-9]{2,})$") {
+        if ($arg_page ~ "^(5[1-9]|[6-9][0-9]|[1-9][0-9]{2,})$") {
+          return 403;
+        }
       }
 
       # === Micro-cache for crawling bots (5 min) ===
