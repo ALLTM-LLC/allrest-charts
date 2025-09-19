@@ -52,29 +52,24 @@ metadata:
       if ($http_user_agent ~* "(SemrushBot|AhrefsBot|MJ12bot|DotBot|Baiduspider|Scrapy|python-requests|curl|wget|crawler|axios|node-fetch|postman|http\sclient|okhttp|Go-http-client|bot )") {
         set $block_bot 1;
       }
+   
 
-      # ❌ Block empty User-Agent headers
+      # ❌ Block empty User-Agent
       if ($http_user_agent = "") {
         set $block_bot 1;
       }
 
-      # === Dynamic Detection: Block deep pagination (except good bots) ===
-      if ($arg_page ~ "^(2[1-9]|[3-9][0-9]|[1-9][0-9]{2,})$") {
-        set $bad_pagination 1;
-      }
-      if ($http_user_agent ~* "(Googlebot|Bingbot)") {
-        set $bad_pagination 0;
-      }
-      if ($bad_pagination = 1) {
+      # === Hard Limit: Block ALL requests beyond page=450 ===
+      if ($arg_page ~ "^(45[1-9]|4[6-9][0-9]|[5-9][0-9]{2,})$") {
         return 403;
       }
 
-      # === Cache Pagination for Bots ===
+      # === Cache Pagination for Bots & Users ===
       if ($arg_page ~ "^[0-9]+$") {
         add_header Cache-Control "public, max-age=600" always;
       }
 
-      # Final block if $block_bot is set
+      # ❌ Final block for bad bots
       if ($block_bot = 1) {
         return 444;
       }
@@ -85,9 +80,11 @@ metadata:
       add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
 
       # ✅ Cache static assets
-      add_header Cache-Control "public, max-age=2592000";
+      location ~* \.(?:ico|css|js|gif|jpe?g|png|woff2?|eot|ttf|svg)$ {
+        add_header Cache-Control "public, max-age=2592000, immutable";
+      }
 
-      # ✅ CORS settings for *.allrestaurants.eu + root
+      # ✅ CORS settings for *.allrestaurants.eu
       if ($http_origin ~* "^https://([a-z0-9-]+\.)*allrestaurants\.eu$") {
         add_header 'Access-Control-Allow-Origin' "$http_origin" always;
         add_header 'Access-Control-Allow-Credentials' "true" always;
@@ -105,7 +102,6 @@ metadata:
         add_header 'Content-Type' 'text/plain charset=UTF-8';
         return 204;
       }
-
 
 spec:
   tls:
