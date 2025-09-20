@@ -53,8 +53,8 @@ metadata:
         return 444;  # Fast drop for bad bots
       }
 
-      # === Hard Limit: Block ALL requests beyond page=65 ===
-      if ($arg_page ~ "^(6[6-9]|[7-9][0-9]{1,})$") {
+      # === Hard Limit: Block ALL requests beyond page=26 ===
+      if ($arg_page ~ "^(2[7-9]|[3-9][0-9]{1,})$") {
         return 403;
       }
 
