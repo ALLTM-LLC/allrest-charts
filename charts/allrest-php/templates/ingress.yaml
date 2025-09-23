@@ -6,59 +6,87 @@ metadata:
     kubernetes.io/ingress.class: nginx
     cert-manager.io/issuer: comodo-eu-cert
 
-
-    # Upload limits & timeouts
+    # === Upload Limits & Timeouts ===
     nginx.ingress.kubernetes.io/proxy-body-size: "200m"
-    nginx.ingress.kubernetes.io/proxy-read-timeout: "180"
-    nginx.ingress.kubernetes.io/proxy-send-timeout: "180"
-    nginx.ingress.kubernetes.io/proxy-connect-timeout: "55"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "50"
 
-    # Rate limiting per IP
+    # === Rate Limiting (per IP) ===
     nginx.ingress.kubernetes.io/limit-rps: "5"
     nginx.ingress.kubernetes.io/limit-burst: "10"
     nginx.ingress.kubernetes.io/limit-connections: "200"
     nginx.ingress.kubernetes.io/limit-burst-multiplier: "2"
     nginx.ingress.kubernetes.io/limit-rate-after: "0"
     nginx.ingress.kubernetes.io/limit-excess-action: "reject"
+
+    # ✅ Whitelist your own IP + trusted bots
     nginx.ingress.kubernetes.io/limit-whitelist: "143.198.249.29/32"
 
-    # Compression
+    # === Buffering for large uploads ===
+    nginx.ingress.kubernetes.io/proxy-buffering: "on"
+    nginx.ingress.kubernetes.io/proxy-request-buffering: "on"
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "32k"
+    nginx.ingress.kubernetes.io/proxy-buffers-number: "16"
+    nginx.ingress.kubernetes.io/proxy-busy-buffers-size: "64k"
+    
+    # === Concurrency & Keepalive ===
+    nginx.ingress.kubernetes.io/keepalive: "100"
+    nginx.ingress.kubernetes.io/proxy-next-upstream: "error timeout invalid_header http_502 http_503 http_504"
+
+    # === Compression ===
     nginx.ingress.kubernetes.io/enable-gzip: "true"
     nginx.ingress.kubernetes.io/enable-brotli: "true"
-    nginx.ingress.kubernetes.io/gzip-types: "text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript text/html"
+    nginx.ingress.kubernetes.io/gzip-types: "text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript"
 
-    # HTTPS enforcement
+    # === HTTPS Enforcement ===
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
 
-    # Security, micro-cache, CORS, headers
+    # === Security & Bot Filtering + CORS ===
     nginx.ingress.kubernetes.io/configuration-snippet: |
+      # ✅ Initialize bot variable
       set $block_bot 0;
-      if ($block_bot) { return 444; }
 
-      # Proxy cache
-      proxy_cache microcache;
+      # ✅ Use map from ConfigMap (defined in http-snippet)
+      if ($block_bot) {
+        return 444;  # Fast drop for bad bots
+      }
+
+      # === Hard Limit: Block ALL requests beyond page=26 ===
+      if ($arg_page ~ "^(32[1-9]|3[3-9][0-9]|[4-9][0-9]{2,})$") {
+        return 403;
+      }
+      
+      # 🔴 Micro-cache
+      proxy_cache microcache;                       # Must match ConfigMap 'keys_zone'
       proxy_cache_key "$scheme$request_method$host$request_uri";
       proxy_cache_valid 200 302 5m;
       proxy_cache_valid 404 1m;
       proxy_cache_bypass $skip_cache;
+      proxy_no_cache $skip_cache;
+      add_header X-Cache-Status $upstream_cache_status always;
 
-      # Hard limit page > 70
-      if ($arg_page ~ "^(7[1-9]|[8-9][0-9]|[1-9][0-9]{2,})$") { return 403; }
+      
+      # === Micro-cache for crawling bots (5 min) ===
+      if ($http_user_agent ~* "bot|crawl|spider") {
+        add_header Cache-Control "public, max-age=300" always;
+      }
 
-      # Bot micro-cache headers
-      if ($http_user_agent ~* "bot|crawl|spider") { add_header Cache-Control "public, max-age=300" always; }
+      # === Cache Pagination for Users ===
+      if ($arg_page ~ "^[0-9]+$") {
+        add_header Cache-Control "public, max-age=600" always;
+      }
 
-      # Pagination caching
-      if ($arg_page ~ "^[0-9]+$") { add_header Cache-Control "public, max-age=600" always; }
-
-      # Security headers
+      # ✅ Security headers
       add_header X-Frame-Options "SAMEORIGIN" always;
       add_header X-XSS-Protection "1; mode=block" always;
       add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+
+      # ✅ Cache static assets (30 days)
       add_header Cache-Control "public, max-age=2592000";
 
-      # CORS
+      # ✅ CORS for *.allrestaurants.eu
       if ($http_origin ~* "^https://([a-z0-9-]+\.)*allrestaurants\.eu$") {
         add_header 'Access-Control-Allow-Origin' "$http_origin" always;
         add_header 'Access-Control-Allow-Credentials' "true" always;
@@ -66,7 +94,7 @@ metadata:
         add_header 'Access-Control-Allow-Headers' "$http_access_control_request_headers" always;
       }
 
-      # OPTIONS preflight
+      # ✅ OPTIONS preflight handling
       if ($request_method = OPTIONS) {
         add_header 'Access-Control-Allow-Origin' "$http_origin" always;
         add_header 'Access-Control-Allow-Credentials' "true" always;
@@ -76,7 +104,6 @@ metadata:
         add_header 'Content-Type' 'text/plain charset=UTF-8';
         return 204;
       }
-
 
 spec:
   tls:
