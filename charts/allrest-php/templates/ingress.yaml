@@ -57,15 +57,6 @@ metadata:
         return 403;
       }
       
-      # 🔴 Micro-cache
-      proxy_cache microcache;                       # Must match ConfigMap 'keys_zone'
-      proxy_cache_key "$scheme$request_method$host$request_uri";
-      proxy_cache_valid 200 302 5m;
-      proxy_cache_valid 404 1m;
-      proxy_cache_bypass $skip_cache;
-      proxy_no_cache $skip_cache;
-      add_header X-Cache-Status $upstream_cache_status always;
-
       
       # === Micro-cache for crawling bots (5 min) ===
       if ($http_user_agent ~* "bot|crawl|spider") {
