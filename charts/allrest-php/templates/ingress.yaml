@@ -27,7 +27,7 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-buffer-size: "32k"
     nginx.ingress.kubernetes.io/proxy-buffers-number: "16"
     nginx.ingress.kubernetes.io/proxy-busy-buffers-size: "64k"
-    
+
     # === Concurrency & Keepalive ===
     nginx.ingress.kubernetes.io/keepalive: "100"
     nginx.ingress.kubernetes.io/proxy-next-upstream: "error timeout invalid_header http_502 http_503 http_504"
@@ -41,46 +41,10 @@ metadata:
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
 
-    # === Security, Bot Filtering, Caching, CORS ===
+    # === Security & Bot Filtering ===
     nginx.ingress.kubernetes.io/configuration-snippet: |
-      # ✅ Block bad bots (from ConfigMap map)
-      if ($block_bot) {
-        return 444;
-      }
-
-      # === Hard Limit: Block ALL requests beyond page=65 ===
-      if ($arg_page ~ "^(6[6-9]|[7-9][0-9]{1,})$") {
-        return 403;
-      }
-
-      # === Micro-cache for bots (5 min) ===
-      if ($http_user_agent ~* "bot|crawl|spider") {
-        nginx.ingress.kubernetes.io/proxy-cache-zone: microcache
-        nginx.ingress.kubernetes.io/proxy-cache-key: "$scheme$request_method$host$request_uri"
-        nginx.ingress.kubernetes.io/proxy-cache-valid: "200 5m"
-      }
-
-      # === Cache sitemaps (10 min) ===
-      if ($request_uri ~* "^/allrest_index\.xml$") {
-        proxy_cache microcache;
-        proxy_cache_key "$scheme$request_method$host$request_uri";
-        proxy_cache_valid 200 10m;
-        proxy_cache_valid 404 1m;
-        add_header X-Cache-Status $upstream_cache_status always;
-      }
-
-      if ($request_uri ~* "^/allrest_list_(ar|en|fr|pl|es|de|tr|pt|ru)\.xml$") {
-        proxy_cache microcache;
-        proxy_cache_key "$scheme$request_method$host$request_uri";
-        proxy_cache_valid 200 10m;
-        proxy_cache_valid 404 1m;
-        add_header X-Cache-Status $upstream_cache_status always;
-      }
-
-      # === Cache pagination (10 min) ===
-      if ($arg_page ~ "^[0-9]+$") {
-        add_header Cache-Control "public, max-age=600" always;
-      }
+      if ($block_bot) { return 444; }
+      if ($arg_page ~ "^(6[6-9]|[7-9][0-9]{1,})$") { return 403; }
 
       # ✅ Security headers
       add_header X-Frame-Options "SAMEORIGIN" always;
@@ -110,6 +74,12 @@ metadata:
         add_header 'Content-Type' 'text/plain charset=UTF-8';
         return 204;
       }
+
+    # === Caching (moved to annotations) ===
+    nginx.ingress.kubernetes.io/proxy-cache-zone: "microcache:10m"
+    nginx.ingress.kubernetes.io/proxy-cache-key: "$scheme$request_method$host$request_uri"
+    nginx.ingress.kubernetes.io/proxy-cache-valid: "200 302 5m, 404 1m"
+    nginx.ingress.kubernetes.io/proxy-cache-bypass: "$skip_cache"
 
 spec:
   tls:
