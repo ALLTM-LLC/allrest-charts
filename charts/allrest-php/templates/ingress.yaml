@@ -1,4 +1,4 @@
-   apiVersion: networking.k8s.io/v1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: allrest-ingress
@@ -55,12 +55,9 @@ metadata:
 
       # === Micro-cache for bots (5 min) ===
       if ($http_user_agent ~* "bot|crawl|spider") {
-        proxy_cache microcache;
-        proxy_cache_key "$scheme$request_method$host$request_uri";
-        proxy_cache_valid 200 302 5m;
-        proxy_cache_valid 404 1m;
-        proxy_cache_bypass $skip_cache;
-        add_header X-Cache-Status $upstream_cache_status always;
+        nginx.ingress.kubernetes.io/proxy-cache-zone: microcache
+        nginx.ingress.kubernetes.io/proxy-cache-key: "$scheme$request_method$host$request_uri"
+        nginx.ingress.kubernetes.io/proxy-cache-valid: "200 5m"
       }
 
       # === Cache sitemaps (10 min) ===
