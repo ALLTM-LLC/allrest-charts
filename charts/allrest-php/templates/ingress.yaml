@@ -41,18 +41,48 @@ metadata:
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
 
-    # === Security & Bot Filtering + CORS ===
+    # === Security, Bot Filtering, Caching, CORS ===
     nginx.ingress.kubernetes.io/configuration-snippet: |
-      # ✅ Initialize bot variable
-      set $block_bot 0;
-
+      # ✅ Block bad bots (from ConfigMap map)
       if ($block_bot) {
         return 444;
       }
 
-      # === Hard Limit: Block ALL requests beyond page > 70 ===
-      if ($arg_page ~ "^(7[1-9]|[8-9][0-9]|[1-9][0-9]{2,})$") {
+      # === Hard Limit: Block ALL requests beyond page=65 ===
+      if ($arg_page ~ "^(6[6-9]|[7-9][0-9]{1,})$") {
         return 403;
+      }
+
+      # === Micro-cache for bots (5 min) ===
+      if ($http_user_agent ~* "bot|crawl|spider") {
+        proxy_cache microcache;
+        proxy_cache_key "$scheme$request_method$host$request_uri";
+        proxy_cache_valid 200 302 5m;
+        proxy_cache_valid 404 1m;
+        proxy_cache_bypass $skip_cache;
+        add_header X-Cache-Status $upstream_cache_status always;
+      }
+
+      # === Cache sitemaps (10 min) ===
+      if ($request_uri ~* "^/allrest_index\.xml$") {
+        proxy_cache microcache;
+        proxy_cache_key "$scheme$request_method$host$request_uri";
+        proxy_cache_valid 200 10m;
+        proxy_cache_valid 404 1m;
+        add_header X-Cache-Status $upstream_cache_status always;
+      }
+
+      if ($request_uri ~* "^/allrest_list_(ar|en|fr|pl|es|de|tr|pt|ru)\.xml$") {
+        proxy_cache microcache;
+        proxy_cache_key "$scheme$request_method$host$request_uri";
+        proxy_cache_valid 200 10m;
+        proxy_cache_valid 404 1m;
+        add_header X-Cache-Status $upstream_cache_status always;
+      }
+
+      # === Cache pagination (10 min) ===
+      if ($arg_page ~ "^[0-9]+$") {
+        add_header Cache-Control "public, max-age=600" always;
       }
 
       # ✅ Security headers
@@ -63,16 +93,6 @@ metadata:
       # ✅ Cache static assets (30 days)
       if ($request_uri ~* "\.(?:ico|css|js|gif|jpe?g|png|woff2?|eot|ttf|svg)$") {
         add_header Cache-Control "public, max-age=2592000" always;
-      }
-
-      # ✅ Cache pagination (10 min)
-      if ($arg_page ~ "^[0-9]+$") {
-        add_header Cache-Control "public, max-age=600" always;
-      }
-
-      # ✅ Cache bots (5 min)
-      if ($http_user_agent ~* "bot|crawl|spider") {
-        add_header Cache-Control "public, max-age=300" always;
       }
 
       # ✅ CORS for *.allrestaurants.eu
