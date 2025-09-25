@@ -46,7 +46,7 @@ metadata:
       # === Allow only selected crawlers, block all others ===
       # ✅ Initialize bot variable
       if ($block_bot) {
-        return 444;
+        return 403;
       }
 
       # === Hard Limit: Block ALL requests beyond page > 320 ===
