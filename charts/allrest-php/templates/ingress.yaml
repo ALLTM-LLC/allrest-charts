@@ -54,7 +54,12 @@ metadata:
       if ($arg_page ~ "^(32[1-9]|3[3-9][0-9]|[4-9][0-9]{2,}|[1-9][0-9]{3,})$") {
         return 403;
       }
-
+      # Block crawlers requesting page > 320 immediately
+      if ($is_crawler = 1) {
+        if ($is_highpage = 1) {
+          return 403;
+        }
+      }
       # ✅ Security headers
       add_header X-Frame-Options "SAMEORIGIN" always;
       add_header X-XSS-Protection "1; mode=block" always;
