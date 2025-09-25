@@ -50,7 +50,7 @@ metadata:
         return 444;
       }
 
-      # === Hard Limit: Block ALL requests beyond page > 70 ===
+      # === Hard Limit: Block ALL requests beyond page > 320 ===
       if ($arg_page ~ "^(32[1-9]|3[3-9][0-9]|[4-9][0-9]{2,}|[1-9][0-9]{3,})$") {
         return 403;
       }
