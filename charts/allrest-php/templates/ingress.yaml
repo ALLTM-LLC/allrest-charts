@@ -41,17 +41,16 @@ metadata:
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
 
-    # === Security & Bot Filtering + CORS ===
+    # === Security, Bot Filtering & CORS ===
     nginx.ingress.kubernetes.io/configuration-snippet: |
-      # === Allow only selected crawlers, block all others ===
-      # ✅ Initialize bot variable
-      if ($block_bot) {
-        return 403;
+      # === Block unwanted bots inline (allow only selected crawlers) ===
+      if ($http_user_agent !~* "(Googlebot|Bingbot|facebot|facebookexternalhit|Twitterbot|LinkedInBot|WhatsApp|PinterestBot|TelegramBot|Slackbot|Applebot)") {
+          return 403;
       }
 
       # === Hard Limit: Block ALL requests beyond page > 320 ===
       if ($arg_page ~ "^(32[1-9]|3[3-9][0-9]|[4-9][0-9]{2,}|[1-9][0-9]{3,})$") {
-        return 403;
+          return 403;
       }
 
       # ✅ Security headers
@@ -61,36 +60,36 @@ metadata:
 
       # ✅ Cache static assets (30 days)
       if ($request_uri ~* "\.(?:ico|css|js|gif|jpe?g|png|woff2?|eot|ttf|svg)$") {
-        add_header Cache-Control "public, max-age=2592000" always;
+          add_header Cache-Control "public, max-age=2592000" always;
       }
 
       # ✅ Cache pagination (10 min)
       if ($arg_page ~ "^[0-9]+$") {
-        add_header Cache-Control "public, max-age=600" always;
+          add_header Cache-Control "public, max-age=600" always;
       }
 
       # ✅ Cache bots (5 min)
       if ($http_user_agent ~* "bot|crawl|spider") {
-        add_header Cache-Control "public, max-age=300" always;
+          add_header Cache-Control "public, max-age=300" always;
       }
 
       # ✅ CORS for *.allrestaurants.eu
       if ($http_origin ~* "^https://([a-z0-9-]+\.)*allrestaurants\.eu$") {
-        add_header 'Access-Control-Allow-Origin' "$http_origin" always;
-        add_header 'Access-Control-Allow-Credentials' "true" always;
-        add_header 'Access-Control-Allow-Methods' "GET, POST, OPTIONS, PUT, DELETE" always;
-        add_header 'Access-Control-Allow-Headers' "$http_access_control_request_headers" always;
+          add_header 'Access-Control-Allow-Origin' "$http_origin" always;
+          add_header 'Access-Control-Allow-Credentials' "true" always;
+          add_header 'Access-Control-Allow-Methods' "GET, POST, OPTIONS, PUT, DELETE" always;
+          add_header 'Access-Control-Allow-Headers' "$http_access_control_request_headers" always;
       }
 
       # ✅ OPTIONS preflight handling
       if ($request_method = OPTIONS) {
-        add_header 'Access-Control-Allow-Origin' "$http_origin" always;
-        add_header 'Access-Control-Allow-Credentials' "true" always;
-        add_header 'Access-Control-Allow-Methods' "GET, POST, OPTIONS, PUT, DELETE" always;
-        add_header 'Access-Control-Allow-Headers' "$http_access_control_request_headers" always;
-        add_header 'Content-Length' 0;
-        add_header 'Content-Type' 'text/plain charset=UTF-8';
-        return 204;
+          add_header 'Access-Control-Allow-Origin' "$http_origin" always;
+          add_header 'Access-Control-Allow-Credentials' "true" always;
+          add_header 'Access-Control-Allow-Methods' "GET, POST, OPTIONS, PUT, DELETE" always;
+          add_header 'Access-Control-Allow-Headers' "$http_access_control_request_headers" always;
+          add_header 'Content-Length' 0;
+          add_header 'Content-Type' 'text/plain charset=UTF-8';
+          return 204;
       }
 
 spec:
