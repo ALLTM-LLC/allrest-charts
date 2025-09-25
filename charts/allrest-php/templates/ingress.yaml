@@ -45,7 +45,6 @@ metadata:
     nginx.ingress.kubernetes.io/configuration-snippet: |
       # === Allow only selected crawlers, block all others ===
       # ✅ Initialize bot variable
-      set $block_bot 0;
       if ($block_bot) {
         return 444;
       }
