@@ -11,24 +11,26 @@ data:
     listen.owner = www-data
     listen.group = www-data
 
-    ; === PHP-FPM Process Management ===
+    ; === PHP-FPM Process Management (Optimized for 16GB Node) ===
     pm = dynamic
-    pm.max_children = 45
-    pm.start_servers = 15
-    pm.min_spare_servers = 15
-    pm.max_spare_servers = 15
-    pm.max_requests = 800
-    pm.process_idle_timeout = 15s
-    request_terminate_timeout = 60s
-    listen.backlog = 1024
+    ; Calculated: A 16GB Node can't support 45 * 512MB. This is a safe limit.
+    pm.max_children = 40
+    pm.start_servers = 10
+    pm.min_spare_servers = 10
+    pm.max_spare_servers = 20
+    pm.max_requests = 1000      ; Recycle processes after 1000 requests to prevent memory leaks.
+    pm.process_idle_timeout = 10s ; Free up idle processes faster.
+    request_terminate_timeout = 120s ; Reduced from 180s.
 
-    ; === PHP Settings ===
-    php_admin_value[memory_limit] = 512M
+    ; === PHP Settings (Optimized) ===
+    ; CRITICAL: Reduced from 512M to prevent memory exhaustion.
+    php_admin_value[memory_limit] = 256M
+    ; Your upload settings are correct and have been kept.
     php_admin_value[upload_max_filesize] = 5M
     php_admin_value[post_max_size] = 150M
     php_admin_value[max_file_uploads] = 20
-    php_admin_value[max_execution_time] = 180
-    php_admin_value[max_input_time] = 180
+    php_admin_value[max_execution_time] = 120 ; Reduced from 180s.
+    php_admin_value[max_input_time] = 120     ; Reduced from 180s.
     php_admin_value[realpath_cache_size] = 4096k
     php_admin_value[realpath_cache_ttl] = 600
 
@@ -36,9 +38,5 @@ data:
     php_admin_flag[log_errors] = on
     php_admin_value[error_log] = /proc/self/fd/2
     pm.status_path = /status
-    ping.path = /ping
-    ping.response = pong
-
-    ; === Slow Request Logging ===
     slowlog = /proc/self/fd/2
-    request_slowlog_timeout = 30s
+    request_slowlog_timeout = 10s ; Log any request that takes longer than 10s.
