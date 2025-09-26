@@ -43,10 +43,7 @@ metadata:
 
     # === Security, Bot Filtering & CORS ===
     nginx.ingress.kubernetes.io/configuration-snippet: |
-      # === Block unwanted bots inline (allow only selected crawlers) ===
-      if ($http_user_agent !~* "(Googlebot|Bingbot|facebot|facebookexternalhit|Twitterbot|LinkedInBot|WhatsApp|PinterestBot|TelegramBot|Slackbot|Applebot)") {
-          return 403;
-      }
+
 
       # === Hard Limit: Block ALL requests beyond page > 320 ===
       if ($arg_page ~ "^(32[1-9]|3[3-9][0-9]|[4-9][0-9]{2,}|[1-9][0-9]{3,})$") {
