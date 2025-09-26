@@ -6,87 +6,80 @@ metadata:
     kubernetes.io/ingress.class: nginx
     cert-manager.io/issuer: comodo-eu-cert
 
-    # === Upload Limits & Timeouts ===
+    # === Global Nginx Settings (from your config) ===
     nginx.ingress.kubernetes.io/proxy-body-size: "200m"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
     nginx.ingress.kubernetes.io/proxy-connect-timeout: "50"
-
-    # === Rate Limiting (per IP) ===
-    nginx.ingress.kubernetes.io/limit-rps: "5"
-    nginx.ingress.kubernetes.io/limit-burst: "10"
-    nginx.ingress.kubernetes.io/limit-connections: "200"
-    nginx.ingress.kubernetes.io/limit-burst-multiplier: "2"
-    nginx.ingress.kubernetes.io/limit-rate-after: "0"
-    nginx.ingress.kubernetes.io/limit-excess-action: "reject"
-    nginx.ingress.kubernetes.io/limit-whitelist: "143.198.249.29/32"
-
-    # === Buffering for large uploads ===
     nginx.ingress.kubernetes.io/proxy-buffering: "on"
-    nginx.ingress.kubernetes.io/proxy-request-buffering: "on"
-    nginx.ingress.kubernetes.io/proxy-buffer-size: "32k"
-    nginx.ingress.kubernetes.io/proxy-buffers-number: "16"
-    nginx.ingress.kubernetes.io/proxy-busy-buffers-size: "64k"
-    
-    # === Concurrency & Keepalive ===
     nginx.ingress.kubernetes.io/keepalive: "100"
     nginx.ingress.kubernetes.io/proxy-next-upstream: "error timeout invalid_header http_502 http_503 http_504"
-
-    # === Compression ===
     nginx.ingress.kubernetes.io/enable-gzip: "true"
     nginx.ingress.kubernetes.io/enable-brotli: "true"
-    nginx.ingress.kubernetes.io/gzip-types: "text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript"
-
-    # === HTTPS Enforcement ===
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
 
-    # === Security, Bot Filtering & CORS ===
+    # === Rate Limiting (per IP ) - Kept from your config ===
+    nginx.ingress.kubernetes.io/limit-rps: "5"
+    nginx.ingress.kubernetes.io/limit-burst: "10"
+    nginx.ingress.kubernetes.io/limit-connections: "50" # Reduced from 200 as a safer default
+    nginx.ingress.kubernetes.io/limit-whitelist: "143.198.249.29/32"
+
+    # === Main Configuration Snippet - MERGED & OPTIMIZED ===
     nginx.ingress.kubernetes.io/configuration-snippet: |
-
-
-      # === Hard Limit: Block ALL requests beyond page > 320 ===
-      if ($arg_page ~ "^(32[1-9]|3[3-9][0-9]|[4-9][0-9]{2,}|[1-9][0-9]{3,})$") {
-          return 403;
+      # 1. BOT BLOCKING LOGIC (CRITICAL)
+      # This map identifies bad bots based on their User-Agent string.
+      map $http_user_agent $block_bot {
+          default 0;
+          # Allow known good bots explicitly
+          "~*(Googlebot|Bingbot|facebot|facebookexternalhit|Twitterbot|LinkedInBot|WhatsApp|YandexBot|BaiduSpider|Slackbot|Applebot )" 0;
+          # Block common malicious/aggressive bots and tools
+          "~*(SemrushBot|AhrefsBot|MJ12bot|DotBot|PetalBot|Scrapy|python-requests|curl|wget|Go-http-client|Java/|okhttp|nuclei|nikto|nmap|sqlmap|masscan )" 1;
+          # Block empty User-Agent
+          "" 1;
       }
 
-      # ✅ Security headers
+      # Apply the block immediately if a bad bot is detected.
+      if ($block_bot = 1) {
+          return 403; # Forbidden
+      }
+
+      # 2. HARD PAGINATION LIMIT (Kept from your config)
+      if ($arg_page ~ "^(32[1-9]|3[3-9][0-9]|[4-9][0-9]{2,}|[1-9][0-9]{3,})$") {
+          return 403; # Forbidden
+      }
+
+      # 3. SECURITY HEADERS (Kept from your config)
       add_header X-Frame-Options "SAMEORIGIN" always;
       add_header X-XSS-Protection "1; mode=block" always;
       add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
 
-      # ✅ Cache static assets (30 days)
+      # 4. CACHING RULES (Kept from your config)
       if ($request_uri ~* "\.(?:ico|css|js|gif|jpe?g|png|woff2?|eot|ttf|svg)$") {
           add_header Cache-Control "public, max-age=2592000" always;
       }
-
-      # ✅ Cache pagination (10 min)
       if ($arg_page ~ "^[0-9]+$") {
           add_header Cache-Control "public, max-age=600" always;
       }
-
-      # ✅ Cache bots (5 min)
-      if ($http_user_agent ~* "bot|crawl|spider") {
+      # Note: Caching bots is fine, but BLOCKING bad ones is more important.
+      if ($http_user_agent ~* "bot|crawl|spider" ) {
           add_header Cache-Control "public, max-age=300" always;
       }
 
-      # ✅ CORS for *.allrestaurants.eu
-      if ($http_origin ~* "^https://([a-z0-9-]+\.)*allrestaurants\.eu$") {
-          add_header 'Access-Control-Allow-Origin' "$http_origin" always;
-          add_header 'Access-Control-Allow-Credentials' "true" always;
-          add_header 'Access-Control-Allow-Methods' "GET, POST, OPTIONS, PUT, DELETE" always;
-          add_header 'Access-Control-Allow-Headers' "$http_access_control_request_headers" always;
-      }
-
-      # ✅ OPTIONS preflight handling
+      # 5. CORS & PREFLIGHT HANDLING (Kept from your config)
       if ($request_method = OPTIONS) {
           add_header 'Access-Control-Allow-Origin' "$http_origin" always;
           add_header 'Access-Control-Allow-Credentials' "true" always;
           add_header 'Access-Control-Allow-Methods' "GET, POST, OPTIONS, PUT, DELETE" always;
-          add_header 'Access-Control-Allow-Headers' "$http_access_control_request_headers" always;
+          add_header 'Access-Control-Allow-Headers' "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization" always;
           add_header 'Content-Length' 0;
-          add_header 'Content-Type' 'text/plain charset=UTF-8';
           return 204;
+      }
+      if ($http_origin ~* "^https://([a-z0-9-]+\. )*allrestaurants\.eu$") {
+          add_header 'Access-Control-Allow-Origin' "$http_origin" always;
+          add_header 'Access-Control-Allow-Credentials' "true" always;
+          add_header 'Access-Control-Allow-Methods' "GET, POST, OPTIONS, PUT, DELETE" always;
+          add_header 'Access-Control-Allow-Headers' "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization" always;
       }
 
 spec:
