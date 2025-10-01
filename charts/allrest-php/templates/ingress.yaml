@@ -62,6 +62,13 @@ metadata:
       if ($arg_page ~ "^(32[1-9]|3[3-9][0-9]|[4-9][0-9]{2,}|\d{4,})$") {
           return 403;
       }
+       # --- BLOCK AGGRESSIVE BOTNET SUBNETS ---
+      deny 47.82.11.0/24;    # China Mobile botnet hammering
+      deny 141.94.0.0/16;    # OVH scanners
+      deny 65.21.0.0/16;     # Hetzner bots
+      deny 45.32.0.0/16;     # Vultr scanners
+      # allow all remaining
+      allow all;
 
       # --- SECURITY HEADERS ---
       add_header X-Frame-Options "SAMEORIGIN" always;
