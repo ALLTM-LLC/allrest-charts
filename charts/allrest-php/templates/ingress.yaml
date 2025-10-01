@@ -20,7 +20,7 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-busy-buffers-size: "64k"
 
     # === KEEPALIVE & UPSTREAM SETTINGS ===
-    nginx.ingress.kubernetes.io/keepalive: "100"
+    nginx.ingress.kubernetes.io/keepalive: "10000"
     nginx.ingress.kubernetes.io/proxy-next-upstream: "error timeout invalid_header http_502 http_503 http_504"
 
     # === COMPRESSION SETTINGS ===
@@ -49,7 +49,7 @@ metadata:
       # 2. DEFINE MALICIOUS USER-AGENTS (AI, Cloud Providers, Common Scripting Tools)
       map $http_user_agent $is_unwanted_source {
           default 0;
-          "~*(GPTBot|ClaudeBot|Google-Extended|AmazonWebService|GoogleCloud|Microsoft-Azure|HeadlessChrome|PhantomJS|Selenium|PostmanRuntime|curl|wget|python-requests|Java/|okhttp|nuclei|nikto|nmap|sqlmap|masscan|zgrab|Go-http-client )" 1;
+          "~*(GPTBot|ClaudeBot|Claude-Web|ChatGPT|OpenAI|PerplexityBot|PerplexityAI|YandexGPTBot|Meta-ExternalAgent|Google-Extended|AmazonWebService|Amazonbot|GoogleCloud|Microsoft-Azure|HeadlessChrome|PhantomJS|Selenium|PostmanRuntime|Postman|curl|wget|python-requests|python|scrapy|nikto|nuclei|nmap|sqlmap|masscan|zgrab|Go-http-client|okhttp|okhttp3|Java\/|node-fetch|axios|aiohttp|libwww-perl|httpclient|http[\s-]?client|spider|DotBot|Baiduspider|AhrefsBot|MJ12bot|SemrushBot|PetalBot|CCBot|Bytespider|DataForSeoBot|BLEXBot|MegaIndex|SeznamBot|Sogou|ZoominfoBot|OAI-SearchBo|DotBot|Java )" 1;
           "" 1; # Block empty User-Agent
       }
 
