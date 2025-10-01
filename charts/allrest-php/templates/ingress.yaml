@@ -33,76 +33,53 @@ metadata:
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
 
     # === RATE LIMITING ANNOTATIONS (Global Fallback ) ===
-    nginx.ingress.kubernetes.io/limit-rps: "10" # Tightened
-    nginx.ingress.kubernetes.io/limit-burst: "20" # Tightened
-    nginx.ingress.kubernetes.io/limit-connections: "30" # Tightened
+    nginx.ingress.kubernetes.io/limit-rps: "10"
+    nginx.ingress.kubernetes.io/limit-burst: "20"
+    nginx.ingress.kubernetes.io/limit-connections: "30"
     nginx.ingress.kubernetes.io/limit-whitelist: "143.198.249.29/32"
 
-    # === ENHANCED SECURITY & PERFORMANCE CONFIGURATION ===
+    # === SECURITY & PERFORMANCE INLINE CHECKS ===
     nginx.ingress.kubernetes.io/configuration-snippet: |
-      # 1. DEFINE MALICIOUS URI PATTERNS (SQLi, XSS, Path Traversal, etc.)
-      map $request_uri $is_malicious_uri {
-          default 0;
-          "~*(<script>|%3Cscript%3E|../|sqlmap|union select|concat|information_schema|etc/passwd|proc/self/environ)" 1;
-      }
-
-      # 2. DEFINE MALICIOUS USER-AGENTS (AI, Cloud Providers, Common Scripting Tools)
-      map $http_user_agent $is_unwanted_source {
-          default 0;
-          "~*(GPTBot|ClaudeBot|Claude-Web|ChatGPT|OpenAI|PerplexityBot|PerplexityAI|YandexGPTBot|Meta-ExternalAgent|Google-Extended|AmazonWebService|Amazonbot|GoogleCloud|Microsoft-Azure|HeadlessChrome|PhantomJS|Selenium|PostmanRuntime|Postman|curl|wget|python-requests|python|scrapy|nikto|nuclei|nmap|sqlmap|masscan|zgrab|Go-http-client|okhttp|okhttp3|Java\/|node-fetch|axios|aiohttp|libwww-perl|httpclient|http[\s-]?client|spider|DotBot|Baiduspider|AhrefsBot|MJ12bot|SemrushBot|PetalBot|CCBot|Bytespider|DataForSeoBot|BLEXBot|MegaIndex|SeznamBot|Sogou|ZoominfoBot|OAI-SearchBo|DotBot|Java )" 1;
-          "" 1; # Block empty User-Agent
-      }
-
-      # 3. DEFINE SUSPICIOUS HEADERS (Indicators of non-browser traffic)
-      map $http_accept $is_suspicious_header {
-          default 0;
-          "~*(text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8 )" 0; # Typical browser Accept header
-          "~*(application/json|*/*)" 0; # Allow common API Accept headers
-          default 1; # Block anything else as suspicious
-      }
-
-      # 4. DEFINE EXCESSIVE PAGINATION (Scraper Trap)
-      map $arg_page $is_highpage {
-          default 0;
-          "~^(32[1-9]|3[3-9]\\d|[4-9]\\d\\d|\\d{4,})$" 1; # Block page numbers >= 321
-      }
-
-      # --- LAYERED DEFENSE LOGIC ---
-      # Order matters: block most obvious threats first to save resources
-
-      # Block requests with malicious URI patterns
-      if ($is_malicious_uri = 1) {
-          return 403;
-      }
-      # Block AI crawlers, cloud providers, empty/scripting User-Agents
-      if ($is_unwanted_source = 1) {
-          return 403;
-      }
-      # Block requests with suspicious Accept headers (non-browser-like)
-      if ($is_suspicious_header = 1) {
-          return 403;
-      }
-      # Block deep pagination scraping
-      if ($is_highpage = 1) {
+      # --- BLOCK MALICIOUS URIs (SQLi, XSS, Traversal) ---
+      if ($request_uri ~* "(<script>|%3Cscript%3E|\\.\\./|sqlmap|union select|concat|information_schema|etc/passwd|proc/self/environ)") {
           return 403;
       }
 
-      # --- STANDARD HEADERS & CACHING ---
+      # --- BLOCK AI CRAWLERS / BOTS / SCRAPERS ---
+      if ($http_user_agent ~* "(GPTBot|ClaudeBot|ChatGPT|OpenAI|PerplexityBot|PerplexityAI|YandexGPTBot|Meta-ExternalAgent|Google-Extended|AmazonWebService|Amazonbot|GoogleCloud|Microsoft-Azure|HeadlessChrome|PhantomJS|Selenium|PostmanRuntime|Postman|curl|wget|python-requests|python|scrapy|nikto|nuclei|nmap|sqlmap|masscan|zgrab|Go-http-client|okhttp|Java/|node-fetch|axios|aiohttp|libwww-perl|httpclient|http[\s-]?client|spider|DotBot|Baiduspider|AhrefsBot|MJ12bot|SemrushBot|PetalBot|CCBot|Bytespider|DataForSeoBot|BLEXBot|MegaIndex|SeznamBot|Sogou|ZoominfoBot|OAI-SearchBo)") {
+          return 403;
+      }
+      if ($http_user_agent = "") {
+          return 403;
+      }
+
+      # --- BLOCK BAD ACCEPT HEADERS (non-browser-like) ---
+      if ($http_accept !~* "(text/html|application/json|application/xhtml\+xml|image/webp|\*/\*)" ) {
+          return 403;
+      }
+
+      # --- BLOCK DEEP PAGINATION SCRAPERS (page >= 321) ---
+      if ($arg_page ~ "^(32[1-9]|3[3-9][0-9]|[4-9][0-9]{2,}|\d{4,})$") {
+          return 403;
+      }
+
+      # --- SECURITY HEADERS ---
       add_header X-Frame-Options "SAMEORIGIN" always;
       add_header X-XSS-Protection "1; mode=block" always;
       add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
 
+      # --- CACHING RULES ---
       if ($request_uri ~* "\\.(?:ico|css|js|gif|jpe?g|png|woff2?|eot|ttf|svg)$") {
           add_header Cache-Control "public, max-age=2592000" always;
       }
       if ($arg_page ~ "^[0-9]+$") {
           add_header Cache-Control "public, max-age=600" always;
       }
-      if ($http_user_agent ~* "bot|crawl|spider" ) {
+      if ($http_user_agent ~* "bot|crawl|spider") {
           add_header Cache-Control "public, max-age=300" always;
       }
 
-      # --- CORS & PREFLIGHT HANDLING ---
+      # --- CORS ---
       if ($request_method = OPTIONS) {
           add_header "Access-Control-Allow-Origin" "$http_origin" always;
           add_header "Access-Control-Allow-Credentials" "true" always;
@@ -111,7 +88,7 @@ metadata:
           add_header "Content-Length" 0;
           return 204;
       }
-      if ($http_origin ~* "^https://([a-z0-9-]+\\.  )*allrestaurants\\.eu$") {
+      if ($http_origin ~* "^https://([a-z0-9-]+\\.)*allrestaurants\\.eu$") {
           add_header "Access-Control-Allow-Origin" "$http_origin" always;
           add_header "Access-Control-Allow-Credentials" "true" always;
           add_header "Access-Control-Allow-Methods" "GET, POST, OPTIONS, PUT, DELETE" always;
