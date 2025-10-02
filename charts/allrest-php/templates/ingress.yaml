@@ -39,68 +39,88 @@ metadata:
     nginx.ingress.kubernetes.io/limit-whitelist: "143.198.249.29/32"
 
     # === SECURITY & PERFORMANCE INLINE CHECKS ===
+    
     nginx.ingress.kubernetes.io/configuration-snippet: |
-      # --- BLOCK MALICIOUS URIs (SQLi, XSS, Traversal) ---
-      if ($request_uri ~* "(<script>|%3Cscript%3E|\\.\\./|sqlmap|union select|concat|information_schema|etc/passwd|proc/self/environ)") {
+  # --- BLOCK MALICIOUS URIs (SQLi, XSS, Traversal) ---
+  if ($request_uri ~* "(<script>|%3Cscript%3E|\\.\\./|sqlmap|union select|concat|information_schema|etc/passwd|proc/self/environ)") {
+      return 403;
+  }
+
+  # --- BLOCK AI CRAWLERS / BOTS / SCRAPERS ---
+  if ($http_user_agent ~* "(GPTBot|ClaudeBot|ChatGPT|OpenAI|PerplexityBot|PerplexityAI|YandexGPTBot|Meta-ExternalAgent|Google-Extended|AmazonWebService|Amazonbot|GoogleCloud|Microsoft-Azure|HeadlessChrome|PhantomJS|Selenium|PostmanRuntime|Postman|curl|wget|python-requests|python|scrapy|nikto|nuclei|nmap|sqlmap|masscan|zgrab|Go-http-client|okhttp|Java/|node-fetch|axios|aiohttp|libwww-perl|httpclient|http[\s-]?client|spider|DotBot|Baiduspider|AhrefsBot|MJ12bot|SemrushBot|PetalBot|CCBot|Bytespider|DataForSeoBot|BLEXBot|MegaIndex|SeznamBot|Sogou|ZoominfoBot|OAI-SearchBo)") {
+      return 403;
+  }
+  if ($http_user_agent = "") {
+      return 403;
+  }
+
+  # --- BLOCK BAD ACCEPT HEADERS (non-browser-like) ---
+  if ($http_accept !~* "(text/html|application/json|application/xhtml\+xml|image/webp|\*/\*)" ) {
+      return 403;
+  }
+
+  # --- BLOCK DEEP PAGINATION SCRAPERS (page >= 321) ---
+  if ($arg_page ~ "^(32[1-9]|3[3-9][0-9]|[4-9][0-9]{2,}|\d{4,})$") {
+      return 403;
+  }
+
+  # --- BLOCK AGGRESSIVE BOTNET SUBNETS ---
+  deny 47.82.11.0/24;    # China Mobile botnet hammering
+  deny 141.94.0.0/16;    # OVH scanners
+  deny 65.21.0.0/16;     # Hetzner bots
+  deny 45.32.0.0/16;     # Vultr scanners
+  # allow all remaining
+  allow all;
+
+  # Block unwanted URI schemes
+  if ($request_uri ~* "(tel:|javascript:|data:)") {
+      return 403;
+  }
+
+  # --- BLOCK DIRECTORY TRAVERSAL ATTEMPTS ---
+  if ($request_uri ~* "(\.\./|\.\.\\)") {
+      set $block_traversal 1;
+
+      if ($http_referer ~* "^https?://([a-z0-9-]+\.)*allrestaurants\.eu") {
+          set $block_traversal 0;
+      }
+
+      if ($block_traversal) {
           return 403;
       }
+  }
 
-      # --- BLOCK AI CRAWLERS / BOTS / SCRAPERS ---
-      if ($http_user_agent ~* "(GPTBot|ClaudeBot|ChatGPT|OpenAI|PerplexityBot|PerplexityAI|YandexGPTBot|Meta-ExternalAgent|Google-Extended|AmazonWebService|Amazonbot|GoogleCloud|Microsoft-Azure|HeadlessChrome|PhantomJS|Selenium|PostmanRuntime|Postman|curl|wget|python-requests|python|scrapy|nikto|nuclei|nmap|sqlmap|masscan|zgrab|Go-http-client|okhttp|Java/|node-fetch|axios|aiohttp|libwww-perl|httpclient|http[\s-]?client|spider|DotBot|Baiduspider|AhrefsBot|MJ12bot|SemrushBot|PetalBot|CCBot|Bytespider|DataForSeoBot|BLEXBot|MegaIndex|SeznamBot|Sogou|ZoominfoBot|OAI-SearchBo)") {
-          return 403;
-      }
-      if ($http_user_agent = "") {
-          return 403;
-      }
+  # --- SECURITY HEADERS ---
+  add_header X-Frame-Options "SAMEORIGIN" always;
+  add_header X-XSS-Protection "1; mode=block" always;
+  add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
 
-      # --- BLOCK BAD ACCEPT HEADERS (non-browser-like) ---
-      if ($http_accept !~* "(text/html|application/json|application/xhtml\+xml|image/webp|\*/\*)" ) {
-          return 403;
-      }
+  # --- CACHING RULES ---
+  if ($request_uri ~* "\\.(?:ico|css|js|gif|jpe?g|png|woff2?|eot|ttf|svg)$") {
+      add_header Cache-Control "public, max-age=2592000" always;
+  }
+  if ($arg_page ~ "^[0-9]+$") {
+      add_header Cache-Control "public, max-age=600" always;
+  }
+  if ($http_user_agent ~* "bot|crawl|spider") {
+      add_header Cache-Control "public, max-age=300" always;
+  }
 
-      # --- BLOCK DEEP PAGINATION SCRAPERS (page >= 321) ---
-      if ($arg_page ~ "^(32[1-9]|3[3-9][0-9]|[4-9][0-9]{2,}|\d{4,})$") {
-          return 403;
-      }
-       # --- BLOCK AGGRESSIVE BOTNET SUBNETS ---
-      deny 47.82.11.0/24;    # China Mobile botnet hammering
-      deny 141.94.0.0/16;    # OVH scanners
-      deny 65.21.0.0/16;     # Hetzner bots
-      deny 45.32.0.0/16;     # Vultr scanners
-      # allow all remaining
-      allow all;
-
-      # --- SECURITY HEADERS ---
-      add_header X-Frame-Options "SAMEORIGIN" always;
-      add_header X-XSS-Protection "1; mode=block" always;
-      add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
-
-      # --- CACHING RULES ---
-      if ($request_uri ~* "\\.(?:ico|css|js|gif|jpe?g|png|woff2?|eot|ttf|svg)$") {
-          add_header Cache-Control "public, max-age=2592000" always;
-      }
-      if ($arg_page ~ "^[0-9]+$") {
-          add_header Cache-Control "public, max-age=600" always;
-      }
-      if ($http_user_agent ~* "bot|crawl|spider") {
-          add_header Cache-Control "public, max-age=300" always;
-      }
-
-      # --- CORS ---
-      if ($request_method = OPTIONS) {
-          add_header "Access-Control-Allow-Origin" "$http_origin" always;
-          add_header "Access-Control-Allow-Credentials" "true" always;
-          add_header "Access-Control-Allow-Methods" "GET, POST, OPTIONS, PUT, DELETE" always;
-          add_header "Access-Control-Allow-Headers" "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization" always;
-          add_header "Content-Length" 0;
-          return 204;
-      }
-      if ($http_origin ~* "^https://([a-z0-9-]+\\.)*allrestaurants\\.eu$") {
-          add_header "Access-Control-Allow-Origin" "$http_origin" always;
-          add_header "Access-Control-Allow-Credentials" "true" always;
-          add_header "Access-Control-Allow-Methods" "GET, POST, OPTIONS, PUT, DELETE" always;
-          add_header "Access-Control-Allow-Headers" "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization" always;
-      }
+  # --- CORS ---
+  if ($request_method = OPTIONS) {
+      add_header "Access-Control-Allow-Origin" "$http_origin" always;
+      add_header "Access-Control-Allow-Credentials" "true" always;
+      add_header "Access-Control-Allow-Methods" "GET, POST, OPTIONS, PUT, DELETE" always;
+      add_header "Access-Control-Allow-Headers" "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization" always;
+      add_header "Content-Length" 0;
+      return 204;
+  }
+  if ($http_origin ~* "^https://([a-z0-9-]+\\.)*allrestaurants\\.eu$") {
+      add_header "Access-Control-Allow-Origin" "$http_origin" always;
+      add_header "Access-Control-Allow-Credentials" "true" always;
+      add_header "Access-Control-Allow-Methods" "GET, POST, OPTIONS, PUT, DELETE" always;
+      add_header "Access-Control-Allow-Headers" "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization" always;
+  }
 
 
 spec:
