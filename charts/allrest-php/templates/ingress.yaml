@@ -21,7 +21,7 @@ metadata:
 
     # SHARED ZONE RATE LIMITING (Global across workers)
     nginx.ingress.kubernetes.io/limit-rps-zone: "30"                # max 30 requests/sec per key
-    nginx.ingress.kubernetes.io/limit-rps-zone-size: "20m"          # 20MB shared memory
+    nginx.ingress.kubernetes.io/limit-rps-zone-size: "50m"          # 20MB shared memory
 
     # API / CUSTOM KEY RATE LIMITING
     # Use header api_key for API clients
@@ -33,9 +33,9 @@ metadata:
     # === BUFFER SETTINGS ===
     nginx.ingress.kubernetes.io/proxy-buffering: "on"
     nginx.ingress.kubernetes.io/proxy-request-buffering: "on"
-    nginx.ingress.kubernetes.io/proxy-buffer-size: "32k"
-    nginx.ingress.kubernetes.io/proxy-buffers-number: "16"
-    nginx.ingress.kubernetes.io/proxy-busy-buffers-size: "64k"
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "64k"
+    nginx.ingress.kubernetes.io/proxy-buffers-number: "32"
+    nginx.ingress.kubernetes.io/proxy-busy-buffers-size: "128k"
 
     # === KEEPALIVE & UPSTREAM SETTINGS ===
     nginx.ingress.kubernetes.io/keepalive: "10000"
