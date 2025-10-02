@@ -41,10 +41,10 @@ metadata:
 
     # === SECURITY & PERFORMANCE INLINE CHECKS ===
     nginx.ingress.kubernetes.io/configuration-snippet: |
-      # --- GOOD BOT ALLOW LIST ---
-      map $http_user_agent $is_good_bot {
-          default 0;
-          "~*(Googlebot|Bingbot|facebot|facebookexternalhit|Twitterbot|LinkedInBot|WhatsApp|YandexBot|BaiduSpider|Slackbot|Applebot)" 1;
+      # --- GOOD BOT SET ---
+      set $is_good_bot 0;
+      if ($http_user_agent ~* "(Googlebot|Bingbot|facebot|facebookexternalhit|Twitterbot|LinkedInBot|WhatsApp|YandexBot|BaiduSpider|Slackbot|Applebot)") {
+          set $is_good_bot 1;
       }
 
       # --- BLOCK MALICIOUS URIs (SQLi, XSS, Traversal) ---
@@ -73,10 +73,10 @@ metadata:
       }
 
       # --- BLOCK AGGRESSIVE BOTNET SUBNETS ---
-      deny 47.82.11.0/24;    # China Mobile botnet hammering
-      deny 141.94.0.0/16;    # OVH scanners
-      deny 65.21.0.0/16;     # Hetzner bots
-      deny 45.32.0.0/16;     # Vultr scanners
+      deny 47.82.11.0/24;
+      deny 141.94.0.0/16;
+      deny 65.21.0.0/16;
+      deny 45.32.0.0/16;
       allow all;
 
       # --- BLOCK DIRECTORY TRAVERSAL (except internal referers) ---
