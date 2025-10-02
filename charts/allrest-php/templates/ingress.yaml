@@ -11,6 +11,24 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
     nginx.ingress.kubernetes.io/proxy-connect-timeout: "50"
+    
+    # === RATE LIMITING ANNOTATIONS (Global Fallback ) ===
+    nginx.ingress.kubernetes.io/limit-rps: "10"
+    nginx.ingress.kubernetes.io/limit-burst: "20"
+    nginx.ingress.kubernetes.io/limit-connections: "50"
+    nginx.ingress.kubernetes.io/limit-whitelist: "143.198.249.29/32"
+    
+
+    # SHARED ZONE RATE LIMITING (Global across workers)
+    nginx.ingress.kubernetes.io/limit-rps-zone: "30"                # max 30 requests/sec per key
+    nginx.ingress.kubernetes.io/limit-rps-zone-size: "20m"          # 20MB shared memory
+
+    # API / CUSTOM KEY RATE LIMITING
+    # Use header api_key for API clients
+    nginx.ingress.kubernetes.io/limit-rps-key: "$http_api_key"
+    nginx.ingress.kubernetes.io/limit-rps: "3"                     # max 5 requests/sec per API key
+    nginx.ingress.kubernetes.io/limit-burst: "2"                   # burst 10 requests
+
 
     # === BUFFER SETTINGS ===
     nginx.ingress.kubernetes.io/proxy-buffering: "on"
@@ -31,23 +49,6 @@ metadata:
     # === HTTPS SETTINGS ===
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-
-    # === RATE LIMITING ANNOTATIONS (Global Fallback ) ===
-    nginx.ingress.kubernetes.io/limit-rps: "10"
-    nginx.ingress.kubernetes.io/limit-burst: "20"
-    nginx.ingress.kubernetes.io/limit-connections: "50"
-    nginx.ingress.kubernetes.io/limit-whitelist: "143.198.249.29/32"
-    
-
-    # SHARED ZONE RATE LIMITING (Global across workers)
-    nginx.ingress.kubernetes.io/limit-rps-zone: "30"     # max 30 requests/sec per key
-    nginx.ingress.kubernetes.io/limit-rps-zone-size: "20m" # 20MB shared memory
-
-    # API / CUSTOM KEY RATE LIMITING
-    # Use header api_key for API clients
-    nginx.ingress.kubernetes.io/limit-rps-key: "$http_api_key"
-    nginx.ingress.kubernetes.io/limit-rps: "5"           # max 5 requests/sec per API key
-    nginx.ingress.kubernetes.io/limit-burst: "5"        # burst 10 requests
 
     
     # === SECURITY & PERFORMANCE INLINE CHECKS ===
