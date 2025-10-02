@@ -13,8 +13,8 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-connect-timeout: "50"
     
     # === RATE LIMITING ANNOTATIONS (Global Fallback ) ===
-    nginx.ingress.kubernetes.io/limit-rps: "10"
-    nginx.ingress.kubernetes.io/limit-burst: "20"
+    nginx.ingress.kubernetes.io/limit-rps: "5"
+    nginx.ingress.kubernetes.io/limit-burst: "10"
     nginx.ingress.kubernetes.io/limit-connections: "50"
     nginx.ingress.kubernetes.io/limit-whitelist: "143.198.249.29/32"
     
@@ -26,8 +26,8 @@ metadata:
     # API / CUSTOM KEY RATE LIMITING
     # Use header api_key for API clients
     nginx.ingress.kubernetes.io/limit-rps-key: "$http_api_key"
-    nginx.ingress.kubernetes.io/limit-rps: "3"                     # max 5 requests/sec per API key
-    nginx.ingress.kubernetes.io/limit-burst: "2"                   # burst 10 requests
+    nginx.ingress.kubernetes.io/limit-rps: "3"                     # max 3 requests/sec per API key
+    nginx.ingress.kubernetes.io/limit-burst: "2"                   # burst 2 requests
 
 
     # === BUFFER SETTINGS ===
@@ -72,7 +72,7 @@ metadata:
       }
 
       # --- BLOCK DEEP PAGINATION SCRAPERS (page >= 50) ---
-      if ($arg_page ~ "^(5[1-9]|[6-9][0-9]{1,}|\d{3,})$") {
+      if ($arg_page ~ "^(3[1-9]|[4-9][0-9]|\d{3,})$") {
           return 403;
       }
        # --- BLOCK AGGRESSIVE BOTNET SUBNETS ---
