@@ -20,8 +20,8 @@ metadata:
     
 
     # SHARED ZONE RATE LIMITING (Global across workers)
-    nginx.ingress.kubernetes.io/limit-rps-zone: "30"                # max 30 requests/sec per key
-    nginx.ingress.kubernetes.io/limit-rps-zone-size: "50m"          # 20MB shared memory
+
+    nginx.ingress.kubernetes.io/limit-rps-zone-size: "10m"          # 20MB shared memory
 
     # API / CUSTOM KEY RATE LIMITING
     # Use header api_key for API clients
