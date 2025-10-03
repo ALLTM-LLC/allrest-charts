@@ -50,44 +50,38 @@ metadata:
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
 
-    # === SECURITY & PERFORMANCE INLINE CHECKS ===
+
+    # === SECURITY & BOT FILTERING ===
     nginx.ingress.kubernetes.io/configuration-snippet: |
       # --- BLOCK MALICIOUS URIs (SQLi, XSS, Traversal) ---
       if ($request_uri ~* "(<script>|%3Cscript%3E|\\.\\./|sqlmap|union select|concat|information_schema|etc/passwd|proc/self/environ)") {
           return 403;
       }
 
+      # --- ALLOW ONLY KNOWN GOOD BOTS ---
+      if ($http_user_agent ~* "Googlebot|Bingbot|facebot|facebookexternalhit|Twitterbot|LinkedInBot|WhatsApp|PinterestBot|TelegramBot|Slackbot|Applebot") {
+          set $is_goodbot 1;
+      }
+
       # --- BLOCK AI CRAWLERS / BOTS / SCRAPERS ---
-      if ($http_user_agent ~* "(GPTBot|ClaudeBot|ChatGPT|OpenAI|PerplexityBot|PerplexityAI|YandexGPTBot|Meta-ExternalAgent|Google-Extended|AmazonWebService|Amazonbot|GoogleCloud|Microsoft-Azure|HeadlessChrome|PhantomJS|Selenium|PostmanRuntime|Postman|curl|wget|python-requests|python|scrapy|nikto|nuclei|nmap|sqlmap|masscan|zgrab|Go-http-client|okhttp|Java/|node-fetch|axios|aiohttp|libwww-perl|httpclient|http[\s-]?client|spider|DotBot|Baiduspider|AhrefsBot|MJ12bot|SemrushBot|PetalBot|CCBot|Bytespider|DataForSeoBot|BLEXBot|MegaIndex|SeznamBot|Sogou|ZoominfoBot|OAI-SearchBo)") {
+      if ($http_user_agent ~* "(GPTBot|ClaudeBot|ChatGPT|OpenAI|PerplexityBot|PerplexityAI|YandexGPTBot|Meta-ExternalAgent|Google-Extended|AmazonWebService|Amazonbot|GoogleCloud|Microsoft-Azure|HeadlessChrome|PhantomJS|Selenium|PostmanRuntime|Postman|curl|wget|python-requests|python|scrapy|nikto|nuclei|nmap|sqlmap|masscan|zgrab|Go-http-client|okhttp|Java/|node-fetch|axios|aiohttp|libwww-perl|httpclient|http[\s-]?client|DotBot|AhrefsBot|MJ12bot|SemrushBot|PetalBot|CCBot|Bytespider|DataForSeoBot|BLEXBot|MegaIndex|SeznamBot|Sogou|ZoominfoBot|OAI-SearchBo)") {
           return 403;
       }
 
-      # --- ALLOW ONLY SPECIFIC CRAWLERS / BOTS ---
-      if ($http_user_agent !~* "Googlebot|Bingbot|facebot|facebookexternalhit|Twitterbot|LinkedInBot|WhatsApp|PinterestBot|TelegramBot|Slackbot|Applebot") {
-          return 403;
-      }
-
-      # --- BLOCK EMPTY USER AGENT ---
+      # --- BLOCK EMPTY USER AGENTS ---
       if ($http_user_agent = "") {
           return 403;
       }
 
-      # --- BLOCK BAD ACCEPT HEADERS (non-browser-like) ---
-      if ($http_accept !~* "(text/html|application/json|application/xhtml\+xml|image/webp|\*/\*)" ) {
+      # --- BLOCK NON-BROWSER ACCEPT HEADERS ---
+      if ($http_accept !~* "(text/html|application/json|application/xhtml\\+xml|image/webp|\\*/\\*)" ) {
           return 403;
       }
 
       # --- BLOCK DEEP PAGINATION SCRAPERS (page >= 50) ---
-      if ($arg_page ~ "^(3[1-9]|[4-9][0-9]|\d{3,})$") {
+      if ($arg_page ~ "^(3[1-9]|[4-9][0-9]|\\d{3,})$") {
           return 403;
       }
-
-      # --- BLOCK AGGRESSIVE BOTNET SUBNETS ---
-      deny 47.82.11.0/24;
-      deny 141.94.0.0/16;
-      deny 65.21.0.0/16;
-      deny 45.32.0.0/16;
-      allow all;
 
       # --- BLOCK UNWANTED URI SCHEMES ---
       if ($request_uri ~* "(tel:|javascript:|data:)") {
@@ -125,7 +119,6 @@ metadata:
           add_header "Access-Control-Allow-Methods" "GET, POST, OPTIONS, PUT, DELETE" always;
           add_header "Access-Control-Allow-Headers" "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization" always;
       }
-
 
 spec:
   tls:
