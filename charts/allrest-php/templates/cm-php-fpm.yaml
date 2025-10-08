@@ -19,7 +19,7 @@ data:
     pm.min_spare_servers = 15
     pm.max_spare_servers = 20
     pm.max_requests = 1200      ; Recycle processes after 1000 requests to prevent memory leaks.
-    pm.process_idle_timeout = 10s ; Free up idle processes faster.
+    pm.process_idle_timeout = 15s ; Free up idle processes faster.
     request_terminate_timeout = 120s ; Reduced from 180s.
 
     ; === PHP Settings (Optimized) ===
@@ -39,4 +39,4 @@ data:
     php_admin_value[error_log] = /proc/self/fd/2
     pm.status_path = /status
     slowlog = /proc/self/fd/2
-    request_slowlog_timeout = 10s ; Log any request that takes longer than 10s.
+    request_slowlog_timeout = 15s ; Log any request that takes longer than 15s.
