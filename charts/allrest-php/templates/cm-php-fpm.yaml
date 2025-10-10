@@ -14,10 +14,10 @@ data:
     ; === PHP-FPM Process Management (Optimized for 16GB Node) ===
     pm = dynamic
     ; Calculated: A 16GB Node can't support 45 * 512MB. This is a safe limit.
-    pm.max_children = 45
-    pm.start_servers = 15
-    pm.min_spare_servers = 15
-    pm.max_spare_servers = 20
+    pm.max_children = 60
+    pm.start_servers = 20
+    pm.min_spare_servers = 20
+    pm.max_spare_servers = 30
     pm.max_requests = 1200      ; Recycle processes after 1000 requests to prevent memory leaks.
     pm.process_idle_timeout = 15s ; Free up idle processes faster.
     request_terminate_timeout = 120s ; Reduced from 180s.
