@@ -54,14 +54,6 @@ metadata:
 
     # === SECURITY & BOT FILTERING ===
     nginx.ingress.kubernetes.io/configuration-snippet: |
-      # --- Dynamic rate limiting based on URI ---
-      # ✅ NEW SECTION
-      if ($request_uri ~* "^/api") {
-          set $limit_rate 3;    # Dynamic limit for API endpoints
-      }
-      if ($request_uri !~* "^/api") {
-          set $limit_rate 7;    # Default for all other routes
-      }
     
       # --- BLOCK MALICIOUS URIs (SQLi, XSS, Traversal) ---
       if ($request_uri ~* "(<script>|%3Cscript%3E|\\.\\./|sqlmap|union select|concat|information_schema|etc/passwd|proc/self/environ)") {
