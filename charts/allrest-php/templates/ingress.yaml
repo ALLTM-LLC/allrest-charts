@@ -18,6 +18,155 @@ metadata:
     nginx.ingress.kubernetes.io/limit-connections: "120"
     nginx.ingress.kubernetes.io/limit-whitelist: "143.198.249.29/32"
     
+    # SHARED ZONE RATE LIMITING (Global across workers)
+    nginx.ingress.kubernetes.io/limit-rps-zone-size: "15m"
+
+    # API / CUSTOM KEY RATE LIMITING
+    nginx.ingress.kubernetes.io/limit-rps-key: "$http_api_key"
+    nginx.ingress.kubernetes.io/limit-burst: "2"
+
+    # === BUFFER SETTINGS ===
+    nginx.ingress.kubernetes.io/proxy-buffering: "on"
+    nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "64k"
+    nginx.ingress.kubernetes.io/proxy-buffers-number: "32"
+    nginx.ingress.kubernetes.io/proxy-busy-buffers-size: "128k"
+
+    # === KEEPALIVE & UPSTREAM SETTINGS ===
+    nginx.ingress.kubernetes.io/keepalive: "1024"
+    nginx.ingress.kubernetes.io/proxy-next-upstream: "error timeout invalid_header http_502 http_503 http_504"
+    nginx.ingress.kubernetes.io/proxy-next-upstream-tries: "3"
+    nginx.ingress.kubernetes.io/proxy-next-upstream-timeout: "5"
+
+    # === COMPRESSION SETTINGS ===
+    nginx.ingress.kubernetes.io/enable-gzip: "true"
+    nginx.ingress.kubernetes.io/enable-brotli: "true"
+    nginx.ingress.kubernetes.io/gzip-types: "text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript"
+
+    # === HTTPS SETTINGS ===
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+
+
+    # === SECURITY & BOT FILTERING ===
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+
+      ### 🔹 MODIFIED SECTION — DETECT TRUSTED SOURCES (new)
+      # --- Detect known valid users (apps, admin, API, browser sessions)
+      set $is_allowed_source 0;
+
+      # Mobile apps (AllRestaurants / AllSupplier)
+      if ($http_user_agent ~* "(AllRestaurantsApp|AllSupplierApp|okhttp|CFNetwork|Android|iPhone|iPad|Mobile)") {
+          set $is_allowed_source 1;
+      }
+
+      # Browser sessions and Admin/API authorized users
+      if ($cookie_PHPSESSID != "") {
+          set $is_allowed_source 1;
+      }
+      if ($http_authorization != "") {
+          set $is_allowed_source 1;
+      }
+      if ($http_x_requested_with = "XMLHttpRequest") {
+          set $is_allowed_source 1;
+      }
+      if ($http_referer ~* "(allrestaurants\.eu|allsupplier\.allrestaurants\.eu|admin\.allrestaurants\.eu|api\.allrestaurants\.eu)") {
+          set $is_allowed_source 1;
+      }
+
+      # --- BLOCK SPOOFED CHROME 112 SCRAPERS ---
+      if ($http_user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36") {
+          return 403;
+      }
+
+      if ($http_user_agent ~* "(HeadlessChrome|Puppeteer|Playwright|Selenium)") {
+          return 403;
+      }
+
+      # --- BLOCK MALICIOUS URIs (SQLi, XSS, Traversal) ---
+      if ($request_uri ~* "(<script>|%3Cscript%3E|\\.\\./|sqlmap|union select|concat|information_schema|etc/passwd|proc/self/environ)") {
+          return 403;
+      }
+
+      ### 🔹 MODIFIED SECTION — BLOCK ALL CRAWLERS (even "good" ones)
+      if ($http_user_agent ~* "(bot|crawl|spider|Googlebot|Bingbot|Yahoo|facebot|facebookexternalhit|Twitterbot|LinkedInBot|PinterestBot|TelegramBot|Slackbot|Applebot)") {
+          return 403;
+      }
+
+      # --- BLOCK AI/Automation/Scraping Clients ---
+      if ($http_user_agent ~* "(GPTBot|ClaudeBot|ChatGPT|OpenAI|PerplexityBot|PerplexityAI|YandexGPTBot|Meta-ExternalAgent|Google-Extended|AmazonWebService|Amazonbot|GoogleCloud|Microsoft-Azure|PhantomJS|PostmanRuntime|curl|wget|python-requests|python|scrapy|nikto|nuclei|nmap|sqlmap|masscan|zgrab|Go-http-client|okhttp|Java/|node-fetch|axios|aiohttp|libwww-perl|httpclient|DotBot|AhrefsBot|MJ12bot|SemrushBot|PetalBot|CCBot|Bytespider|DataForSeoBot|BLEXBot|MegaIndex|SeznamBot|Sogou|ZoominfoBot|OAI-SearchBo)") {
+          return 403;
+      }
+
+      # --- BLOCK EMPTY USER AGENTS ---
+      if ($http_user_agent = "") {
+          return 403;
+      }
+
+      # --- BLOCK NON-BROWSER ACCEPT HEADERS ---
+      if ($http_accept !~* "(text/html|application/json|application/xhtml\\+xml|image/webp|\\*/\\*)" ) {
+          return 403;
+      }
+
+      ### 🔹 MODIFIED SECTION — SMART PAGINATION FILTER
+      # --- Allow deep pagination only for trusted sources ---
+      if ($is_allowed_source = 0) {
+          if ($arg_page ~ "^(15[1-9]|1[6-9][0-9]|[2-9][0-9]{2,}|\\d{4,})$") {
+              return 403;
+          }
+      }
+
+      ### 🔹 ADDED SECTION — SEO NOINDEX FOR DEEP PAGES
+      if ($arg_page ~ "^(15[1-9]|1[6-9][0-9]|[2-9][0-9]{2,}|\\d{4,})$") {
+          add_header X-Robots-Tag "noindex, nofollow" always;
+      }
+
+      # --- BLOCK UNWANTED URI SCHEMES ---
+      if ($request_uri ~* "(tel:|javascript:|data:)") {
+          return 403;
+      }
+
+      # --- SECURITY HEADERS ---
+      add_header X-Frame-Options "SAMEORIGIN" always;
+      add_header X-XSS-Protection "1; mode=block" always;
+      add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+
+      # --- CACHING RULES ---
+      if ($request_uri ~* "\\.(?:ico|css|js|gif|jpe?g|png|woff2?|eot|ttf|svg)$") {
+          add_header Cache-Control "public, max-age=2592000" always;
+      }
+      if ($arg_page ~ "^[0-9]+$") {
+          add_header Cache-Control "public, max-age=600" always;
+      }
+
+      # --- CORS ---
+      if ($request_method = OPTIONS) {
+          add_header "Access-Control-Allow-Origin" "$http_origin" always;
+          add_header "Access-Control-Allow-Credentials" "true" always;
+          add_header "Access-Control-Allow-Methods" "GET, POST, OPTIONS, PUT, DELETE" always;
+          add_header "Access-Control-Allow-Headers" "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization" always;
+          add_header "Content-Length" 0;
+          return 204;
+      }
+      if ($http_origin ~* "^https://([a-z0-9-]+\\.)*allrestaurants\\.eu$") {
+          add_header "Access-Control-Allow-Origin" "$http_origin" always;
+          add_header "Access-Control-Allow-Credentials" "true" always;
+          add_header "Access-Control-Allow-Methods" "GET, POST, OPTIONS, PUT, DELETE" always;
+          add_header "Access-Control-Allow-Headers" "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization" always;
+      }
+
+    # === UPLOAD & TIMEOUT SETTINGS ===
+    nginx.ingress.kubernetes.io/proxy-body-size: "200m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "180"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "180"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "10"
+    
+    # === RATE LIMITING ANNOTATIONS (Global Fallback ) ===
+    nginx.ingress.kubernetes.io/limit-rps: "10"
+    nginx.ingress.kubernetes.io/limit-burst: "7"
+    nginx.ingress.kubernetes.io/limit-connections: "120"
+    nginx.ingress.kubernetes.io/limit-whitelist: "143.198.249.29/32"
+    
 
     # SHARED ZONE RATE LIMITING (Global across workers)
 
