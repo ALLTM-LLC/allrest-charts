@@ -11,32 +11,49 @@ data:
     listen.owner = www-data
     listen.group = www-data
 
-    ; === PHP-FPM Process Management (Optimized for 16GB Node) ===
+    ; ===============================================================
+    ; === PHP-FPM PROCESS MANAGEMENT (Optimized for 16GB Node) ===
+    ; ===============================================================
     pm = dynamic
-    ; Calculated: A 16GB Node can't support 45 * 512MB. This is a safe limit.
-    pm.max_children = 60
+    pm.max_children = 60           ; max 60 concurrent PHP workers
     pm.start_servers = 15
     pm.min_spare_servers = 15
     pm.max_spare_servers = 30
-    pm.max_requests = 800      ; Recycle processes after 800 requests to prevent memory leaks.
-    pm.process_idle_timeout = 15s ; Free up idle processes faster.
-    request_terminate_timeout = 120s ; Reduced from 180s.
+    pm.max_requests = 800          ; recycle workers to prevent memory leaks
+    pm.process_idle_timeout = 15s  ; free idle workers faster
+    request_terminate_timeout = 120s ; max allowed time for any PHP request
 
-    ; === PHP Settings (Optimized) ===
-    ; CRITICAL: Reduced from 512M to prevent memory exhaustion.
+    ; ===============================================================
+    ; === PHP CORE SETTINGS (Optimized for Performance & Stability)
+    ; ===============================================================
     php_admin_value[memory_limit] = 256M
-    ; Your upload settings are correct and have been kept.
     php_admin_value[upload_max_filesize] = 5M
     php_admin_value[post_max_size] = 150M
     php_admin_value[max_file_uploads] = 20
-    php_admin_value[max_execution_time] = 120 ; Reduced from 120s.
-    php_admin_value[max_input_time] = 120     ; Reduced from 120s.
+    php_admin_value[max_execution_time] = 120
+    php_admin_value[max_input_time] = 120
     php_admin_value[realpath_cache_size] = 4096k
     php_admin_value[realpath_cache_ttl] = 600
 
-    ; === Logging and Monitoring ===
+    ; ===============================================================
+    ; === PHP OPCACHE SETTINGS (Reduce CPU load & Speed Up PHP)
+    ; ===============================================================
+    ; Opcache stores compiled PHP code in memory, reducing processing time
+    php_admin_value[opcache.enable] = 1
+    php_admin_value[opcache.enable_cli] = 0
+    php_admin_value[opcache.memory_consumption] = 256        ; shared memory for cache
+    php_admin_value[opcache.interned_strings_buffer] = 16     ; memory for interned strings
+    php_admin_value[opcache.max_accelerated_files] = 20000    ; max cached scripts
+    php_admin_value[opcache.revalidate_freq] = 2              ; recheck scripts every 2s
+    php_admin_value[opcache.validate_timestamps] = 1          ; keep in sync with file changes
+    php_admin_value[opcache.fast_shutdown] = 1                ; faster PHP shutdown
+    php_admin_value[opcache.max_wasted_percentage] = 5        ; restart when fragmentation >5%
+
+    ; ===============================================================
+    ; === LOGGING & MONITORING
+    ; ===============================================================
     php_admin_flag[log_errors] = on
     php_admin_value[error_log] = /proc/self/fd/2
     pm.status_path = /status
     slowlog = /proc/self/fd/2
-    request_slowlog_timeout = 15s ; Log any request that takes longer than 15s.
+    request_slowlog_timeout = 15s
