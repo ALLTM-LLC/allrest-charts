@@ -89,8 +89,8 @@ metadata:
           return 403;
       }
 
-      # --- BLOCK DEEP PAGINATION SCRAPERS (page >= 150) ---
-      if ($arg_page ~ "^(15[1-9]|1[6-9][0-9]|[2-9][0-9]{2,}|\\d{4,})$") {
+      # --- BLOCK DEEP PAGINATION SCRAPERS (page >= 320) ---
+      if ($arg_page ~ "^(32[0-9]|3[3-9][0-9]|[4-9][0-9]{2,}|\\d{4,})$") {
           return 403;
       }
 
