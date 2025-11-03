@@ -110,8 +110,6 @@ metadata:
           add_header Vary "Accept-Encoding" always;
           access_log off;
           log_not_found off;
-          tcp_nopush on;
-          tcp_nodelay on;
       }
       if ($arg_page ~ "^[0-9]+$") {
           add_header Cache-Control "public, max-age=600" always;
