@@ -108,8 +108,7 @@ metadata:
           add_header Cache-Control "public, max-age=7776000, immutable" always;
           add_header Pragma "public" always;
           add_header Vary "Accept-Encoding" always;
-          access_log off;
-          log_not_found off;
+
       }
       if ($arg_page ~ "^[0-9]+$") {
           add_header Cache-Control "public, max-age=600" always;
