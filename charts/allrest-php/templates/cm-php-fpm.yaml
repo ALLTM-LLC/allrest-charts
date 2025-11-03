@@ -19,8 +19,8 @@ data:
     pm.start_servers = 15
     pm.min_spare_servers = 15
     pm.max_spare_servers = 30
-    pm.max_requests = 800          ; recycle workers to prevent memory leaks
-    pm.process_idle_timeout = 15s  ; free idle workers faster
+    pm.max_requests = 600          ; recycle workers to prevent memory leaks
+    pm.process_idle_timeout = 10s  ; free idle workers faster
     request_terminate_timeout = 120s ; max allowed time for any PHP request
 
     ; ===============================================================
