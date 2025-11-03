@@ -13,16 +13,13 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-connect-timeout: "10"
     
     # === RATE LIMITING ANNOTATIONS (Global Fallback ) ===
+    nginx.ingress.kubernetes.io/limit-connections: "40"
+    nginx.ingress.kubernetes.io/limit-rpm: "600"
     nginx.ingress.kubernetes.io/limit-rps: "10"
     nginx.ingress.kubernetes.io/limit-burst: "7"
-    nginx.ingress.kubernetes.io/limit-connections: "120"
+    nginx.ingress.kubernetes.io/limit-rps-zone-size: "15m"
     nginx.ingress.kubernetes.io/limit-whitelist: "143.198.249.29/32"
     
-
-    # SHARED ZONE RATE LIMITING (Global across workers)
-
-    nginx.ingress.kubernetes.io/limit-rps-zone-size: "15m"          # 15MB shared memory
-
     # API / CUSTOM KEY RATE LIMITING
     # Use header api_key for API clients
     nginx.ingress.kubernetes.io/limit-rps-key: "$http_api_key"
@@ -41,6 +38,8 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-next-upstream: "error timeout invalid_header http_502 http_503 http_504"
     nginx.ingress.kubernetes.io/proxy-next-upstream-tries: "3"
     nginx.ingress.kubernetes.io/proxy-next-upstream-timeout: "5"
+    nginx.ingress.kubernetes.io/upstream-keepalive-connections: "128"
+    nginx.ingress.kubernetes.io/upstream-keepalive-timeout: "60"
 
     # === COMPRESSION SETTINGS ===
     nginx.ingress.kubernetes.io/enable-gzip: "true"
@@ -105,8 +104,14 @@ metadata:
       add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
 
       # --- CACHING RULES ---
-      if ($request_uri ~* "\\.(?:ico|css|js|gif|jpe?g|png|woff2?|eot|ttf|svg)$") {
-          add_header Cache-Control "public, max-age=2592000" always;
+      if ($request_uri ~* "\\.(?:jpg|jpeg|png|gif|webp|ico|css|js|svg|woff|woff2|ttf|eot|mp4|webm|pdf)$") {
+          add_header Cache-Control "public, max-age=7776000, immutable" always;
+          add_header Pragma "public" always;
+          add_header Vary "Accept-Encoding" always;
+          access_log off;
+          log_not_found off;
+          tcp_nopush on;
+          tcp_nodelay on;
       }
       if ($arg_page ~ "^[0-9]+$") {
           add_header Cache-Control "public, max-age=600" always;
