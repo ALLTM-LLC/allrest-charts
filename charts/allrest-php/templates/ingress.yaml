@@ -54,11 +54,6 @@ metadata:
     # === SECURITY & BOT FILTERING ===
     nginx.ingress.kubernetes.io/configuration-snippet: |
       
-      # --- BLOCK SPOOFED CHROME 112 SCRAPERS ---
-      if ($http_user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36") {
-          return 403;
-      }
-
       # --- BLOCK SPOOFED CHROME & HEADLESS SCRAPERS ---
       if ($http_user_agent ~* "(HeadlessChrome|Puppeteer|Playwright|Selenium|PhantomJS|Headless)") {
           return 403;
