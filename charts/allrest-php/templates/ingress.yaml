@@ -65,7 +65,7 @@ metadata:
       }
       
       # --- BLOCK OLD & FAKE CHROME (<70) ---
-      if ($http_user_agent ~* "Chrome/([0-6][0-9]|[0-9]|1[0-1][0-9]|12[0-9])") {
+      if ($http_user_agent ~* "Chrome/([0-6][0-9])") {
           return 403;
       }
       
