@@ -119,7 +119,7 @@ metadata:
       if ($arg_page ~ "^[0-9]+$") {
           add_header Cache-Control "public, max-age=600" always;
       }
-      if ($http_user_agent ~* "bot|crawl|spider") {
+      if ($http_user_agent ~* "(bot|crawler|spider|archive|scanner|fetch|slurp)(/|;|$| )") {
           add_header Cache-Control "public, max-age=300" always;
       }
 
