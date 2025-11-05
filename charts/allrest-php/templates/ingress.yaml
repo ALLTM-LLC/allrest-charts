@@ -120,9 +120,7 @@ metadata:
           add_header Cache-Control "public, max-age=600" always;
       }
       if ($http_user_agent ~* "bot|crawl|spider") {
-          if ($request_uri !~* "\\.(?:jpg|jpeg|png|gif|webp|ico|css|js|svg|woff|woff2|ttf|eot|mp4|webm|pdf)$") {
-              add_header Cache-Control "public, max-age=300" always;
-          }
+          add_header Cache-Control "public, max-age=300" always;
       }
 
       # --- CORS ---
