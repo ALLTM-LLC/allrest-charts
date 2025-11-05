@@ -75,7 +75,7 @@ metadata:
       }
 
       # --- ALLOW ONLY KNOWN GOOD BOTS ---
-      if ($http_user_agent ~* "Googlebot|Bingbot|facebot|facebookexternalhit|Twitterbot|LinkedInBot|WhatsApp|PinterestBot|TelegramBot|Slackbot|Applebot") {
+      if ($http_user_agent ~* "Googlebot|GoogleOther|Googlebot-Image|Googlebot-News|Googlebot-Video|Bingbot|Slurp|DuckDuckBot|facebot|facebookexternalhit|Twitterbot|LinkedInBot|WhatsApp|PinterestBot|TelegramBot|Slackbot|Applebot") {
           set $is_goodbot 1;
       }
 
@@ -120,7 +120,9 @@ metadata:
           add_header Cache-Control "public, max-age=600" always;
       }
       if ($http_user_agent ~* "bot|crawl|spider") {
-          add_header Cache-Control "public, max-age=300" always;
+          if ($request_uri !~* "\\.(?:jpg|jpeg|png|gif|webp|ico|css|js|svg|woff|woff2|ttf|eot|mp4|webm|pdf)$") {
+              add_header Cache-Control "public, max-age=300" always;
+          }
       }
 
       # --- CORS ---
