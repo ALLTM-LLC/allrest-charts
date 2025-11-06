@@ -58,6 +58,10 @@ metadata:
       if ($http_user_agent ~* "(HeadlessChrome|Puppeteer|Playwright|Selenium|PhantomJS|Headless)") {
           return 403;
       }
+      # --- BLOCK CHROME SCRAPERS (no real browser sends these headers) ---
+      if ($http_sec_ch_ua = "") {
+          return 403;
+      }
       
       # --- BLOCK OLD & FAKE CHROME (<70) ---
       #if ($http_user_agent ~* "Chrome/([0-6][0-9])") {
