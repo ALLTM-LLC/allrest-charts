@@ -57,7 +57,7 @@ metadata:
       # Note: The specific Chrome 112 block has been removed as it blocks legitimate users.
       if ($http_user_agent ~* "(HeadlessChrome|Puppeteer|Playwright|Selenium|PhantomJS|Headless)") {
           return 403;
-      
+      }
       # --- BLOCK OLD & FAKE CHROME (<70) ---
       #if ($http_user_agent ~* "Chrome/([0-6][0-9])") {
       #    return 403;
