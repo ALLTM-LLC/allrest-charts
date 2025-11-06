@@ -53,13 +53,9 @@ metadata:
 
     # === SECURITY & BOT FILTERING ===
     nginx.ingress.kubernetes.io/configuration-snippet: |
-      # --- BLOCK SPOOFED CHROME 112 SCRAPERS ---
-      if ($http_user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36") {
-          return 403;
-      }
-
       # --- BLOCK SPOOFED CHROME & HEADLESS SCRAPERS ---
-      if ($http_user_agent ~* "(Puppeteer|Playwright|Selenium|PhantomJS|Headless)") {
+      # Note: The specific Chrome 112 block has been removed as it blocks legitimate users.
+      if ($http_user_agent ~* "(HeadlessChrome|Puppeteer|Playwright|Selenium|PhantomJS|Headless)") {
           return 403;
       }
       
@@ -79,17 +75,17 @@ metadata:
       }
       
       # --- BLOCK AI CRAWLERS / LLM BOTS ---
-      if ($http_user_agent ~* "(GPTBot|ClaudeBot|ChatGPT|OpenAI|PerplexityBot|YandexGPTBot|Meta-ExternalAgent|Google-Extended )") {
+      if ($http_user_agent ~* "(GPTBot|ClaudeBot|ChatGPT|OpenAI|PerplexityBot|YandexGPTBot|Meta-ExternalAgent|Google-Extended)") {
           return 403;
       }
       
       # --- BLOCK GENERIC SCRAPERS & NON-BROWSER TOOLS ---
-      if ($http_user_agent ~* "(curl|wget|python-requests|scrapy|Go-http-client|okhttp|Java/|node-fetch|axios|aiohttp|libwww-perl|httpclient|PostmanRuntime|Postman )") {
+      if ($http_user_agent ~* "(curl|wget|python-requests|scrapy|Go-http-client|okhttp|Java/|node-fetch|axios|aiohttp|libwww-perl|httpclient|PostmanRuntime|Postman)") {
           return 403;
       }
       
       # --- BLOCK OTHER KNOWN MALICIOUS BOTS & SCANNERS ---
-      if ($http_user_agent ~* "(DotBot|AhrefsBot|MJ12bot|SemrushBot|PetalBot|CCBot|Bytespider|BLEXBot|MegaIndex|SeznamBot|Sogou|ZoominfoBot|OAI-SearchBo )") {
+      if ($http_user_agent ~* "(DotBot|AhrefsBot|MJ12bot|SemrushBot|PetalBot|CCBot|Bytespider|BLEXBot|MegaIndex|SeznamBot|Sogou|ZoominfoBot|OAI-SearchBo)") {
           return 403;
       }
 
@@ -99,7 +95,7 @@ metadata:
       }
 
       # --- BLOCK NON-BROWSER ACCEPT HEADERS ---
-      if ($http_accept !~* "(text/html|application/json|application/xhtml\\+xml|image/webp|\\*/\\*)" ) {
+      if ($http_accept !~* "(text/html|application/json|application/xhtml\\+xml|image/webp|\\*/\\*)") {
           return 403;
       }
 
@@ -147,7 +143,6 @@ metadata:
           add_header "Access-Control-Allow-Methods" "GET, POST, OPTIONS, PUT, DELETE" always;
           add_header "Access-Control-Allow-Headers" "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization" always;
       }
-
 spec:
   tls:
     - hosts:
