@@ -77,9 +77,19 @@ metadata:
       if ($http_user_agent ~* "Googlebot|GoogleOther|Googlebot-Image|Googlebot-News|Googlebot-Video|Bingbot|Slurp|DuckDuckBot|facebot|facebookexternalhit|Twitterbot|LinkedInBot|WhatsApp|PinterestBot|TelegramBot|Slackbot|Applebot") {
           set $is_goodbot 1;
       }
-
-      # --- BLOCK AI CRAWLERS / BOTS / SCRAPERS ---
-      if ($http_user_agent ~* "(GPTBot|ClaudeBot|ChatGPT|OpenAI|PerplexityBot|PerplexityAI|YandexGPTBot|Meta-ExternalAgent|Google-Extended|AmazonWebService|Amazonbot|GoogleCloud|Microsoft-Azure|HeadlessChrome|PhantomJS|Selenium|PostmanRuntime|Postman|curl|wget|python-requests|python|scrapy|nikto|nuclei|nmap|sqlmap|masscan|zgrab|Go-http-client|okhttp|Java/|node-fetch|axios|aiohttp|libwww-perl|httpclient|http[\s-]?client|DotBot|AhrefsBot|MJ12bot|SemrushBot|PetalBot|CCBot|Bytespider|DataForSeoBot|BLEXBot|MegaIndex|SeznamBot|Sogou|ZoominfoBot|OAI-SearchBo)") {
+      
+      # --- BLOCK AI CRAWLERS / LLM BOTS ---
+      if ($http_user_agent ~* "(GPTBot|ClaudeBot|ChatGPT|OpenAI|PerplexityBot|YandexGPTBot|Meta-ExternalAgent|Google-Extended )") {
+          return 403;
+      }
+      
+      # --- BLOCK GENERIC SCRAPERS & NON-BROWSER TOOLS ---
+      if ($http_user_agent ~* "(curl|wget|python-requests|scrapy|Go-http-client|okhttp|Java/|node-fetch|axios|aiohttp|libwww-perl|httpclient|PostmanRuntime|Postman )") {
+          return 403;
+      }
+      
+      # --- BLOCK OTHER KNOWN MALICIOUS BOTS & SCANNERS ---
+      if ($http_user_agent ~* "(DotBot|AhrefsBot|MJ12bot|SemrushBot|PetalBot|CCBot|Bytespider|BLEXBot|MegaIndex|SeznamBot|Sogou|ZoominfoBot|OAI-SearchBo )") {
           return 403;
       }
 
