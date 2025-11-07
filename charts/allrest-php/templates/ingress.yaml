@@ -59,9 +59,9 @@ metadata:
           return 403;
       }
       # --- BLOCK OLD & FAKE CHROME (<70) ---
-      #if ($http_user_agent ~* "Chrome/([0-6][0-9])") {
-      #    return 403;
-      #}
+      if ($http_user_agent ~* "Chrome/(?!/)") {
+          return 403;
+      }
       
       # --- BLOCK MALICIOUS URIs (SQLi, XSS, Traversal) ---
       if ($request_uri ~* "(<script>|%3Cscript%3E|\\.\\./|sqlmap|union select|concat|information_schema|etc/passwd|proc/self/environ)") {
