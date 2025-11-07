@@ -59,7 +59,7 @@ metadata:
           return 403;
       }
       # --- BLOCK OLD & FAKE CHROME (<70) ---
-      if ($http_user_agent ~* "Chrome/(?!/)") {
+      if ($http_user_agent ~* "Chrome(?!/)") {
           return 403;
       }
       
