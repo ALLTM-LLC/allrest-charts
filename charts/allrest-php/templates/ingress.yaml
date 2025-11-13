@@ -23,7 +23,7 @@ metadata:
     # API / CUSTOM KEY RATE LIMITING
     # Use header api_key for API clients
     nginx.ingress.kubernetes.io/limit-rps-key: "$http_api_key"
-    nginx.ingress.kubernetes.io/limit-burst: "2"                   # burst 2 requests
+    #nginx.ingress.kubernetes.io/limit-burst: "2"                   # burst 2 requests
 
 
     # === BUFFER SETTINGS ===
