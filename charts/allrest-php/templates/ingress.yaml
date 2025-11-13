@@ -13,11 +13,11 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-connect-timeout: "10"
 
     # === RATE LIMITING (Global Fallback) ===
-    nginx.ingress.kubernetes.io/limit-connections: "80"
-    nginx.ingress.kubernetes.io/limit-rpm: "200"
+    nginx.ingress.kubernetes.io/limit-connections: "60"
+    nginx.ingress.kubernetes.io/limit-rpm: "100"
     nginx.ingress.kubernetes.io/limit-rps: "7"
-    nginx.ingress.kubernetes.io/limit-burst: "3"
-    nginx.ingress.kubernetes.io/limit-rps-zone-size: "20m"
+    nginx.ingress.kubernetes.io/limit-burst: "2"
+    nginx.ingress.kubernetes.io/limit-rps-zone-size: "50m"
     nginx.ingress.kubernetes.io/limit-whitelist: "143.198.249.29/32"
 
     # === API / CUSTOM KEY RATE LIMITING ===
