@@ -63,6 +63,11 @@ metadata:
           return 403;
       }
       
+      # Block AlibabaCloud scraper subnet
+      if ($remote_addr ~* "^47\.82\.11\.") {
+          return 403;
+      }
+      
       # --- BLOCK MALICIOUS URIs (SQLi, XSS, Traversal) ---
       if ($request_uri ~* "(<script>|%3Cscript%3E|\\.\\./|sqlmap|union select|concat|information_schema|etc/passwd|proc/self/environ)") {
           return 403;
