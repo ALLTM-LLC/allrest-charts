@@ -12,13 +12,15 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
     nginx.ingress.kubernetes.io/proxy-connect-timeout: "10"
 
-    # === RATE LIMITING (GLOBAL) ===
+    # === RATE LIMITING (Global Fallback) ===
     nginx.ingress.kubernetes.io/limit-connections: "120"
     nginx.ingress.kubernetes.io/limit-rpm: "200"
     nginx.ingress.kubernetes.io/limit-rps: "7"
     nginx.ingress.kubernetes.io/limit-burst: "3"
     nginx.ingress.kubernetes.io/limit-rps-zone-size: "20m"
     nginx.ingress.kubernetes.io/limit-whitelist: "143.198.249.29/32"
+
+    # === API / CUSTOM KEY RATE LIMITING ===
     nginx.ingress.kubernetes.io/limit-rps-key: "$http_api_key"
 
     # === BUFFER SETTINGS ===
@@ -36,66 +38,74 @@ metadata:
     nginx.ingress.kubernetes.io/upstream-keepalive-connections: "256"
     nginx.ingress.kubernetes.io/upstream-keepalive-timeout: "75"
 
-    # === COMPRESSION ===
+    # === COMPRESSION SETTINGS ===
     nginx.ingress.kubernetes.io/enable-gzip: "true"
     nginx.ingress.kubernetes.io/enable-brotli: "true"
     nginx.ingress.kubernetes.io/gzip-types: "text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript"
 
-    # === HTTPS ===
+    # === HTTPS SETTINGS ===
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
 
     # === SECURITY & BOT FILTERING ===
     nginx.ingress.kubernetes.io/configuration-snippet: |
-      # Block headless & automation browsers
+      # --- BLOCK SPOOFED CHROME & HEADLESS SCRAPERS ---
       if ($http_user_agent ~* "(HeadlessChrome|Puppeteer|Playwright|Selenium|PhantomJS|Headless)") { return 403; }
+
+      # --- BLOCK OLD & FAKE CHROME (<70) ---
       if ($http_user_agent ~* "Chrome(?!/)") { return 403; }
 
-      # Block aggressive IPs
+      # --- BLOCK MULTIPLE AGGRESSIVE IPs (AlibabaCloud etc.) ---
       if ($remote_addr ~* "^(47\.82\.11\.\d{1,3}|37\.114\.178\.44)$") { return 403; }
 
-      # Block malicious URIs
+      # --- BLOCK MALICIOUS URIs (SQLi, XSS, Traversal) ---
       if ($request_uri ~* "(<script>|%3Cscript%3E|\\.\\./|sqlmap|union select|concat|information_schema|etc/passwd|proc/self/environ)") { return 403; }
 
-      # Allow known good bots
-      if ($http_user_agent ~* "Googlebot|GoogleOther|Googlebot-Image|Googlebot-News|Googlebot-Video|Bingbot|Slurp|DuckDuckBot|facebot|facebookexternalhit|Twitterbot|LinkedInBot|WhatsApp|PinterestBot|TelegramBot|Slackbot|Applebot") { set $is_goodbot 1; }
+      # --- ALLOW ONLY KNOWN GOOD BOTS ---
+      if ($http_user_agent ~* "Googlebot|GoogleOther|Googlebot-Image|Googlebot-News|Googlebot-Video|Bingbot|Slurp|DuckDuckBot|facebot|facebookexternalhit|Twitterbot|LinkedInBot|WhatsApp|PinterestBot|TelegramBot|Slackbot|Applebot") {
+        set $is_goodbot 1;
+      }
 
-      # Block AI crawlers
+      # --- BLOCK AI CRAWLERS / LLM BOTS ---
       if ($http_user_agent ~* "(GPTBot|ClaudeBot|ChatGPT|OpenAI|PerplexityBot|YandexGPTBot|Meta-ExternalAgent|Google-Extended)") { return 403; }
 
-      # Block generic scrapers & tools
+      # --- BLOCK GENERIC SCRAPERS & NON-BROWSER TOOLS ---
       if ($http_user_agent ~* "(curl|wget|python-requests|scrapy|Go-http-client|okhttp|Java/|node-fetch|axios|aiohttp|libwww-perl|httpclient|PostmanRuntime|Postman)") { return 403; }
 
-      # Block other known malicious bots
+      # --- BLOCK OTHER KNOWN MALICIOUS BOTS & SCANNERS ---
       if ($http_user_agent ~* "(DotBot|AhrefsBot|MJ12bot|SemrushBot|PetalBot|CCBot|Bytespider|BLEXBot|MegaIndex|SeznamBot|Sogou|ZoominfoBot|OAI-SearchBo)") { return 403; }
 
-      # Block empty user-agents
+      # --- BLOCK EMPTY USER AGENTS ---
       if ($http_user_agent = "") { return 403; }
 
-      # Block non-browser Accept headers
+      # --- BLOCK NON-BROWSER ACCEPT HEADERS ---
       if ($http_accept !~* "(text/html|application/json|application/xhtml\\+xml|image/webp|\\*/\\*)") { return 403; }
 
-      # Block deep pagination 320p
+      # --- BLOCK DEEP PAGINATION SCRAPERS (page >= 320) ---
       if ($arg_page ~ "^(32[0-9]|3[3-9][0-9]|[4-9][0-9]{2,}|\\d{4,})$") { return 403; }
 
-      # Block unwanted URI schemes
+      # --- BLOCK UNWANTED URI SCHEMES ---
       if ($request_uri ~* "(tel:|javascript:|data:)") { return 403; }
 
-      # Security headers
+      # --- SECURITY HEADERS ---
       add_header X-Frame-Options "SAMEORIGIN" always;
       add_header X-XSS-Protection "1; mode=block" always;
       add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
 
-      # Caching
+      # --- CACHING RULES ---
       if ($request_uri ~* "\\.(?:jpg|jpeg|png|gif|webp|ico|css|js|svg|woff|woff2|ttf|eot|mp4|webm|pdf)$") {
         add_header Cache-Control "public, max-age=7776000, immutable" always;
         add_header Pragma "public" always;
         add_header Vary "Accept-Encoding" always;
       }
-      if ($arg_page ~ "^[0-9]+$") { add_header Cache-Control "public, max-age=600" always; }
-      if ($http_user_agent ~* "(bot|crawler|spider|archive|scanner|fetch|slurp)(/|;|$| )") { add_header Cache-Control "public, max-age=300" always; }
+      if ($arg_page ~ "^[0-9]+$") {
+        add_header Cache-Control "public, max-age=600" always;
+      }
+      if ($http_user_agent ~* "(bot|crawler|spider|archive|scanner|fetch|slurp)(/|;|$| )") {
+        add_header Cache-Control "public, max-age=300" always;
+      }
 
-      # CORS
+      # --- CORS HANDLING ---
       if ($request_method = OPTIONS) {
         add_header "Access-Control-Allow-Origin" "$http_origin" always;
         add_header "Access-Control-Allow-Credentials" "true" always;
@@ -123,33 +133,35 @@ spec:
       secretName: ssl-nginx-eu-new
 
   rules:
+    # --- ADMIN PANEL ---
     - host: admin.allrestaurants.eu
       http:
         paths:
-          - path: /
-            pathType: Prefix
+          - pathType: Prefix
+            path: /
             backend:
               service:
                 name: alltm-admin-panel-service
                 port:
                   number: 80
 
-    - host: "{{ .Values.adminUrl }}"
+    - host: {{ .Values.adminUrl }}
       http:
         paths:
-          - path: /
-            pathType: Prefix
+          - pathType: Prefix
+            path: /
             backend:
               service:
                 name: alltm-admin-panel-service
                 port:
                   number: 80
 
-    - host: "{{ .Values.apiUrl }}"
+    # --- API ---
+    - host: {{ .Values.apiUrl }}
       http:
         paths:
-          - path: /
-            pathType: Prefix
+          - pathType: Prefix
+            path: /
             backend:
               service:
                 name: alltm-api-service
@@ -159,72 +171,84 @@ spec:
     - host: allrestaurants.eu
       http:
         paths:
-          - path: /api/v1/allrest/
-            pathType: Prefix
+          - pathType: Prefix
+            path: /api/v1/allrest/
             backend:
               service:
                 name: allrest-api-service
                 port:
                   number: 80
-          - path: /api/v1/allsupplier
-            pathType: Prefix
+          - pathType: Prefix
+            path: /api/v1/allsupplier
             backend:
               service:
                 name: allsupplier-api-service
                 port:
                   number: 80
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: allrest-php-service
-                port:
-                  number: 80
-          - path: /svg/
-            pathType: Prefix
-            backend:
-              service:
-                name: allrest-php-service
-                port:
-                  number: 80
-          - path: /js/
-            pathType: Prefix
-            backend:
-              service:
-                name: allrest-php-service
-                port:
-                  number: 80
-          - path: /css/
-            pathType: Prefix
-            backend:
-              service:
-                name: allrest-php-service
-                port:
-                  number: 80
-          - path: /fonts/
-            pathType: Prefix
+
+    # --- PUBLIC WEBSITE (PHP BACKEND) ---
+    - host: allrestaurants.eu
+      http:
+        paths:
+          - pathType: Prefix
+            path: /
             backend:
               service:
                 name: allrest-php-service
                 port:
                   number: 80
 
+    # --- WILDCARD SUBDOMAINS ---
     - host: "*.allrestaurants.eu"
       http:
         paths:
-          - path: /
-            pathType: Prefix
+          - pathType: Prefix
+            path: /
             backend:
               service:
                 name: allrest-php-service
                 port:
                   number: 80
 
+    # --- SECONDARY DOMAIN ---
     - host: allrestaurants.info
       http:
         paths:
-          - path: /
-            pathType: Prefix
+          - pathType: Prefix
+            path: /
+            backend:
+              service:
+                name: allrest-php-service
+                port:
+                  number: 80
+
+    # --- STATIC FILES ---
+    - host: allrestaurants.eu
+      http:
+        paths:
+          - pathType: Prefix
+            path: /svg/
+            backend:
+              service:
+                name: allrest-php-service
+                port:
+                  number: 80
+          - pathType: Prefix
+            path: /js/
+            backend:
+              service:
+                name: allrest-php-service
+                port:
+                  number: 80
+          - pathType: Prefix
+            path: /css/
+            backend:
+              service:
+                name: allrest-php-service
+                port:
+                  number: 80
+          - pathType: Prefix
+            path: /fonts/
             backend:
               service:
                 name: allrest-php-service
