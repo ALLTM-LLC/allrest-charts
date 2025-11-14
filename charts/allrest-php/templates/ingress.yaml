@@ -49,17 +49,18 @@ metadata:
 
     # === server-snippet ===
     nginx.ingress.kubernetes.io/server-snippet: |
-      # --- BLOCK SPOOFED CHROME & HEADLESS SCRAPERS ---
-      if ($http_user_agent ~* "(HeadlessChrome|Puppeteer|Playwright|Selenium|PhantomJS|Headless)") { return 403; }
-
       # --- BLOCK OLD & FAKE CHROME (<70) ---
-      if ($http_user_agent ~* "Chrome(?!/)") { return 403; }
+      # if ($http_user_agent ~* "Chrome(?!/)") { return 403; }
+      if ($http_user_agent ~* "Chrome") {
+          if ($http_user_agent !~* "Safari") {
+              return 403;
+          }
+      }
 
       # --- BLOCK MULTIPLE AGGRESSIVE IPs (AlibabaCloud etc.) ---
       if ($remote_addr ~* "^(47\.82\.11\.\d{1,3}|37\.114\.178\.44)$") { return 403; }
 
-      # --- BLOCK MALICIOUS URIs (SQLi, XSS, Traversal) ---
-      if ($request_uri ~* "(<script>|%3Cscript%3E|\\.\\./|sqlmap|union select|concat|information_schema|etc/passwd|proc/self/environ)") { return 403; }
+
 
       # --- ALLOW ONLY KNOWN GOOD BOTS ---
       if ($http_user_agent ~* "Googlebot|GoogleOther|Googlebot-Image|Googlebot-News|Googlebot-Video|Bingbot|Slurp|DuckDuckBot|facebot|facebookexternalhit|Twitterbot|LinkedInBot|WhatsApp|PinterestBot|TelegramBot|Slackbot|Applebot") {
@@ -92,6 +93,12 @@ metadata:
 
     # === SECURITY & BOT FILTERING ===
     nginx.ingress.kubernetes.io/configuration-snippet: |
+      # --- BLOCK SPOOFED CHROME & HEADLESS SCRAPERS ---
+      if ($http_user_agent ~* "(HeadlessChrome|Puppeteer|Playwright|Selenium|PhantomJS|Headless)") { return 403; }
+      
+      # --- BLOCK MALICIOUS URIs (SQLi, XSS, Traversal) ---
+      if ($request_uri ~* "(<script>|%3Cscript%3E|\\.\\./|sqlmap|union select|concat|information_schema|etc/passwd|proc/self/environ)") { return 403; }
+      
       # --- SECURITY HEADERS ---
       add_header X-Frame-Options "SAMEORIGIN" always;
       add_header X-XSS-Protection "1; mode=block" always;
