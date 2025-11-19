@@ -51,6 +51,8 @@ metadata:
     # === CONFIGURATION SNIPPET (BOT, CORS, CACHING, SECURITY) ===
     nginx.ingress.kubernetes.io/configuration-snippet: |
       # --- BLOCK OLD & FAKE BOTS / SCRAPERS ---
+      if ($http_user_agent ~* "(Chrome/27|AOLBUILD|Brave Chrome/78)") { return 403; }
+      
       if ($http_user_agent ~* "Chrome/112") { return 403; }
       if ($http_user_agent ~* "Chrome(?!/)") { return 403; }
       if ($http_user_agent ~* "Chrome\/10[0-9]") { return 403; }
