@@ -71,6 +71,7 @@ metadata:
 
       # --- BLOCK UNWANTED URI SCHEMES ---
       if ($request_uri ~* "(tel:|javascript:|data:)") { return 403; }
+      if ($uri ~* "tel:") { return 403; }
       
       # Block invalid language/country combinations (for known languages only)
       if ($request_uri ~* "/(en|ar|pl|es|pt|de|tr|fr|ru)-(en|ar|pl|es|pt|de|tr|fr|ru)/") { return 403; }
