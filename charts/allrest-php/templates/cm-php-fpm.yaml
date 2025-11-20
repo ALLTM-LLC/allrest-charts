@@ -27,8 +27,8 @@ data:
     ; === PHP CORE SETTINGS (Optimized for Performance & Stability)
     ; ===============================================================
     php_admin_value[memory_limit] = 256M
-    php_admin_value[upload_max_filesize] = 5M
-    php_admin_value[post_max_size] = 150M
+    php_admin_value[upload_max_filesize] = 200M
+    php_admin_value[post_max_size] = 200M
     php_admin_value[max_file_uploads] = 20
     php_admin_value[max_execution_time] = 300
     php_admin_value[max_input_time] = 300
