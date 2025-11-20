@@ -32,9 +32,9 @@ metadata:
 
     # === KEEPALIVE & UPSTREAM SETTINGS ===
     nginx.ingress.kubernetes.io/keepalive: "1024"
-    nginx.ingress.kubernetes.io/proxy-next-upstream: "error timeout invalid_header http_502 http_503 http_504"
-    nginx.ingress.kubernetes.io/proxy-next-upstream-tries: "3"
-    nginx.ingress.kubernetes.io/proxy-next-upstream-timeout: "5"
+    nginx.ingress.kubernetes.io/proxy-next-upstream: "off"
+    nginx.ingress.kubernetes.io/proxy-next-upstream-tries: "0"
+    nginx.ingress.kubernetes.io/proxy-next-upstream-timeout: "0"
     nginx.ingress.kubernetes.io/upstream-keepalive-connections: "256"
     nginx.ingress.kubernetes.io/upstream-keepalive-timeout: "75"
 
