@@ -74,7 +74,7 @@ metadata:
       if ($uri ~* "tel:") { return 403; }
       
       # Block invalid language/country combinations (for known languages only)
-      if ($request_uri ~* "^/(en|ar|pl|es|pt|de|tr|fr|ru)-(en|ar|pl|es|pt|de|tr|fr|ru)(/|$)") { return 403; }
+      # if ($request_uri ~* "^/(en|ar|pl|es|pt|de|tr|fr|ru)-(en|ar|pl|es|pt|de|tr|fr|ru)(/|$)") { return 403; }
 
       # --- SECURITY HEADERS ---
       add_header X-Frame-Options "SAMEORIGIN" always;
