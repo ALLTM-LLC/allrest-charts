@@ -65,7 +65,8 @@ metadata:
       if ($http_user_agent = "") { return 403; }
 
       # --- BLOCK DEEP PAGINATION / LARGE REQUESTS ---
-      if ($arg_page ~ "^(32[0-9]|3[3-9][0-9]|[4-9][0-9]{2,}|\\d{4,})$") { return 403; }
+      # if ($arg_page ~ "^(32[0-9]|3[3-9][0-9]|[4-9][0-9]{2,}|\\d{4,})$") { return 403; }
+      if ($arg_page ~ "^(5[1-9]|[6-9][0-9]|[1-9][0-9]{2,})$") { return 403; }
       if ($arg_page_size ~ "^[5-9][0-9]{2,}|[1-9][0-9]{3,}$") { return 403; }
 
       # --- BLOCK UNWANTED URI SCHEMES ---
