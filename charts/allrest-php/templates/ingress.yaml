@@ -53,10 +53,6 @@ metadata:
     # === CONFIGURATION SNIPPET (BOT, CORS, CACHING, SECURITY) ===
 
     nginx.ingress.kubernetes.io/configuration-snippet: |
-      # --- ALLOW ONLY KNOWN GOOD BOTS configmap ---
-      if ($is_goodbot = 0) { return 403; }
-      
-      
       # --- BLOCK OLD & FAKE BOTS / SCRAPERS ---
       if ($http_user_agent = "") { return 403; }
       if ($http_user_agent ~* "Chrome/112") { return 403; }
