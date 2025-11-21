@@ -55,15 +55,17 @@ metadata:
     nginx.ingress.kubernetes.io/configuration-snippet: |
       # --- BLOCK OLD & FAKE BOTS / SCRAPERS ---
       if ($http_user_agent = "") { return 403; }
-      if ($http_user_agent ~* "Chrome/112") { return 403; }
-      if ($http_user_agent ~* "Chrome/111") { return 403; }
-      if ($http_user_agent ~* "Chrome/110") { return 403; }
+
+      # Block old/fake Chrome versions
+      if ($http_user_agent ~* "Chrome/110|Chrome/111|Chrome/112|Chrome/13[4-9]|Chrome/14[0-9]") { return 403; }
       if ($http_user_agent ~* "Chrome(?!/)") { return 403; }
       
       if ($http_user_agent ~* "(?:CravingExplorer|AOLBUILD|MSIE 8.0|Firefox/3\.8|Firefox/13\.0)") { return 403; }
-      if ($http_user_agent ~* "GPTBot|ClaudeBot|ChatGPT|PerplexityBot|YandexGPTBot|Meta-ExternalAgent") { return 403; }
-      if ($http_user_agent ~* "(curl|wget|python-requests|scrapy|Go-http-client|okhttp|Java/|node-fetch|axios|aiohttp|libwww-perl|httpclient|PostmanRuntime|Postman)") { return 403; }
-      if ($http_user_agent ~* "(DotBot|AhrefsBot|MJ12bot|SemrushBot|PetalBot|CCBot|BLEXBot|MegaIndex|SeznamBot|Sogou|ZoominfoBot|OAI-SearchBot)") { return 403; }
+      # Block AI / GPT / unwanted user agents
+      if ($http_user_agent ~* "(GPTBot|ClaudeBot|ChatGPT|ChatGPT-User|PerplexityBot|YandexGPTBot|Meta-ExternalAgent|Trailer|Herring|Agency)") { return 403; }
+  
+      # Block common scrapers / SEO bots / other unwanted crawlers
+      if ($http_user_agent ~* "(curl|wget|python-requests|scrapy|Go-http-client|okhttp|Java/|node-fetch|axios|aiohttp|libwww-perl|httpclient|PostmanRuntime|Postman|DotBot|AhrefsBot|MJ12bot|SemrushBot|PetalBot|CCBot|BLEXBot|MegaIndex|SeznamBot|Sogou|ZoominfoBot|OAI-SearchBot|AvastSecureBrowser|meta-externalagant)") { return 403; }
 
       if ($remote_addr ~* "^(47\.82\.11\.\d{1,3}|37\.114\.178\.44|192\.168\.1\.100|203\.0\.113\.45)$") { return 403; }
 
