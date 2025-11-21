@@ -56,6 +56,8 @@ metadata:
       # --- BLOCK OLD & FAKE BOTS / SCRAPERS ---
       if ($http_user_agent = "") { return 403; }
       if ($http_user_agent ~* "Chrome/112") { return 403; }
+      if ($http_user_agent ~* "Chrome/111") { return 403; }
+      if ($http_user_agent ~* "Chrome/110") { return 403; }
       if ($http_user_agent ~* "Chrome(?!/)") { return 403; }
       
       if ($http_user_agent ~* "(?:CravingExplorer|AOLBUILD|MSIE 8.0|Firefox/3\.8|Firefox/13\.0)") { return 403; }
@@ -63,7 +65,7 @@ metadata:
       if ($http_user_agent ~* "(curl|wget|python-requests|scrapy|Go-http-client|okhttp|Java/|node-fetch|axios|aiohttp|libwww-perl|httpclient|PostmanRuntime|Postman)") { return 403; }
       if ($http_user_agent ~* "(DotBot|AhrefsBot|MJ12bot|SemrushBot|PetalBot|CCBot|BLEXBot|MegaIndex|SeznamBot|Sogou|ZoominfoBot|OAI-SearchBot)") { return 403; }
 
-      if ($remote_addr ~* "^(47\.82\.11\.\d{1,3}|37\.114\.178\.44)$") { return 403; }
+      if ($remote_addr ~* "^(47\.82\.11\.\d{1,3}|37\.114\.178\.44|192\.168\.1\.100|203\.0\.113\.45)$") { return 403; }
 
       # --- BLOCK DEEP PAGINATION / LARGE REQUESTS ---
       if ($arg_page ~ "^(5[1-9]|[6-9]\\d|\\d{3,})$") { return 403; }
