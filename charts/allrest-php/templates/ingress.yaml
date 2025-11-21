@@ -73,10 +73,6 @@ metadata:
       # Block additional outdated/fake Chrome versions seen in logs
       if ($http_user_agent ~* "Chrome/(29|41|63|68|80|84|89|90|91|99)") { return 403; }
 
-      # Block fake Googlebot / Mediapartners except valid ranges
-      if ($http_user_agent ~* "Mediapartners|Googlebot") {
-        if ($remote_addr !~* "^66\\.249\\.") { return 403; }
-      }
 
       # Block fraudulent 'tel:' URI patterns
       if ($request_uri ~* "tel:") { return 403; }
