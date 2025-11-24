@@ -127,8 +127,8 @@ spec:
         - api.allrestaurants.eu
         - allsupplier.allrestaurants.eu
         - allrestaurants.eu
-        - "{{ .Values.allUrl }}"
-        - "{{ .Values.mainUrl }}"
+        - {{ .Values.allUrl }}
+        - {{ .Values.mainUrl }}
       secretName: ssl-nginx-eu-new
   rules:
     # --- ADMIN PANEL ---
