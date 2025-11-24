@@ -53,8 +53,7 @@ metadata:
     # === CONFIGURATION SNIPPET (BOT, CORS, CACHING, SECURITY) ===
 
     nginx.ingress.kubernetes.io/configuration-snippet: |
-      # Block empty User-Agent 
-      if ($http_user_agent = "") { return 403; } 
+      if ($$http_user_agent = "") { return 403; }
       
       # Block Chrome versions < 100 (non-human / bots) 
       if ($http_user_agent ~* "Chrome/[0-9]{1,2}\.") { return 403; }
@@ -121,135 +120,267 @@ metadata:
       }
 
 spec:
+
   tls:
+
     - hosts:
+
         - admin.allrestaurants.eu
+
         - api.allrestaurants.eu
+
         - allsupplier.allrestaurants.eu
+
         - allrestaurants.eu
-        - {{ .Values.allUrl }}
-        - {{ .Values.mainUrl }}
+
+        - "{{ .Values.allUrl }}"
+
+        - "{{ .Values.mainUrl }}"
+
       secretName: ssl-nginx-eu-new
+
   rules:
+
     # --- ADMIN PANEL ---
+
     - host: admin.allrestaurants.eu
+
       http:
+
         paths:
+
           - pathType: Prefix
+
             path: /
+
             backend:
+
               service:
+
                 name: alltm-admin-panel-service
+
                 port:
+
                   number: 80
 
+
+
     - host: {{ .Values.adminUrl }}
+
       http:
+
         paths:
+
           - pathType: Prefix
+
             path: /
+
             backend:
+
               service:
+
                 name: alltm-admin-panel-service
+
                 port:
+
                   number: 80
+
+
 
     # --- API ---
 
+
+
     - host: {{ .Values.apiUrl }}
+
       http:
+
         paths:
+
           - pathType: Prefix
+
             path: /
+
             backend:
+
               service:
+
                 name: alltm-api-service
+
                 port:
+
                   number: 80
 
+
+
     - host: allrestaurants.eu
+
       http:
+
         paths:
+
           - pathType: Prefix
+
             path: /api/v1/allrest/
+
             backend:
+
               service:
+
                 name: allrest-api-service
+
                 port:
+
                   number: 80
+
           - pathType: Prefix
+
             path: /api/v1/allsupplier
+
             backend:
+
               service:
+
                 name: allsupplier-api-service
+
                 port:
+
                   number: 80
+
+
 
     # --- PUBLIC WEBSITE (PHP BACKEND) ---
+
     - host: allrestaurants.eu
+
       http:
+
         paths:
+
           - pathType: Prefix
+
             path: /
+
             backend:
+
               service:
+
                 name: allrest-php-service
+
                 port:
+
                   number: 80
+
+
 
     # --- WILDCARD SUBDOMAINS ---
+
     - host: "*.allrestaurants.eu"
+
       http:
+
         paths:
+
           - pathType: Prefix
+
             path: /
+
             backend:
+
               service:
+
                 name: allrest-php-service
+
                 port:
+
                   number: 80
+
+
 
     # --- SECONDARY DOMAIN ---
+
     - host: allrestaurants.info
+
       http:
+
         paths:
+
           - pathType: Prefix
+
             path: /
+
             backend:
+
               service:
+
                 name: allrest-php-service
+
                 port:
+
                   number: 80
 
+
+
     # --- STATIC FILES ---
+
     - host: allrestaurants.eu
+
       http:
+
         paths:
+
           - pathType: Prefix
+
             path: /svg/
+
             backend:
+
               service:
+
                 name: allrest-php-service
+
                 port:
+
                   number: 80
+
           - pathType: Prefix
+
             path: /js/
+
             backend:
+
               service:
+
                 name: allrest-php-service
+
                 port:
+
                   number: 80
+
           - pathType: Prefix
+
             path: /css/
+
             backend:
+
               service:
+
                 name: allrest-php-service
+
                 port:
+
                   number: 80
+
           - pathType: Prefix
+
             path: /fonts/
+
             backend:
+
               service:
+
                 name: allrest-php-service
+
                 port:
+
                   number: 80
