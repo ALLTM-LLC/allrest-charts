@@ -55,11 +55,6 @@ metadata:
       # --- ALLOW IMPORTANT CRAWLERS ---
       if ($http_user_agent ~* "(Googlebot|AdsBot-Google|AdsBot-Google-Mobile|Mediapartners-Google|Google-InspectionTool|bingbot|BingPreview|facebookexternalhit|Facebot|Instagram|Twitterbot|WhatsApp|LinkedInBot|TelegramBot|Applebot|DuckDuckBot|YandexBot)") { break; }
       
-      # --- BLOCK OLD & FAKE BOTS / SCRAPERS ---
-      # Block outdated/fake Chrome versions
-      # if ($http_user_agent ~* "Chrome/(110|111|112|13[4-9]|14|29|41|63|68|80|84|89|90|91|99)") { return 403; }
-      # if ($http_user_agent ~* "Chrome(?!/[0-9]{2,3})") { return 403; }
-
       # --- BLOCK OLD / FAKE / BOT CHROME VERSIONS ---
       # Block Chrome user agents that show full version (bots, fake browsers)
       if ($http_user_agent ~* "Chrome/(1[01][0-9]|[1-9]?[0-9])") { return 403; }
@@ -117,8 +112,6 @@ metadata:
         add_header "Access-Control-Allow-Methods" "GET, POST, OPTIONS, PUT, DELETE" always;
         add_header "Access-Control-Allow-Headers" "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization" always;
       }
-
-
 
 spec:
   tls:
