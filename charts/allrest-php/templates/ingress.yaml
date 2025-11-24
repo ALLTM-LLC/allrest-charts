@@ -55,10 +55,15 @@ metadata:
     nginx.ingress.kubernetes.io/configuration-snippet: |
       # --- BLOCK OLD & FAKE BOTS / SCRAPERS ---
       if ($http_user_agent = "") { return 403; }
-      # Block old/fake Chrome versions
-      if ($http_user_agent ~* "Chrome/110|Chrome/111|Chrome/112|Chrome/13[4-9]|Chrome/14[0-9]") { return 403; }
-      if ($http_user_agent ~* "Chrome(?!/)") { return 403; }
+      # Block outdated/fake Chrome versions
+      if ($http_user_agent ~* "Chrome/(110|111|112|13[4-9]|14[0-9])") {
+          return 403;
+      }
       
+      # Block fake Chrome without valid version
+      if ($http_user_agent ~* "Chrome(?!/[0-9]{2,3})") {
+          return 403;
+      }
       if ($http_user_agent ~* "(?:CravingExplorer|AOLBUILD|MSIE 8.0|Firefox/3\.8|Firefox/13\.0)") { return 403; }
       # Block AI / GPT / unwanted user agents
       if ($http_user_agent ~* "(GPTBot|ClaudeBot|ChatGPT|ChatGPT-User|PerplexityBot|YandexGPTBot|Meta-ExternalAgent|Trailer|Herring|Agency)") { return 403; }
