@@ -58,7 +58,7 @@ metadata:
       
       # Block old/fake Chrome versions
       if ($http_user_agent ~* "Chrome/(110|111|112|13[4-9]|14[0-9])") { return 403; }
-	    if ($http_user_agent ~* "Chrome/(29|41|63|68|80|84|89|90|91|99)") { return 403; }
+	  if ($http_user_agent ~* "Chrome/(29|41|63|68|80|84|89|90|91|99)") { return 403; }
       if ($http_user_agent ~* "Chrome(?!/[0-9]{2,3})") { return 403; }
       
       # Block outdated browsers (optional)
