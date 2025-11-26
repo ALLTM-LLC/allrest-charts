@@ -50,8 +50,14 @@ metadata:
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
 
+    # Deny known malicious networks (fast at NGINX level)
+    nginx.ingress.kubernetes.io/denylist-source-range: |
+      47.80.0.0/12,
+      14.248.0.0/16,
+      187.190.0.0/16,
+      74.7.241.0/24
+    
     # === CONFIGURATION SNIPPET (BOT, CORS, CACHING, SECURITY) ===
-
     nginx.ingress.kubernetes.io/configuration-snippet: |
       # --- BLOCK OLD & FAKE BOTS / SCRAPERS ---
       if ($http_user_agent = "") { return 403; }
