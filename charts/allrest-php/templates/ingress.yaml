@@ -49,7 +49,6 @@ metadata:
     # === HTTPS SETTINGS ===
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-    nginx.ingress.kubernetes.io/from-to-www-redirect: "true"
     
     # Deny known malicious networks (fast at NGINX level)
     nginx.ingress.kubernetes.io/denylist-source-range: |
