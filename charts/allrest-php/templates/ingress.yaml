@@ -53,6 +53,10 @@ metadata:
      
     # === CONFIGURATION SNIPPET (BOT, CORS, CACHING, SECURITY) ===
     nginx.ingress.kubernetes.io/configuration-snippet: |
+      # --- BLOCK AGGRESSIVE IP RANGE (43.104.0.0/16) ---
+      if ($remote_addr ~ "^43\.104\.") {
+        return 403;
+      }
       # --- BLOCK OLD & FAKE BOTS / SCRAPERS ---
       if ($http_user_agent = "") { return 403; }
       
@@ -69,7 +73,7 @@ metadata:
       if ($http_user_agent ~* "(^$|^-?$|null|CravingExplorer|AOLBUILD|MSIE 8\.0|Firefox/3\.8|Firefox/13\.0)") { return 403; }
       
       # Block AI bots, scrapers, malware scanners, automation libraries
-      if ($http_user_agent ~* "(GPTBot|ChatGPT|ChatGPT-User|OpenAI|OpenAI-SearchBot|OpenAI-DataScraper|OAI-SearchBot|Anthropic|ClaudeBot|PerplexityBot|cohere-ai|YandexGPTBot|Meta-ExternalAgent|AppleBot-Extended|AmazonBot|AI2Bot|Bytespider|PyntBot|CCBot|Diffbot|Scrapy|curl|wget|PostmanRuntime|Postman|axios|node-fetch|python-requests|php|libwww-perl|httpclient|Go-http-client|Java/|okhttp|aiohttp|rest-client|HTTrack|BLEXBot|DotBot|AhrefsBot|MJ12bot|SemrushBot|PetalBot|MegaIndex|SeznamBot|Sogou|ZoominfoBot|Netcraft|CensysInspect|Nmap|sqlmap|masscan|acunetix|Nikto|ZAP|wpscan)") { return 403; }
+      if ($http_user_agent ~* "(GPTBot|AHC|ChatGPT|ChatGPT-User|OpenAI|OpenAI-SearchBot|OpenAI-DataScraper|OAI-SearchBot|Anthropic|ClaudeBot|PerplexityBot|cohere-ai|YandexGPTBot|Meta-ExternalAgent|AppleBot-Extended|AmazonBot|AI2Bot|Bytespider|PyntBot|CCBot|Diffbot|Scrapy|curl|wget|PostmanRuntime|Postman|axios|node-fetch|python-requests|php|libwww-perl|httpclient|Go-http-client|Java/|okhttp|aiohttp|rest-client|HTTrack|BLEXBot|DotBot|AhrefsBot|MJ12bot|SemrushBot|PetalBot|MegaIndex|SeznamBot|Sogou|ZoominfoBot|Netcraft|CensysInspect|Nmap|sqlmap|masscan|acunetix|Nikto|ZAP|wpscan)") { return 403; }
 
       # --- BLOCK DEEP PAGINATION / LARGE REQUESTS ---
       if ($arg_page ~ "^(32[1-9]|3[3-9]\d|[4-9]\d{2,}|\d{4,})$") { return 403; }
