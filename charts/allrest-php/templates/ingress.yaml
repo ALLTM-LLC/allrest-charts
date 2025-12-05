@@ -89,15 +89,28 @@ metadata:
       154.16.0.0/16
       156.146.0.0/16
       193.169.0.0/16
+
+
+    nginx.ingress.kubernetes.io/server-snippet: |
+      set $blocked 0;
+    
+      # Capture first 2-3 letter prefix
+      if ($uri ~* "^/([a-z]{2,3})/") { set $lang_prefix $1; }
+    
+      # Block if not in allowed list
+      if ($lang_prefix !~ "^(tr|ru|ar|pt|fr|en|de|pl|es)$") { set $blocked 1; }
+    
+      # Do not block static assets
+      if ($uri ~* "\.(css|js|png|jpg|jpeg|gif|ico|svg|webp|woff|woff2|ttf|eot)$") { set $blocked 0; }
+    
+      # Do not block API paths
+      if ($uri ~* "^/api/") { set $blocked 0; }
+    
+      # Return 403 if blocked
+      if ($blocked = 1) { return 403; }
       
     # === CONFIGURATION SNIPPET (BOT, CORS, CACHING, SECURITY) ===
     nginx.ingress.kubernetes.io/configuration-snippet: |
-      
-      # --- BLOCK INVALID LANGUAGE PREFIXES ---
-      if ($uri ~* "^/(tr|ru|ar|pt|fr|en|de|pl|es)/") {
-        return 403;
-      }
-      
       # --- BLOCK OLD & FAKE BOTS / SCRAPERS ---
       if ($http_user_agent = "") { return 403; }
       
