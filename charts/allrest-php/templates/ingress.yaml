@@ -58,37 +58,7 @@ metadata:
       187.190.0.0/16
       74.7.241.0/24
       
-      # China Telecom / China Unicom abusive scanners
-      45.113.0.0/16
-      45.248.0.0/16
-      103.0.0.0/12
-      
-      # Vietnam VNPT & Viettel botnets
-      14.0.0.0/12
-      113.160.0.0/11
-      171.224.0.0/11
-      
-      # Brazil ISP Vivo & Claro abusive scanners
-      187.0.0.0/12
-      189.0.0.0/11
-      
-      # Russia / Ukraine / Belarus datacenters (scraping & attacks)
-      5.188.0.0/16
-      5.183.0.0/16
-      45.146.0.0/16
-      45.155.0.0/16
-      
-      # India Jio & Airtel abusive scanners
-      49.36.0.0/14
-      106.51.0.0/16
-      106.208.0.0/12
-      
-      # Known botnets / VPS ranges
-      185.244.0.0/16
-      198.23.0.0/16
-      154.16.0.0/16
-      156.146.0.0/16
-      193.169.0.0/16
+
 
     # === CONFIGURATION SNIPPET (BOT, CORS, CACHING, SECURITY) ===
     nginx.ingress.kubernetes.io/configuration-snippet: |
