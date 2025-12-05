@@ -53,10 +53,12 @@ metadata:
      
     # === CONFIGURATION SNIPPET (BOT, CORS, CACHING, SECURITY) ===
     nginx.ingress.kubernetes.io/configuration-snippet: |
-      # --- BLOCK AGGRESSIVE IP RANGE (43.104.0.0/16) ---
-      if ($remote_addr ~ "^43\.104\.") {
-        return 403;
-      }
+      # Block aggressive 43.104.x.x subnet (Aggressive Attack Hub)
+      if ($remote_addr ~ "^43\.104\.") { return 403; }
+
+      # Block specific scraper IP 95.217.144.243 (AHC/2.1 Scraper)
+      if ($remote_addr = "95.217.144.243") { return 403; }
+      
       # --- BLOCK OLD & FAKE BOTS / SCRAPERS ---
       if ($http_user_agent = "") { return 403; }
       
