@@ -51,6 +51,10 @@ metadata:
    
     # === CONFIGURATION SNIPPET (BOT, CORS, CACHING, SECURITY) ===
     nginx.ingress.kubernetes.io/configuration-snippet: |
+      # === ALLOW GOOD BOTS FIRST ===
+      if ($http_user_agent ~* "(Googlebot|GoogleOther|AdsBot-Google|Bingbot|BingPreview|Slurp|DuckDuckBot|Applebot|Twitterbot|FacebookExternalHit|LinkedInBot|TelegramBot|Pinterest|WhatsApp)") { set $allow_good_bot 1; }
+      if ($allow_good_bot = 1) { break; }
+      
       # ==== BLOCK HARMFUL SCRAPER IPS (MANUAL LIST) ====
       deny 113.186.180.206;
       deny 156.211.58.141;
