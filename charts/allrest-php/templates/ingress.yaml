@@ -76,13 +76,6 @@ metadata:
       
       # Block Linux x86_64 scanners explicitly
       if ($http_user_agent ~* "X11; Linux x86_64") { return 403; }
-
-      # Empty or too short user-agent
-      if ($http_user_agent = "") { return 403; }
-      if ($http_user_agent ~* "^[A-Za-z0-9\.\-]{0,5}$") { return 403; }
-      
-      # user-agents containing NULL or strange characters
-      if ($http_user_agent ~* "[\x00-\x1F]") { return 403; }
             
       # Block outdated, empty, or fake User-Agents
       if ($http_user_agent ~* "(^$|^-?$|null|CravingExplorer|AOLBUILD|MSIE 8\.0|Firefox/3\.8|Firefox/13\.0)") { return 403; }
