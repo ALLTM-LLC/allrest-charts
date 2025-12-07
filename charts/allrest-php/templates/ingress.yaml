@@ -64,10 +64,6 @@ metadata:
 
       # Block old/fake Chrome versions
       if ($http_user_agent ~* "Chrome(?!/[0-9]{2,3})") { return 403; }
-      if ($http_user_agent ~* "Firefox\/([0-6][0-9])") { return 403; }    # Firefox <70
-      if ($http_user_agent ~* "Version\/1[0-2]\.?.*Safari") { return 403; }  # Safari <13
-      if ($http_user_agent ~* "Edg\/([0-7][0-9])") { return 403; }        # Edge <80
-      if ($http_user_agent ~* "OPR\/([0-5][0-9])") { return 403; }        # Opera <65
 
       # Block Brave browser explicitly (if seen in attacks)
       if ($http_user_agent ~* "Brave") { return 403; }
