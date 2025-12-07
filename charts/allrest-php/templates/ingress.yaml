@@ -59,17 +59,30 @@ metadata:
       # Block specific scraper IP 95.217.144.243 (AHC/2.1 Scraper)
       if ($remote_addr = "95.217.144.243") { return 403; }
       
-      # --- BLOCK OLD & FAKE BOTS / SCRAPERS ---
+      # === EMPTY / INVALID USER-AGENT ===
       if ($http_user_agent = "") { return 403; }
+      if ($http_user_agent ~* "^[A-Za-z0-9\.\-]{0,5}$") { return 403; }
+      if ($http_user_agent ~* "[\x00-\x1F]") { return 403; }
       
-      # Block old/fake Chrome versions
-      if ($http_user_agent ~* "Chrome(?!/[0-9]{2,3})") { return 403; }
+     # === BLOCK OLD BROWSER VERSIONS ===
+      if ($http_user_agent ~* "Chrome\/([0-7][0-9])") { return 403; }     # Chrome <80
+      if ($http_user_agent ~* "Firefox\/([0-6][0-9])") { return 403; }    # Firefox <70
+      if ($http_user_agent ~* "Version\/1[0-2]\.?.*Safari") { return 403; }  # Safari <13
+      if ($http_user_agent ~* "Edg\/([0-7][0-9])") { return 403; }        # Edge <80
+      if ($http_user_agent ~* "OPR\/([0-5][0-9])") { return 403; }        # Opera <65
       
       # Block Brave browser explicitly (if seen in attacks)
       if ($http_user_agent ~* "Brave") { return 403; }
       
       # Block Linux x86_64 scanners explicitly
       if ($http_user_agent ~* "X11; Linux x86_64") { return 403; }
+
+      # Empty or too short user-agent
+      if ($http_user_agent = "") { return 403; }
+      if ($http_user_agent ~* "^[A-Za-z0-9\.\-]{0,5}$") { return 403; }
+      
+      # user-agents containing NULL or strange characters
+      if ($http_user_agent ~* "[\x00-\x1F]") { return 403; }
             
       # Block outdated, empty, or fake User-Agents
       if ($http_user_agent ~* "(^$|^-?$|null|CravingExplorer|AOLBUILD|MSIE 8\.0|Firefox/3\.8|Firefox/13\.0)") { return 403; }
@@ -78,8 +91,8 @@ metadata:
       if ($http_user_agent ~* "(GPTBot|AHC|ChatGPT|ChatGPT-User|OpenAI|OpenAI-SearchBot|OpenAI-DataScraper|OAI-SearchBot|Anthropic|ClaudeBot|PerplexityBot|cohere-ai|YandexGPTBot|Meta-ExternalAgent|AppleBot-Extended|AmazonBot|AI2Bot|Bytespider|PyntBot|CCBot|Diffbot|Scrapy|curl|wget|PostmanRuntime|Postman|axios|node-fetch|python-requests|php|libwww-perl|httpclient|Go-http-client|Java/|okhttp|aiohttp|rest-client|HTTrack|BLEXBot|DotBot|AhrefsBot|MJ12bot|SemrushBot|PetalBot|MegaIndex|SeznamBot|Sogou|ZoominfoBot|Netcraft|CensysInspect|Nmap|sqlmap|masscan|acunetix|Nikto|ZAP|wpscan)") { return 403; }
 
       # --- BLOCK DEEP PAGINATION / LARGE REQUESTS ---
-      if ($arg_page ~ "^(32[1-9]|3[3-9]\d|[4-9]\d{2,}|\d{4,})$") { return 403; }
-      if ($arg_page_size ~ "^[5-9][0-9]{2,}|[1-9][0-9]{3,}$") { return 403; }
+      if ($arg_page ~ "^(32[1-9]|3[3-9][0-9]|[4-9][0-9]{2,}|\d{4,})$") { return 403; }
+      if ($arg_page_size ~ "^([2-9][0-9]{2,}|[1-9][0-9]{3,})$") { return 403; }
 
       # --- BLOCK UNWANTED URI SCHEMES ---
       if ($request_uri ~* "(tel:|javascript:|data:)") { return 403; }
