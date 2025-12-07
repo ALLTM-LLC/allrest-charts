@@ -45,20 +45,19 @@ metadata:
     nginx.ingress.kubernetes.io/enable-brotli: "true"
     nginx.ingress.kubernetes.io/gzip-types: "text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript"
 
-
     # === HTTPS SETTINGS ===
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-    
-     
+   
     # === CONFIGURATION SNIPPET (BOT, CORS, CACHING, SECURITY) ===
     nginx.ingress.kubernetes.io/configuration-snippet: |
+
       # Block aggressive 43.104.x.x subnet (Aggressive Attack Hub)
       if ($remote_addr ~ "^43\.104\.") { return 403; }
 
       # Block specific scraper IP 95.217.144.243 (AHC/2.1 Scraper)
       if ($remote_addr = "95.217.144.243") { return 403; }
-
+   
       # --- BLOCK OLD & FAKE BOTS / SCRAPERS ---
       if ($http_user_agent = "") { return 403; }
 
@@ -67,18 +66,15 @@ metadata:
 
       # Block Brave browser explicitly (if seen in attacks)
       if ($http_user_agent ~* "Brave") { return 403; }
-  
+
       # Block Linux x86_64 scanners explicitly
       if ($http_user_agent ~* "X11; Linux x86_64") { return 403; }
-
 
       # Block outdated, empty, or fake User-Agents
       if ($http_user_agent ~* "(^$|^-?$|null|CravingExplorer|AOLBUILD|MSIE 8\.0|Firefox/3\.8|Firefox/13\.0)") { return 403; }
 
-      
       # Block AI bots, scrapers, malware scanners, automation libraries
       if ($http_user_agent ~* "(GPTBot|AHC|ChatGPT|ChatGPT-User|OpenAI|OpenAI-SearchBot|OpenAI-DataScraper|OAI-SearchBot|Anthropic|ClaudeBot|PerplexityBot|cohere-ai|YandexGPTBot|Meta-ExternalAgent|AppleBot-Extended|AmazonBot|AI2Bot|Bytespider|PyntBot|CCBot|Diffbot|Scrapy|curl|wget|PostmanRuntime|Postman|axios|node-fetch|python-requests|php|libwww-perl|httpclient|Go-http-client|Java/|okhttp|aiohttp|rest-client|HTTrack|BLEXBot|DotBot|AhrefsBot|MJ12bot|SemrushBot|PetalBot|MegaIndex|SeznamBot|Sogou|ZoominfoBot|Netcraft|CensysInspect|Nmap|sqlmap|masscan|acunetix|Nikto|ZAP|wpscan)") { return 403; }
-
 
       # --- BLOCK DEEP PAGINATION / LARGE REQUESTS ---
       if ($arg_page ~ "^(32[1-9]|3[3-9]\d|[4-9]\d{2,}|\d{4,})$") { return 403; }
@@ -98,19 +94,15 @@ metadata:
         add_header Expires "Thu, 31 Dec 2037 23:59:59 GMT" always;
         add_header Pragma "public" always;
         add_header Vary "Accept-Encoding" always;
-
       }
 
       if ($arg_page ~ "^[0-9]+$") {
         add_header Cache-Control "public, max-age=600" always;
-
       }
 
       if ($http_user_agent ~* "(bot|crawler|spider|archive|scanner|fetch|slurp)(/|;|$| )") {
         add_header Cache-Control "public, max-age=300" always;
-
       }
-
 
       # --- CORS HANDLING ---
       if ($request_method = OPTIONS) {
@@ -128,7 +120,6 @@ metadata:
         add_header "Access-Control-Allow-Methods" "GET, POST, OPTIONS, PUT, DELETE" always;
         add_header "Access-Control-Allow-Headers" "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization" always;
       }
-
 
 spec:
   tls:
