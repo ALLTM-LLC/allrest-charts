@@ -92,7 +92,7 @@ metadata:
       # if ($http_user_agent ~* "Chrome/[0-7][0-9]" ) { return 403; }
     
       # Block old/fake Firefox versions (<70)
-      if ($http_user_agent ~* "Firefox/[0-6][0-9]" ) { return 403; }
+      # if ($http_user_agent ~* "Firefox/[0-6][0-9]" ) { return 403; }
     
       # Block Brave browser explicitly
       if ($http_user_agent ~* "Brave" ) { return 403; }
