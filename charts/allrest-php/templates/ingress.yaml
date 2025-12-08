@@ -86,13 +86,18 @@ metadata:
       deny 43.113.0.0/16;
 
       # ==== COMMENT ====
-      # 'deny' automatically returns HTTP 403 (Forbidden)
-    
-      # Block old/fake Chrome versions (<80)
-      # if ($http_user_agent ~* "Chrome/[0-7][0-9]" ) { return 403; }
-    
-      # Block old/fake Firefox versions (<70)
-      # if ($http_user_agent ~* "Firefox/[0-6][0-9]" ) { return 403; }
+      # ==== BLOCK COMPREHENSIVE LIST OF OUTDATED BROWSER VERSIONS AND SUSPICIOUS CLIENTS ====
+      
+      # Blocks a wide range of old Chrome versions (27, 29, 34, 41, 62, 63, 65, 67, 68, 75, 84)
+      # and also blocks non-standard/suspicious User-Agent strings like AOLBUILD and ADG.
+      if ($http_user_agent ~* "(Chrome/(27|29|34|41|62|63|65|67|68|75|84 )\.|AOLBUILD|ADG)") {
+          return 403;
+      }
+      
+      # Block the specific User-Agent pattern associated with Windows XP (NT 5.1)
+      if ($http_user_agent ~* "Windows NT 5\.1" ) {
+          return 403;
+      }
     
       # Block Brave browser explicitly
       if ($http_user_agent ~* "Brave" ) { return 403; }
