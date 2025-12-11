@@ -80,10 +80,15 @@ metadata:
       deny 95.217.144.243;
     
       # ==== BLOCK AGGRESSIVE SUBNETS (FULL /16 RANGES) ====
-      deny 43.104.0.0/16;
-      deny 43.105.0.0/16;
-      deny 43.112.0.0/16;
-      deny 43.113.0.0/16;
+      deny 47.82.0.0/16;
+      deny 47.75.0.0/16;
+      deny 47.52.0.0/14;
+      deny 47.244.0.0/15;
+      deny 47.176.0.0/12;
+      deny 106.49.0.0/16;
+      deny 170.83.0.0/16;
+      deny 170.246.0.0/16;
+      deny 161.132.0.0/16;
 
       # ==== COMMENT ====
       # ==== BLOCK COMPREHENSIVE LIST OF OUTDATED BROWSER VERSIONS AND SUSPICIOUS CLIENTS ====
