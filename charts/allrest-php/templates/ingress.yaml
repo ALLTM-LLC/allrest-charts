@@ -6,6 +6,46 @@ metadata:
     kubernetes.io/ingress.class: nginx
     cert-manager.io/issuer: comodo-eu-cert
 
+    nginx.ingress.kubernetes.io/denylist-source-range: |
+      # ==== MANUAL BLOCKED HARMFUL SCRAPER IPs ====
+      113.186.180.206,   # Harmful scraper IP
+      156.211.58.141,    # Harmful scraper IP
+      187.223.31.102,    # Harmful scraper IP
+      113.175.191.180,   # Harmful scraper IP
+      181.174.228.25,    # Harmful scraper IP
+      189.27.145.156,    # Harmful scraper IP
+      187.111.115.3,     # Harmful scraper IP
+      177.75.60.111,     # Harmful scraper IP
+      14.230.29.218,     # Harmful scraper IP
+      185.146.112.44,    # Harmful scraper IP
+      196.64.23.207,     # Harmful scraper IP
+      186.38.62.12,      # Harmful scraper IP
+      177.124.11.224,    # Harmful scraper IP
+      194.15.226.236,    # Harmful scraper IP
+      118.179.100.219,   # Harmful scraper IP
+      129.45.65.182,     # Harmful scraper IP
+      45.190.135.8,      # Harmful scraper IP
+      186.195.235.24,    # Harmful scraper IP
+      186.26.89.7,       # Harmful scraper IP
+    
+      # ==== SPECIFIC REQUESTED IP TO BLOCK ====
+      95.217.144.243,    # Specific IP requested to block
+    
+      # ==== AGGRESSIVE SUBNETS / LARGE RANGES ====
+      47.82.0.0/16,      # Aggressive /16 subnet
+      47.75.0.0/16,      # Aggressive /16 subnet
+      47.52.0.0/14,      # Aggressive /14 subnet
+      47.244.0.0/15,     # Aggressive /15 subnet
+      47.176.0.0/12,     # Aggressive /12 subnet
+      106.49.0.0/16,     # Aggressive /16 subnet
+      43.128.0.0/10,     # Large Asia-Pacific /10 range
+      58.0.0.0/8,        # China /8 range
+      59.0.0.0/8,        # China /8 range
+      106.0.0.0/8,       # Asia /8 range
+      170.83.0.0/16,     # Aggressive /16 subnet
+      170.246.0.0/16,    # Aggressive /16 subnet
+      161.132.0.0/16     # Aggressive /16 subnet
+
     # === UPLOAD & TIMEOUT SETTINGS ===
     nginx.ingress.kubernetes.io/proxy-body-size: "200m"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
@@ -54,42 +94,7 @@ metadata:
       # === ALLOW GOOD BOTS FIRST ===
       if ($http_user_agent ~* "(Googlebot|GoogleOther|AdsBot-Google|Bingbot|BingPreview|Slurp|DuckDuckBot|Applebot|Twitterbot|FacebookExternalHit|LinkedInBot|TelegramBot|Pinterest|WhatsApp)") { set $allow_good_bot 1; }
       if ($allow_good_bot = 1) { break; }
-      
-      # ==== BLOCK HARMFUL SCRAPER IPS (MANUAL LIST) ====
-      deny 113.186.180.206;
-      deny 156.211.58.141;
-      deny 187.223.31.102;
-      deny 113.175.191.180;
-      deny 181.174.228.25;
-      deny 189.27.145.156;
-      deny 187.111.115.3;
-      deny 177.75.60.111;
-      deny 14.230.29.218;
-      deny 185.146.112.44;
-      deny 196.64.23.207;
-      deny 186.38.62.12;
-      deny 177.124.11.224;
-      deny 194.15.226.236;
-      deny 118.179.100.219;
-      deny 129.45.65.182;
-      deny 45.190.135.8;
-      deny 186.195.235.24;
-      deny 186.26.89.7;
-    
-      # ==== ADDITIONAL SPECIFIC IP YOU ASKED TO BLOCK ====
-      deny 95.217.144.243;
-    
-      # ==== BLOCK AGGRESSIVE SUBNETS (FULL /16 RANGES) ====
-      deny 47.82.0.0/16;
-      deny 47.75.0.0/16;
-      deny 47.52.0.0/14;
-      deny 47.244.0.0/15;
-      deny 47.176.0.0/12;
-      deny 106.49.0.0/16;
-      deny 170.83.0.0/16;
-      deny 170.246.0.0/16;
-      deny 161.132.0.0/16;
-
+        
       # ==== COMMENT ====
       # ==== BLOCK COMPREHENSIVE LIST OF OUTDATED BROWSER VERSIONS AND SUSPICIOUS CLIENTS ====
       
