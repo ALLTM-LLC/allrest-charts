@@ -48,7 +48,7 @@ metadata:
     # === HTTPS SETTINGS ===
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-    # nginx.ingress.kubernetes.io/denylist-source-range: |
+    nginx.ingress.kubernetes.io/denylist-source-range: |
       # ==== MANUAL BLOCKED HARMFUL SCRAPER IPS ====
       113.186.180.206,
       156.211.58.141,
@@ -83,8 +83,8 @@ metadata:
       170.83.0.0/16,
       170.246.0.0/16,
       161.132.0.0/16
-   
-    # === CONFIGURATION SNIPPET (BOT, CORS, CACHING, SECURITY) ===
+      
+      # === CONFIGURATION SNIPPET (BOT, CORS, CACHING, SECURITY) ===
     nginx.ingress.kubernetes.io/configuration-snippet: |
       # === ALLOW GOOD BOTS FIRST ===
       if ($http_user_agent ~* "(Googlebot|GoogleOther|AdsBot-Google|Bingbot|BingPreview|Slurp|DuckDuckBot|Applebot|Twitterbot|FacebookExternalHit|LinkedInBot|TelegramBot|Pinterest|WhatsApp)") { set $allow_good_bot 1; }
@@ -122,7 +122,6 @@ metadata:
       deny 170.83.0.0/16;
       deny 170.246.0.0/16;
       deny 161.132.0.0/16;
-
       
       # ==== COMMENT ====
       # ==== BLOCK COMPREHENSIVE LIST OF OUTDATED BROWSER VERSIONS AND SUSPICIOUS CLIENTS ====
