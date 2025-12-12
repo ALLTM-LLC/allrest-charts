@@ -48,42 +48,7 @@ metadata:
     # === HTTPS SETTINGS ===
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-    nginx.ingress.kubernetes.io/denylist-source-range: |
-      # ==== MANUAL BLOCKED HARMFUL SCRAPER IPS ====
-      113.186.180.206,
-      156.211.58.141,
-      187.223.31.102,
-      113.175.191.180,
-      181.174.228.25,
-      189.27.145.156,
-      187.111.115.3,
-      177.75.60.111,
-      14.230.29.218,
-      185.146.112.44,
-      196.64.23.207,
-      186.38.62.12,
-      177.124.11.224,
-      194.15.226.236,
-      118.179.100.219,
-      129.45.65.182,
-      45.190.135.8,
-      186.195.235.24,
-      186.26.89.7,
     
-      # ==== ADDITIONAL SPECIFIC IP TO BLOCK ====
-      95.217.144.243,
-    
-      # ==== AGGRESSIVE / LARGE SUBNETS ====
-      47.82.0.0/16,
-      47.75.0.0/16,
-      47.52.0.0/14,
-      47.244.0.0/15,
-      47.176.0.0/12,
-      106.49.0.0/16,
-      170.83.0.0/16,
-      170.246.0.0/16,
-      161.132.0.0/16
-      
       # === CONFIGURATION SNIPPET (BOT, CORS, CACHING, SECURITY) ===
     nginx.ingress.kubernetes.io/configuration-snippet: |
       # === ALLOW GOOD BOTS FIRST ===
