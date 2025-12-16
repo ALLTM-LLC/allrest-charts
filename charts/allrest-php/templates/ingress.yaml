@@ -101,6 +101,9 @@ metadata:
       deny 170.83.0.0/16;
       deny 170.246.0.0/16;
       deny 161.132.0.0/16;
+      deny 112.0.0.0/8;
+      deny 2.0.0.0/8;
+      deny 12.0.0.0/8;
       
       # ==== COMMENT ====
       # ==== BLOCK COMPREHENSIVE LIST OF OUTDATED BROWSER VERSIONS AND SUSPICIOUS CLIENTS ====
