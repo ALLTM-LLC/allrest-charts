@@ -85,6 +85,12 @@ metadata:
       deny 177.107.244.168;
       # ==== ADDITIONAL SPECIFIC IP YOU ASKED TO BLOCK ====
       deny 95.217.144.243;
+      
+      # ==== NEW HARMFUL SCRAPER IPS (FROM LOG ANALYSIS) ====
+      deny 92.98.118.11;
+      deny 5.45.133.71;
+      deny 37.77.49.130;
+
       # ==== BLOCK AGGRESSIVE SUBNETS (FULL /16 RANGES) ====
       deny 47.82.0.0/16;
       deny 47.75.0.0/16;
@@ -118,7 +124,7 @@ metadata:
     
       # Block outdated, empty, or fake User-Agents
       if ($http_user_agent ~* "(^$|^-?$|null|CravingExplorer|AOLBUILD|MSIE 8\.0|Firefox/3\.8|Firefox/13\.0 )") { return 403; }
-    
+ 
       # Block AI bots / scrapers / automation libraries
       if ($http_user_agent ~* "(GPTBot|ChatGPT|OpenAI|Anthropic|ClaudeBot|PerplexityBot|cohere-ai|YandexGPTBot|Meta-ExternalAgent|AppleBot-Extended|AmazonBot|AI2Bot|Bytespider|PyntBot|CCBot|Diffbot|Scrapy|curl|wget|PostmanRuntime|Postman|axios|node-fetch|python-requests|php|libwww-perl|httpclient|Go-http-client|Java/|okhttp|aiohttp|rest-client|HTTrack|BLEXBot|DotBot|AhrefsBot|MJ12bot|SemrushBot|PetalBot|MegaIndex|SeznamBot|Sogou|ZoominfoBot|Netcraft|CensysInspect|Nmap|sqlmap|masscan|acunetix|Nikto|ZAP|wpscan)") { return 403; }
     
