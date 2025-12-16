@@ -63,6 +63,13 @@ spec:
         ports:
         - containerPort: {{ $services.port }}
           protocol: TCP
+        resources:
+          requests:
+            cpu: "3.5"
+            memory: "6Gi"
+          limits:
+            cpu: "6"
+            memory: "10Gi"
         {{- if $services.configmap }}
         volumeMounts:
         - name: mnt
