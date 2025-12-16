@@ -75,6 +75,14 @@ metadata:
       deny 45.190.135.8;
       deny 186.195.235.24;
       deny 186.26.89.7;
+      deny 179.6.14.174;
+      deny 154.159.254.188;
+      deny 181.95.59.229;
+      deny 188.172.111.39;
+      deny 5.35.61.161;
+      deny 179.224.28.181;
+      deny 189.73.176.50;
+      deny 177.107.244.168;
       # ==== ADDITIONAL SPECIFIC IP YOU ASKED TO BLOCK ====
       deny 95.217.144.243;
       # ==== BLOCK AGGRESSIVE SUBNETS (FULL /16 RANGES) ====
