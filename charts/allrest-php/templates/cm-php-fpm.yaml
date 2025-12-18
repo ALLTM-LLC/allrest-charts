@@ -15,11 +15,11 @@ data:
     ; === PHP-FPM PROCESS MANAGEMENT (Optimized for 16GB Node) ===
     ; ===============================================================
     pm = dynamic
-    pm.max_children = 65           ; max 60 concurrent PHP workers
+    pm.max_children = 85           ; max 60 concurrent PHP workers
     pm.start_servers = 15
     pm.min_spare_servers = 15
     pm.max_spare_servers = 20
-    pm.max_requests = 1000          ; recycle workers to prevent memory leaks
+    pm.max_requests = 1500          ; recycle workers to prevent memory leaks
     pm.process_idle_timeout = 10s  ; free idle workers faster
     request_terminate_timeout = 180s ; max allowed time for any PHP request
 
