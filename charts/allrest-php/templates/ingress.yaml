@@ -15,7 +15,7 @@ metadata:
     nginx.ingress.kubernetes.io/limit-connections: "80"
     nginx.ingress.kubernetes.io/limit-rpm: "300"
     nginx.ingress.kubernetes.io/limit-rps: "4"
-    nginx.ingress.kubernetes.io/limit-burst: "10"
+    nginx.ingress.kubernetes.io/limit-burst: "5"
     nginx.ingress.kubernetes.io/limit-rps-zone-size: "50m"
     nginx.ingress.kubernetes.io/limit-whitelist: "143.198.249.29/32"
 
