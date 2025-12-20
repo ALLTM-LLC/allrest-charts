@@ -14,7 +14,7 @@ metadata:
     # === RATE LIMITING (Global Fallback) ===
     nginx.ingress.kubernetes.io/limit-connections: "80"
     nginx.ingress.kubernetes.io/limit-rpm: "1200"
-    nginx.ingress.kubernetes.io/limit-rps: "9"
+    nginx.ingress.kubernetes.io/limit-rps: "20"
     nginx.ingress.kubernetes.io/limit-burst: "40"
     nginx.ingress.kubernetes.io/limit-rps-zone-size: "100m"
     nginx.ingress.kubernetes.io/limit-whitelist: "143.198.249.29/32"
