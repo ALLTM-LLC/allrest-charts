@@ -19,18 +19,20 @@ metadata:
     nginx.ingress.kubernetes.io/configuration-snippet: |
       # === ipS block ===
       if ($deny) { return 444; }
-
-        # === JS SPECIFIC OPTIMIZATION ===
-        # Extra caching for JS files to help with 18MB file
-        if ($request_uri ~* \.js$) {
-          # Keep existing headers but ensure Vary is set for compression
-          add_header Vary "Accept-Encoding" always;
-          # Add hint for preload if it's a critical JS file
-          if ($request_uri ~* "(main|bundle|app)\.js$") {
-            add_header Link "</$request_uri>; rel=preload; as=script" always;
-          }
+      
+      # === CRITICAL FIX: ADD GLOBAL VARY HEADER ===
+      # This must be OUTSIDE any if block, applies to ALL responses
+      add_header Vary "Accept-Encoding" always;
+   
+      # === JS SPECIFIC OPTIMIZATION ===
+      # Extra caching for JS files to help with 18MB file
+      if ($request_uri ~* \.js$) {
+        # Add hint for preload if it's a critical JS file
+        if ($request_uri ~* "(main|bundle|app)\.js$") {
+          add_header Link "</$request_uri>; rel=preload; as=script" always;
         }
-     
+      }
+
  
       # === ALLOW GOOD BOTS FIRST ===
       if ($http_user_agent ~* "(Googlebot|GoogleOther|AdsBot-Google|Bingbot|BingPreview|Slurp|DuckDuckBot|Applebot|Twitterbot|FacebookExternalHit|LinkedInBot|TelegramBot|Pinterest|WhatsApp)") { set $allow_good_bot 1; }
