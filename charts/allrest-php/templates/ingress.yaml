@@ -19,6 +19,17 @@ metadata:
     nginx.ingress.kubernetes.io/configuration-snippet: |
       # === ipS block ===
       if ($deny) { return 444; }
+
+        # === JS SPECIFIC OPTIMIZATION ===
+        # Extra caching for JS files to help with 18MB file
+        if ($request_uri ~* \.js$) {
+          # Keep existing headers but ensure Vary is set for compression
+          add_header Vary "Accept-Encoding" always;
+          # Add hint for preload if it's a critical JS file
+          if ($request_uri ~* "(main|bundle|app)\.js$") {
+            add_header Link "</$request_uri>; rel=preload; as=script" always;
+          }
+        }
      
  
       # === ALLOW GOOD BOTS FIRST ===
