@@ -2,7 +2,8 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: allrest-ingress
-    # === KEEP THESE (Per-ingress settings) ===
+  annotations:
+      # === KEEP THESE (Per-ingress settings) ===
     # Rate limiting by API key (specific to this ingress)
     nginx.ingress.kubernetes.io/limit-rps-key: "$http_api_key"
     nginx.ingress.kubernetes.io/limit-whitelist: "143.198.249.29/32"
