@@ -5,8 +5,7 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: nginx
     cert-manager.io/issuer: comodo-eu-cert
-    
-    # === KEEP THESE (Per-ingress settings) ===
+      
     # Rate limiting by API key (specific to this ingress)
     nginx.ingress.kubernetes.io/limit-rps-key: "$http_api_key"
     nginx.ingress.kubernetes.io/limit-whitelist: "143.198.249.29/32"
@@ -14,84 +13,78 @@ metadata:
     # SSL redirect (host-specific)
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+
     
     # === CONFIGURATION SNIPPET (BOT, CORS, CACHING, SECURITY) ===
     nginx.ingress.kubernetes.io/configuration-snippet: |
-      # === ipS block ===
+      # === 1. IP BLOCK (Fastest check - from ConfigMap) ===
       if ($deny) { return 444; }
       
-      # === CRITICAL FIX: ADD GLOBAL VARY HEADER ===
+      # === 2. BLOCK HEAD REQUESTS (NEW - catches scanners early) ===
+      # Many scanners use HEAD requests to check if pages exist
+      if ($request_method = HEAD) {
+          return 403;
+      }
+      
+      # === 3. CONSOLIDATED BAD BOT BLOCK (NEW + EXISTING COMBINED) ===
+      # Combined all bot patterns in one rule for efficiency
+      if ($http_user_agent ~* "(SemrushBot|AhrefsBot|MJ12bot|BLEXBot|DotBot|SeznamBot|Sogou|ZoominfoBot|Netcraft|CensysInspect|python-requests|curl|wget|Go-http-client|Java/|okhttp|aiohttp|rest-client|HTTrack|Nmap|sqlmap|masscan|acunetix|Nikto|ZAP|wpscan|GPTBot|ChatGPT|OpenAI|Anthropic|ClaudeBot|PerplexityBot|cohere-ai|YandexGPTBot|Meta-ExternalAgent|AppleBot-Extended|AmazonBot|AI2Bot|Bytespider|PyntBot|CCBot|Diffbot|Scrapy|axios|node-fetch|php|libwww-perl|httpclient|PetalBot|MegaIndex)") { 
+          return 403; 
+      }
+      
+      # === 4. OUTDATED/FAKE BROWSERS (EXISTING - REORDERED) ===
+      # Blocks old Chrome versions and suspicious browsers
+      if ($http_user_agent ~* "(Chrome/(27|29|34|41|62|63|65|67|68|75|84)\.|AOLBUILD|ADG|MSIE 8\.0|Firefox/3\.8|Firefox/13\.0|Windows NT 5\.1|Brave|^$|^-?$|null|CravingExplorer)") {
+          return 403;
+      }
+      
+      # === 5. DEEP PAGINATION BLOCK (EXISTING) ===
+      # Blocks requests with very high page numbers (scrapers)
+      if ($arg_page ~ "^(?:32[1-9]|3[3-9]\d|[4-9]\d{2,}|\d{4,})$") { return 403; }
+      if ($arg_page_size ~ "^(?:[5-9][0-9]{2,}|[1-9][0-9]{3,})$") { return 403; }
+      
+      # === 6. BLOCK UNWANTED URI SCHEMES (EXISTING) ===
+      if ($request_uri ~* "(tel:|javascript:|data:)") { return 403; }
+      
+      # === 7. ALLOW GOOD BOTS (EXISTING - after blocking bad ones) ===
+      set $allow_good_bot 0;
+      if ($http_user_agent ~* "(Googlebot|GoogleOther|AdsBot-Google|Bingbot|BingPreview|Slurp|DuckDuckBot|Applebot|Twitterbot|FacebookExternalHit|LinkedInBot|TelegramBot|Pinterest|WhatsApp)") { 
+          set $allow_good_bot 1; 
+      }
+      if ($allow_good_bot = 1) { 
+          break; 
+      }
+      
+      # === 8. CRITICAL FIX: GLOBAL VARY HEADER (EXISTING) ===
       add_header Vary "Accept-Encoding" always;
       
-      # === JS SPECIFIC OPTIMIZATION (FIXED - NO NESTED IF) ===
-      # Check for critical JS files for preload
+      # === 9. JS PRELOAD OPTIMIZATION (EXISTING) ===
       if ($request_uri ~* "(main|bundle|app)\.js$") {
         add_header Link "</$request_uri>; rel=preload; as=script" always;
       }
-
- 
-      # === ALLOW GOOD BOTS FIRST ===
-      if ($http_user_agent ~* "(Googlebot|GoogleOther|AdsBot-Google|Bingbot|BingPreview|Slurp|DuckDuckBot|Applebot|Twitterbot|FacebookExternalHit|LinkedInBot|TelegramBot|Pinterest|WhatsApp)") { set $allow_good_bot 1; }
-      if ($allow_good_bot = 1) { break; }
-
       
-      # ==== COMMENT ====
-      # ==== BLOCK COMPREHENSIVE LIST OF OUTDATED BROWSER VERSIONS AND SUSPICIOUS CLIENTS ====
-      
-      # Blocks a wide range of old Chrome versions (27, 29, 34, 41, 62, 63, 65, 67, 68, 75, 84)
-      # and also blocks non-standard/suspicious User-Agent strings like AOLBUILD and ADG.
-      if ($http_user_agent ~* "(Chrome/(27|29|34|41|62|63|65|67|68|75|84)\.|AOLBUILD|ADG)") {
-          return 403;
-      }
-      
-      # Block the specific User-Agent pattern associated with Windows XP (NT 5.1)
-      if ($http_user_agent ~* "Windows NT 5\.1" ) {
-          return 403;
-      }
-    
-      # Block Brave browser explicitly
-      if ($http_user_agent ~* "Brave" ) { return 403; }
-    
-      # Block Linux x86_64 scanners explicitly
-      # if ($http_user_agent ~* "X11; Linux x86_64") { return 403; }
-    
-      # Block outdated, empty, or fake User-Agents
-      if ($http_user_agent ~* "(^$|^-?$|null|CravingExplorer|AOLBUILD|MSIE 8\.0|Firefox/3\.8|Firefox/13\.0)") { return 403; }
- 
-      # Block AI bots / scrapers / automation libraries
-      if ($http_user_agent ~* "(GPTBot|ChatGPT|OpenAI|Anthropic|ClaudeBot|PerplexityBot|cohere-ai|YandexGPTBot|Meta-ExternalAgent|AppleBot-Extended|AmazonBot|AI2Bot|Bytespider|PyntBot|CCBot|Diffbot|Scrapy|curl|wget|axios|node-fetch|python-requests|php|libwww-perl|httpclient|Go-http-client|Java/|okhttp|aiohttp|rest-client|HTTrack|BLEXBot|DotBot|AhrefsBot|MJ12bot|SemrushBot|PetalBot|MegaIndex|SeznamBot|Sogou|ZoominfoBot|Netcraft|CensysInspect|Nmap|sqlmap|masscan|acunetix|Nikto|ZAP|wpscan)") { return 403; }
-      
-      # Block deep pagination / large requests
-      if ($arg_page ~ "^(?:32[1-9]|3[3-9]\d|[4-9]\d{2,}|\d{4,})$") { return 403; }
-      # if ($arg_page ~ "^(15[1-9]|[1-9]\d{3,}|[2-9]\d{2,})$") { return 403; }
-      if ($arg_page_size ~ "^(?:[5-9][0-9]{2,}|[1-9][0-9]{3,})$") { return 403; }
-    
-      # Block unwanted URI schemes
-      if ($request_uri ~* "(tel:|javascript:|data:)") { return 403; }
-      
-
-      # --- SECURITY HEADERS ---
+      # === 10. SECURITY HEADERS (EXISTING) ===
       add_header X-Frame-Options "SAMEORIGIN" always;
       add_header X-XSS-Protection "1; mode=block" always;
       add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
-
-      # --- CACHING RULES ---
+      
+      # === 11. CACHING RULES (EXISTING) ===
       if ($request_uri ~* "\\.(?:jpg|jpeg|png|gif|webp|ico|css|js|svg|woff|woff2|ttf|eot|mp4|webm|pdf)$") {
         add_header Cache-Control "public, max-age=7776000, immutable" always;
         add_header Expires "Thu, 31 Dec 2037 23:59:59 GMT" always;
         add_header Pragma "public" always;
         add_header Vary "Accept-Encoding" always;
       }
-
+      
       if ($arg_page ~ "^[0-9]+$") {
         add_header Cache-Control "public, max-age=600" always;
       }
-
+      
       if ($http_user_agent ~* "(bot|crawler|spider|archive|scanner|fetch|slurp)(/|;|$| )") {
         add_header Cache-Control "public, max-age=300" always;
       }
-
-      # --- CORS HANDLING ---
+      
+      # === 12. CORS HANDLING (EXISTING) ===
       if ($request_method = OPTIONS) {
         add_header "Access-Control-Allow-Origin" "$http_origin" always;
         add_header "Access-Control-Allow-Credentials" "true" always;
@@ -100,13 +93,15 @@ metadata:
         add_header "Content-Length" 0;
         return 204;
       }
-
+      
       if ($http_origin ~* "^https://([a-z0-9-]+\\.)*allrestaurants\\.eu$") {
         add_header "Access-Control-Allow-Origin" "$http_origin" always;
         add_header "Access-Control-Allow-Credentials" "true" always;
         add_header "Access-Control-Allow-Methods" "GET, POST, OPTIONS, PUT, DELETE" always;
         add_header "Access-Control-Allow-Headers" "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization" always;
       }
+
+
 
 spec:
   tls:
