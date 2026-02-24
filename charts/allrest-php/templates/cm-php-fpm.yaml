@@ -15,11 +15,11 @@ data:
     ; === PHP-FPM PROCESS MANAGEMENT (Optimized for 16GB Node) ===
     ; ===============================================================
     pm = dynamic
-    pm.max_children = 65           ; max 60 concurrent PHP workers
-    pm.start_servers = 15
+    pm.max_children = 100          ; max 60 concurrent PHP workers
+    pm.start_servers = 18
     pm.min_spare_servers = 15
     pm.max_spare_servers = 20
-    pm.max_requests = 1000          ; recycle workers to prevent memory leaks
+    pm.max_requests = 1500          ; recycle workers to prevent memory leaks
     pm.process_idle_timeout = 10s  ; free idle workers faster
     request_terminate_timeout = 180s ; max allowed time for any PHP request
 
@@ -44,7 +44,7 @@ data:
     php_admin_value[opcache.memory_consumption] = 256        ; shared memory for cache
     php_admin_value[opcache.interned_strings_buffer] = 16     ; memory for interned strings
     php_admin_value[opcache.max_accelerated_files] = 20000    ; max cached scripts
-    php_admin_value[opcache.revalidate_freq] = 2              ; recheck scripts every 2s
+    php_admin_value[opcache.revalidate_freq] = 30              ; recheck scripts every 30s
     php_admin_value[opcache.validate_timestamps] = 1          ; keep in sync with file changes
     php_admin_value[opcache.fast_shutdown] = 1                ; faster PHP shutdown
     php_admin_value[opcache.max_wasted_percentage] = 5        ; restart when fragmentation >5%
@@ -56,4 +56,4 @@ data:
     php_admin_value[error_log] = /proc/self/fd/2
     pm.status_path = /status
     slowlog = /proc/self/fd/2
-    request_slowlog_timeout = 15s
+    request_slowlog_timeout = 10s
