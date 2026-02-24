@@ -38,6 +38,14 @@ metadata:
       # if ($arg_page ~ "^(15[1-9]|[1-9]\d{3,}|[2-9]\d{2,})$") { return 403; }
       if ($arg_page_size ~ "^(?:[5-9][0-9]|[1-9][0-9]{2,})$") { return 403; }
       
+      # Blocks sequential page scraping (e.g., ?page=1&page=2)
+      # This catches automated scanners that add multiple page params
+      set $page_abuse 0;
+      if ($args ~ "page=[^&]+.*page=") { set $page_abuse 1; }
+      if ($args ~ "page=[^&]+&.*page=") { set $page_abuse 1; }
+      if ($page_abuse = 1) { return 403; }
+
+      
       # === 6. BLOCK UNWANTED URI SCHEMES (EXISTING) ===
       if ($request_uri ~* "(tel:|javascript:|data:)") { return 403; }
      
