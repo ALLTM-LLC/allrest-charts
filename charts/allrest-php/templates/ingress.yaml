@@ -54,7 +54,11 @@ metadata:
       if ($request_uri ~* "/[a-z-]+/tel:[0-9]+") { return 403; }
 
       # === Blocks patterns with 3+ country codes (automated path building) ===
-      if ($request_uri ~* "(/[a-z]{2}-[a-z-]+){3,}") { return 403; }
+      # if ($request_uri ~* "(/[a-z]{2}-[a-z-]+){3,}") { return 403; }
+
+      # === BLOCK REPEATED COUNTRY CODE PATTERNS ===
+      # Blocks patterns like /pl/pl-something/pl-pl/pl-pl
+      if ($request_uri ~* "/(pl|en|de|fr|es|tr|pt|ru|ar)/[a-z]{2}-[a-z-]+/[a-z]{2}-[a-z-]+/[a-z]{2}-[a-z-]+/[a-z]{2}-[a-z-]+") { return 403; }
       
 
       
