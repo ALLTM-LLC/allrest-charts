@@ -58,7 +58,7 @@ metadata:
       
       # === BLOCK REPEATED COUNTRY CODE PATTERNS ===
       # Blocks patterns like /pl/pl-something/pl-pl/pl-pl
-      # if ($request_uri ~* "(/[a-z]{2}/[a-z]{2}-[a-z-]+/[a-z]{2}-[a-z-]+/[a-z]{2}-[a-z-]+)") { return 403; } 
+      if ($request_uri ~* "(/[a-z]{2}/[a-z]{2}-[a-z-]+/[a-z]{2}-[a-z-]+/[a-z]{2}-[a-z-]+)") { return 403; } 
       
       # === ALLOW GOOD BOTS (EXISTING - after blocking bad ones) ===
       set $allow_good_bot 0;
