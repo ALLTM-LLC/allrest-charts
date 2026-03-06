@@ -49,19 +49,23 @@ metadata:
       # === 6. BLOCK UNWANTED URI SCHEMES (EXISTING) ===
       if ($request_uri ~* "(tel:|javascript:|data:)") { return 403; }
      
-      # === BLOCK SUSPICIOUS PATH STRUCTURES (NEW) ===
+      # ===  BLOCK SUSPICIOUS PATH STRUCTURES ===
       # Blocks paths with city names followed by phone numbers
       if ($request_uri ~* "/[a-z-]+/tel:[0-9]+") { return 403; }
 
-      # === Blocks patterns with 3+ country codes (automated path building) ===
-      if ($request_uri ~* "(/[a-z]{2}-[a-z-]+/){3,}") { return 403; }
-
-      # === BLOCK REPEATED COUNTRY CODE PATTERNS ===
-      # Blocks patterns like /pl/pl-something/pl-pl/pl-pl
-      if ($request_uri ~* "/(pl|en|de|fr|es|tr|pt|ru|ar)/[a-z]{2}-[a-z-]+/[a-z]{2}-[a-z-]+/[a-z]{2}-[a-z-]+/[a-z]{2}-[a-z-]+") { return 403; }
+      # Block requests where the first path segment is not a valid language
+      if ($request_uri ~* "^/(?!de/|en/|pl/|es/|pt/|tr/|ru/|ar/|fr/)[a-z]{2,}/") { return 403; }
       
-
+      # Blocks language-language patterns like /en-en/ or /pl-en/
+      if ($request_uri ~* "/(de|en|pl|es|pt|tr|ru|ar|fr)-(de|en|pl|es|pt|tr|ru|ar|fr)(/|$)") { return 403; }
       
+      # Blocks repeated language loops like /en/en/en/
+      if ($request_uri ~* "/(de|en|pl|es|pt|tr|ru|ar|fr)/\1/") { return 403; }
+      
+      # Blocks extremely deep paths (SEO spam generators)
+      if ($request_uri ~* "(/[^/]+){10,}") { return 403; }
+
+            
       # === ALLOW GOOD BOTS (EXISTING - after blocking bad ones) ===
       set $allow_good_bot 0;
       if ($http_user_agent ~* "(Googlebot|GoogleOther|AdsBot-Google|Bingbot|BingPreview|Slurp|DuckDuckBot|Applebot|Twitterbot|FacebookExternalHit|LinkedInBot|TelegramBot|Pinterest|WhatsApp)") { 
