@@ -36,10 +36,36 @@ metadata:
       # Blocks requests with very high page numbers (scrapers)
       if ($arg_page ~ "^(?:32[1-9]|3[3-9]\d|[4-9]\d{2,}|\d{4,})$") { return 403; }
       # if ($arg_page ~ "^(15[1-9]|[1-9]\d{3,}|[2-9]\d{2,})$") { return 403; }
-      if ($arg_page_size ~ "^(?:[5-9][0-9]|[1-9][0-9]{2,})$") { return 403; }
+      
+      # === FIX: BLOCK page[size]=10000 ATTACKS ===
+      # Attackers use ?page[size]=10000 - this blocks it properly
+      set $block_bad_pagination 0;
+      
+      # Block page[size] with 4+ digits (1000, 10000, 100000)
+      if ($args ~ "page\[size\]=[0-9]{4,}") {
+          set $block_bad_pagination 1;
+      }
+      
+      # Block page[size] with 50-99
+      if ($args ~ "page\[size\]=[5-9][0-9]") {
+          set $block_bad_pagination 1;
+      }
+      
+      # Specifically block page[size]=10000
+      if ($args ~ "page\[size\]=10000") {
+          set $block_bad_pagination 1;
+      }
+      
+      # Also block page parameter with high values
+      if ($args ~ "page=[0-9]{4,}") {
+          set $block_bad_pagination 1;
+      }
+      
+      if ($block_bad_pagination = 1) {
+          return 403;
+      }
       
       # Blocks sequential page scraping (e.g., ?page=1&page=2)
-      # This catches automated scanners that add multiple page params
       set $page_abuse 0;
       if ($args ~ "page=[^&]+.*page=") { set $page_abuse 1; }
       if ($args ~ "page=[^&]+&.*page=") { set $page_abuse 1; }
