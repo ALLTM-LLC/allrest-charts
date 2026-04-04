@@ -42,28 +42,18 @@ metadata:
       set $block_bad_pagination 0;
       
       # Block page[size] with 4+ digits (1000, 10000, 100000)
-      if ($args ~ "page\[size\]=[0-9]{4,}") {
-          set $block_bad_pagination 1;
-      }
+      if ($args ~ "page\[size\]=[0-9]{4,}") { set $block_bad_pagination 1; }
       
       # Block page[size] with 50-99
-      if ($args ~ "page\[size\]=[5-9][0-9]") {
-          set $block_bad_pagination 1;
-      }
+      if ($args ~ "page\[size\]=[5-9][0-9]") { set $block_bad_pagination 1; }
       
       # Specifically block page[size]=10000
-      if ($args ~ "page\[size\]=10000") {
-          set $block_bad_pagination 1;
-      }
-      
+      if ($args ~ "page\[size\]=10000") { set $block_bad_pagination 1; }
+          
       # Also block page parameter with high values
-      if ($args ~ "page=[0-9]{4,}") {
-          set $block_bad_pagination 1;
-      }
+      if ($args ~ "page=[0-9]{4,}") { set $block_bad_pagination 1; }
       
-      if ($block_bad_pagination = 1) {
-          return 403;
-      }
+      if ($block_bad_pagination = 1) { return 403; }
       
       # Blocks sequential page scraping (e.g., ?page=1&page=2)
       set $page_abuse 0;
