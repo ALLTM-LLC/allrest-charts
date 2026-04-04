@@ -24,7 +24,7 @@ metadata:
       
       # === 3. CONSOLIDATED BAD BOT BLOCK (NEW + EXISTING COMBINED) ===
       # Combined all bot patterns in one rule for efficiency
-      if ($http_user_agent ~* "(SemrushBot|AhrefsBot|MJ12bot|BLEXBot|DotBot|SeznamBot|Sogou|ZoominfoBot|Netcraft|CensysInspect|python-requests|curl|wget|Go-http-client|Java/|okhttp|aiohttp|rest-client|HTTrack|Nmap|sqlmap|masscan|acunetix|Nikto|ZAP|wpscan|GPTBot|ChatGPT|OpenAI|Anthropic|ClaudeBot|PerplexityBot|cohere-ai|YandexGPTBot|Meta-ExternalAgent|AppleBot-Extended|AmazonBot|AI2Bot|Bytespider|PyntBot|CCBot|Diffbot|Scrapy|axios|node-fetch|php|libwww-perl|httpclient|PetalBot|MegaIndex)") { 
+      if ($http_user_agent ~* "(SemrushBot|MJ12bot|BLEXBot|DotBot|SeznamBot|Sogou|ZoominfoBot|Netcraft|CensysInspect|python-requests|curl|wget|Go-http-client|Java/|okhttp|aiohttp|rest-client|HTTrack|Nmap|sqlmap|masscan|acunetix|Nikto|ZAP|wpscan|GPTBot|ChatGPT|OpenAI|Anthropic|ClaudeBot|PerplexityBot|cohere-ai|YandexGPTBot|Meta-ExternalAgent|AppleBot-Extended|AmazonBot|AI2Bot|Bytespider|PyntBot|CCBot|Diffbot|Scrapy|axios|node-fetch|php|libwww-perl|httpclient|PetalBot|MegaIndex)") { 
           return 403; 
       }
       
