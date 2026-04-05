@@ -40,9 +40,7 @@ metadata:
       # === FIX: BLOCK page[size]=10000 ATTACKS ===
       # Attackers use ?page[size]=10000 - this blocks it properly
       set $block_bad_pagination 0;
-      
-      # Block page[size]
-            
+          
       # Specifically block page[size]=10000
       if ($args ~ "page\[size\]=10000") { set $block_bad_pagination 1; }
           
