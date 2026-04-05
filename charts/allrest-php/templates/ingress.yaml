@@ -41,12 +41,8 @@ metadata:
       # Attackers use ?page[size]=10000 - this blocks it properly
       set $block_bad_pagination 0;
       
-      # Block page[size] with 4+ digits (1000, 10000, 100000)
-      if ($args ~ "page\[size\]=[0-9]{4,}") { set $block_bad_pagination 1; }
-      
-      # Block page[size] with 50-99
-      if ($args ~ "page\[size\]=[5-9][0-9]") { set $block_bad_pagination 1; }
-      
+      # Block page[size]
+            
       # Specifically block page[size]=10000
       if ($args ~ "page\[size\]=10000") { set $block_bad_pagination 1; }
           
