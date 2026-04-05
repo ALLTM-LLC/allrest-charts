@@ -37,18 +37,11 @@ metadata:
       if ($arg_page ~ "^(?:32[1-9]|3[3-9]\d|[4-9]\d{2,}|\d{4,})$") { return 403; }
       # if ($arg_page ~ "^(15[1-9]|[1-9]\d{3,}|[2-9]\d{2,})$") { return 403; }
       
-      # === FIX: BLOCK page[size]=10000 ATTACKS ===
-      # Attackers use ?page[size]=10000 - this blocks it properly
+      # === FIX: BLOCK page[size]=1500 ATTACKS ===
       set $block_bad_pagination 0;
-          
-      # Specifically block page[size]=10000
-      if ($args ~ "page\[size\]=10000") { set $block_bad_pagination 1; }
-          
-      # Also block page parameter with high values
-      if ($args ~ "page=[0-9]{4,}") { set $block_bad_pagination 1; }
-      
+      if ($args ~ "page\[size\]=(1[5-9][0-9]{2}|[2-9][0-9]{3,})") { set $block_bad_pagination 1; }
       if ($block_bad_pagination = 1) { return 403; }
-      
+     
       # Blocks sequential page scraping (e.g., ?page=1&page=2)
       set $page_abuse 0;
       if ($args ~ "page=[^&]+.*page=") { set $page_abuse 1; }
