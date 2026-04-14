@@ -15,6 +15,13 @@ metadata:
     
     # === CONFIGURATION SNIPPET (BOT, CORS, CACHING, SECURITY) ===
     nginx.ingress.kubernetes.io/configuration-snippet: |
+     
+      # === SITEMAP EXCEPTION (ALL LANG FILES) ===
+      if ($request_uri ~* "^/(allrest_index\.xml|allrest_list_[a-z]{2}\.xml)$") {
+          set $allow_good_bot 1;
+          break;
+      }
+      
       # === 1. IP BLOCK (Fastest check - from ConfigMap) ===
       if ($deny) { return 444; }
       
