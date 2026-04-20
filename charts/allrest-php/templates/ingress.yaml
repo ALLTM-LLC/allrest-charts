@@ -101,6 +101,12 @@ metadata:
         add_header Pragma "public" always;
         add_header Vary "Accept-Encoding" always;
       }
+      # === 12. ALLOW EMAIL IMAGES (BYPASS ALL BLOCKS) ===
+      if ($request_uri ~* "^/email-img/") {
+          add_header Cache-Control "public, max-age=31536000, immutable" always;
+          add_header Vary "Accept-Encoding" always;
+          break;
+      }
       
       if ($arg_page ~ "^[0-9]+$") {
         add_header Cache-Control "public, max-age=600" always;
