@@ -24,7 +24,31 @@ metadata:
       # === 2. BLOCK HEAD REQUESTS (catches scanners early) ===
       # Many scanners use HEAD requests to check if pages exist
       if ($request_method = HEAD) { return 403; }
+
+      # ============================================================
+      # === UPDATE HERE - ADD GOOGLE IMAGE PROXY WHITELIST ===
+      # ============================================================
+      # ADD THIS RIGHT HERE (before the bad bot block):
       
+      # === ALLOW GOOGLE IMAGE PROXY (Fixes Gmail image loading) ===
+      # Google's image proxy uses these IP ranges when fetching images for Gmail
+      set $allow_google_proxy 0;
+      if ($remote_addr ~* "(66\.249\.[0-9]+\.[0-9]+|74\.125\.[0-9]+\.[0-9]+|64\.233\.[0-9]+\.[0-9]+|173\.194\.[0-9]+\.[0-9]+)") {
+          set $allow_google_proxy 1;
+      }
+      # Also allow by user-agent
+      if ($http_user_agent ~* "(Google-Image-Proxy|GoogleProxy|googleusercontent\.com)") {
+          set $allow_google_proxy 1;
+      }
+      if ($allow_google_proxy = 1) {
+          break;  # Skip all bot blocking for Google
+      }
+      
+      # ============================================================
+      # === END OF GOOGLE PROXY FIX ===
+      # ============================================================
+
+            
       # === 3. CONSOLIDATED BAD BOT BLOCK (NEW + EXISTING COMBINED) ===
       # Combined all bot patterns in one rule for efficiency
       if ($http_user_agent ~* "(SemrushBot|MJ12bot|BLEXBot|DotBot|SeznamBot|Sogou|ZoominfoBot|Netcraft|CensysInspect|python-requests|curl|wget|Go-http-client|Java/|okhttp|aiohttp|rest-client|HTTrack|Nmap|sqlmap|masscan|acunetix|Nikto|ZAP|wpscan|GPTBot|ChatGPT|OpenAI|Anthropic|ClaudeBot|PerplexityBot|cohere-ai|YandexGPTBot|Meta-ExternalAgent|AppleBot-Extended|AmazonBot|AI2Bot|Bytespider|PyntBot|CCBot|Diffbot|Scrapy|axios|node-fetch|php|libwww-perl|httpclient|PetalBot|MegaIndex)") { 
