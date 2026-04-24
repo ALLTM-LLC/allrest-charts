@@ -141,23 +141,7 @@ metadata:
         add_header Vary "Accept-Encoding" always;
       }
 
-     # ============================================
-      # === NEW: EXTENDED CACHING FOR VERSIONED ASSETS ===
-      # ============================================
-      # When CSS/JS files have ?id= parameter, cache for 1 year
-      if ($request_uri ~* "\\.(css|js)\\?id=") {
-        add_header Cache-Control "public, max-age=31536000, immutable" always;
-        add_header Expires "Thu, 31 Dec 2037 23:59:59 GMT" always;
-      }
-      
-      # Special caching for vendor.css (your largest CSS file)
-      if ($request_uri ~* "vendor\\.css") {
-        add_header Cache-Control "public, max-age=31536000, immutable" always;
-        add_header Expires "Thu, 31 Dec 2037 23:59:59 GMT" always;
-      }
-      # ============================================
-
-      
+     
       # === 12. ALLOW EMAIL IMAGES (BYPASS ALL BLOCKS) ===
       if ($request_uri ~* "^/email-img/") {
           add_header Cache-Control "public, max-age=31536000, immutable" always;
