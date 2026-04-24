@@ -26,7 +26,7 @@ metadata:
       if ($request_method = HEAD) { return 403; }
 
       # ============================================================
-      # === UPDATE HERE - ADD GOOGLE IMAGE PROXY WHITELIST ===
+      # ===ADD GOOGLE IMAGE PROXY WHITELIST ===
       # ============================================================
       # ADD THIS RIGHT HERE (before the bad bot block):
       
@@ -114,7 +114,7 @@ metadata:
       }
 
       # ============================================
-      # === NEW: ADD PRELOAD FOR YOUR ACTUAL ASSETS ===
+      # === ADD PRELOAD FOR YOUR ACTUAL ASSETS ===
       # ============================================
       # Preload critical CSS files on homepage
       if ($request_uri = "/") {
@@ -189,17 +189,6 @@ metadata:
         add_header "Access-Control-Allow-Methods" "GET, POST, OPTIONS, PUT, DELETE" always;
         add_header "Access-Control-Allow-Headers" "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization" always;
       }
-
-      # ============================================
-      # === NEW: AUTOMATIC LAZY LOADING FOR IMAGES ===
-      # ============================================
-      # Adds loading="lazy" to all img tags that don't have it
-      sub_filter '<img ' '<img loading="lazy" ';
-      sub_filter_once off;
-      sub_filter_types text/html;
-      # ============================================
-
-
 
 spec:
   tls:
