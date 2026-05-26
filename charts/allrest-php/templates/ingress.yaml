@@ -27,8 +27,7 @@ metadata:
       limit_req zone=global_limit burst=2 nodelay;
       limit_req_status 429;
       limit_conn conn_limit 5;
-      limit_req_status 429;
-      
+      limit_conn_status 429;      
       # ============================================================
       # === NEW: BLOCK EXTREME PAGINATION (KILLS DATABASE) ===
       # ============================================================
