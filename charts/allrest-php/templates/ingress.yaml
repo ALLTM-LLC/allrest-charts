@@ -28,23 +28,6 @@ metadata:
       limit_req_status 429;
       limit_conn conn_limit 5;
       limit_conn_status 429;      
-      # ============================================================
-      # === NEW: BLOCK EXTREME PAGINATION (KILLS DATABASE) ===
-      # ============================================================
-      # Blocks page[size]=10000 attacks
-      if ($args ~* "page\[size\]=\d{4,}") { 
-          return 403; 
-      }
-      if ($args ~* "page%5Bsize%5D=\d{4,}") { 
-          return 403; 
-      }
-      # Blocks any page[size] > 500
-      if ($args ~* "page\[size\]=\d{3,}") { 
-          return 403; 
-      }
-      if ($args ~* "page%5Bsize%5D=\d{3,}") { 
-          return 403; 
-      }
       
       # ============================================================
       # === NEW: BLOCK LARGE CITY FRONT API CALLS ===
@@ -102,6 +85,7 @@ metadata:
       # === FIX: BLOCK page[size]=1500 ATTACKS ===
       set $block_bad_pagination 0;
       if ($args ~ "page\[size\]=(1[5-9][0-9]{2}|[2-9][0-9]{3,})") { set $block_bad_pagination 1; }
+      if ($args ~ "page%5Bsize%5D=(1[5-9][0-9]{2}|[2-9][0-9]{3,})") { set $block_bad_pagination 1; } 
       if ($block_bad_pagination = 1) { return 403; }
      
       # Blocks sequential page scraping (e.g., ?page=1&page=2)
