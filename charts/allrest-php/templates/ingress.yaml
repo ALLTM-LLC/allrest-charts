@@ -19,6 +19,45 @@ metadata:
       
       # === 1. IP BLOCK (Fastest check - from ConfigMap) ===
       if ($deny) { return 444; }
+            # === 1. IP BLOCK (Fastest check - from ConfigMap) ===
+      if ($deny) { return 444; }
+      
+      # ============================================================
+      # === NEW: PER-IP RATE LIMITING (ADDED 26-MAY-2026) ===
+      # ============================================================
+      # This limits each IP to 5 requests per second
+      limit_req zone=global_limit burst=10 nodelay;
+      limit_req_status 429;
+      
+      # ============================================================
+      # === NEW: BLOCK EXTREME PAGINATION (KILLS DATABASE) ===
+      # ============================================================
+      # Blocks page[size]=10000 attacks
+      if ($args ~* "page\[size\]=\d{4,}") { 
+          return 403; 
+      }
+      if ($args ~* "page%5Bsize%5D=\d{4,}") { 
+          return 403; 
+      }
+      # Blocks any page[size] > 500
+      if ($args ~* "page\[size\]=\d{3,}") { 
+          return 403; 
+      }
+      if ($args ~* "page%5Bsize%5D=\d{3,}") { 
+          return 403; 
+      }
+      
+      # ============================================================
+      # === NEW: BLOCK LARGE CITY FRONT API CALLS ===
+      # ============================================================
+      if ($request_uri ~* "/api/v1/locations/citiesfront.*page%5Bsize%5D=\d{3,}") {
+          return 403;
+      }
+      
+      # === END OF NEW RATE LIMITING RULES ===
+      # ============================================================
+     
+      # === 2. BLOCK HEAD REQUESTS (catches scanners early) ===
       
      
       # === 2. BLOCK HEAD REQUESTS (catches scanners early) ===
