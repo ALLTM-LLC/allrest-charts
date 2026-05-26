@@ -159,6 +159,24 @@ metadata:
         add_header Pragma "public" always;
         add_header Vary "Accept-Encoding" always;
       }
+      # === HTML PAGES - SHORT CACHE ===
+      if ($request_uri ~* "\\.(?:html|htm)$") {
+          add_header Cache-Control "public, max-age=3600" always;
+      }
+      
+      # === HOMEPAGE - VERY SHORT CACHE ===
+      if ($request_uri = "/") {
+          add_header Cache-Control "public, max-age=600" always;
+          break;
+      }
+      
+      # === API RESPONSES - NO CACHE ===
+      if ($request_uri ~* "^/api/") {
+          add_header Cache-Control "no-cache, no-store, must-revalidate" always;
+          add_header Pragma "no-cache" always;
+          add_header Expires "0" always;
+          break;
+      }
 
      
       # === 12. ALLOW EMAIL IMAGES (BYPASS ALL BLOCKS) ===
