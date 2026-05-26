@@ -19,14 +19,14 @@ metadata:
       
       # === 1. IP BLOCK (Fastest check - from ConfigMap) ===
       if ($deny) { return 444; }
-            # === 1. IP BLOCK (Fastest check - from ConfigMap) ===
-      if ($deny) { return 444; }
       
       # ============================================================
       # === NEW: PER-IP RATE LIMITING (ADDED 26-MAY-2026) ===
       # ============================================================
       # This limits each IP to 5 requests per second
-      limit_req zone=global_limit burst=10 nodelay;
+      limit_req zone=global_limit burst=2 nodelay;
+      limit_req_status 429;
+      limit_conn conn_limit 5;
       limit_req_status 429;
       
       # ============================================================
@@ -56,9 +56,6 @@ metadata:
       
       # === END OF NEW RATE LIMITING RULES ===
       # ============================================================
-     
-      # === 2. BLOCK HEAD REQUESTS (catches scanners early) ===
-      
      
       # === 2. BLOCK HEAD REQUESTS (catches scanners early) ===
       # Many scanners use HEAD requests to check if pages exist
