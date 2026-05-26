@@ -24,9 +24,9 @@ metadata:
       # === NEW: PER-IP RATE LIMITING (ADDED 26-MAY-2026) ===
       # ============================================================
       # This limits each IP to 5 requests per second
-      limit_req zone=global_limit burst=10 nodelay;
+      limit_req zone=global_limit burst=50 nodelay;
       limit_req_status 429;
-      limit_conn conn_limit 5;
+      limit_conn conn_limit 10;
       limit_conn_status 429;      
       
       # ============================================================
