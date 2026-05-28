@@ -23,9 +23,9 @@ metadata:
       # ============================================================
       # === NEW: PER-IP RATE LIMITING (ADDED 26-MAY-2026) ===
       # ============================================================
-      limit_req zone=strict_limit burst=5 nodelay;
+      limit_req zone=strict_limit burst=20 nodelay;
       limit_req_status 429;
-      limit_conn conn_limit 5;
+      limit_conn conn_limit 10;
       limit_conn_status 429;
 
       # ============================================================
