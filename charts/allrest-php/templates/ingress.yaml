@@ -23,11 +23,8 @@ metadata:
       # ============================================================
       # === NEW: PER-IP RATE LIMITING (ADDED 26-MAY-2026) ===
       # ============================================================
-      limit_req_zone $binary_remote_addr zone=strict_limit:10m rate=2r/s;
       limit_req zone=strict_limit burst=5 nodelay;
       limit_req_status 429;
-      
-      limit_conn_zone $binary_remote_addr zone=conn_limit:10m;
       limit_conn conn_limit 5;
       limit_conn_status 429;
 
