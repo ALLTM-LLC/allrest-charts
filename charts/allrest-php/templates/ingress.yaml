@@ -33,9 +33,6 @@ metadata:
       # === 1.3 GLOBAL RATE LIMIT ===
       limit_req zone=global_limit burst=500 nodelay;
       
-      # === 1.4 COUNTRY-BASED RATE LIMIT ===
-      limit_req zone=country_limit burst=150 nodelay;
-
       # ============================================================
       # === SECTION 2: METHOD AND URI PATTERN BLOCKS ===
       # ============================================================
