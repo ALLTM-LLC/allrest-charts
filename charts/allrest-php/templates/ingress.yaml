@@ -68,14 +68,12 @@ metadata:
             
       # === 3. CONSOLIDATED BAD BOT BLOCK (NEW + EXISTING COMBINED) ===
       # Combined all bot patterns in one rule for efficiency
-      if ($http_user_agent ~* "(SemrushBot|MJ12bot|BLEXBot|DotBot|SeznamBot|Sogou|ZoominfoBot|Netcraft|CensysInspect|python-requests|curl|wget|Go-http-client|Java/|okhttp|aiohttp|rest-client|HTTrack|Nmap|sqlmap|masscan|acunetix|Nikto|ZAP|wpscan|GPTBot|ChatGPT|OpenAI|Anthropic|ClaudeBot|PerplexityBot|cohere-ai|YandexGPTBot|Meta-ExternalAgent|AppleBot-Extended|AmazonBot|AI2Bot|Bytespider|PyntBot|CCBot|Diffbot|Scrapy|axios|node-fetch|php|libwww-perl|httpclient|PetalBot|MegaIndex)") { 
-          return 403; 
-      }
+      if ($http_user_agent ~* "(SemrushBot|MJ12bot|BLEXBot|DotBot|SeznamBot|Sogou|ZoominfoBot|Netcraft|CensysInspect|python-requests|curl|wget|Go-http-client|Java/|okhttp|aiohttp|rest-client|HTTrack|Nmap|sqlmap|masscan|acunetix|Nikto|ZAP|wpscan|GPTBot|ChatGPT|OpenAI|Anthropic|ClaudeBot|PerplexityBot|cohere-ai|YandexGPTBot|Meta-ExternalAgent|AppleBot-Extended|AmazonBot|AI2Bot|Bytespider|PyntBot|CCBot|Diffbot|Scrapy|axios|node-fetch|php|libwww-perl|httpclient|PetalBot|MegaIndex|AhrefsBot|MauiBot|Ruby|scraper|scan|zgrab|httpx|^$)") { return 403; }
       
       # === 4. OUTDATED/FAKE BROWSERS (EXISTING - REORDERED) ===
       # Blocks old Chrome versions and suspicious browsers
-      if ($http_user_agent ~* "(Chrome/(27|29|34|41|62|63|65|67|68|75|84)\.|AOLBUILD|ADG|MSIE 8\.0|Firefox/3\.8|Firefox/13\.0|Windows NT 5\.1|Brave|^$|^-?$|null|CravingExplorer)") { return 403; }
-
+      if ($http_user_agent ~* "(Chrome/(27|29|34|41|62|63|65|67|68|75|84)\.|AOLBUILD|ADG|MSIE 8\.0|Firefox/3\.8|Firefox/13\.0|Windows NT 5\.1|Brave|^-?$|null|CravingExplorer)") { return 403; }
+      
       # === 5. DEEP PAGINATION BLOCK (EXISTING) ===
       # Blocks requests with very high page numbers (scrapers)
       if ($arg_page ~ "^(?:32[1-9]|3[3-9]\d|[4-9]\d{2,}|\d{4,})$") { return 403; }
