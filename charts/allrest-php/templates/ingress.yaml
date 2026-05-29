@@ -81,8 +81,8 @@ metadata:
       
       # === FIX: BLOCK page[size]=1500 ATTACKS ===
       set $block_bad_pagination 0;
-      if ($args ~ "page\[size\]=(1[5-9][0-9]{2}|[2-9][0-9]{3,})") { set $block_bad_pagination 1; }
-      if ($args ~ "page%5Bsize%5D=(1[5-9][0-9]{2}|[2-9][0-9]{3,})") { set $block_bad_pagination 1; } 
+      if ($args ~ "page\[size\]=(1[5-9][0-9]{2}|[2-9][0-9]{3,}|[1-9][0-9]{4,})") { set $block_bad_pagination 1; }
+      if ($args ~ "page%5Bsize%5D=(1[5-9][0-9]{2}|[2-9][0-9]{3,}|[1-9][0-9]{4,})") { set $block_bad_pagination 1; } 
       if ($block_bad_pagination = 1) { return 403; }
      
       # Blocks sequential page scraping (e.g., ?page=1&page=2)
