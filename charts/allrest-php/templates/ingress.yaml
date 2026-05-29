@@ -60,13 +60,13 @@ metadata:
       if ($request_uri ~* "/[a-z-]+/tel:[0-9]+") { return 403; }
       
       # === 2.5 BLOCK LANGUAGE-LANGUAGE PATTERNS ===
-      if ($request_uri ~* "/(de|en|pl|es|pt|tr|ru|ar|fr)-(de|en|pl|es|pt|tr|ru|ar|fr)(/|$)") { return 403; }
+      if ($request_uri ~* "/(de|en|pl|es|pt|tr|ru|ar|fr)-(de|en|pl|es|pt|tr|ru|ar|fr)(/|$)") { return 444; }
       
       # === 2.6 BLOCK REPEATED LANGUAGE LOOPS ===
-      if ($request_uri ~* "/(de|en|pl|es|pt|tr|ru|ar|fr)/\1/") { return 403; }
+      if ($request_uri ~* "/(de|en|pl|es|pt|tr|ru|ar|fr)/\1/") { return 444; }
       
       # === 2.7 BLOCK EXTREMELY DEEP PATHS ===
-      if ($request_uri ~* "(/[^/]+){10,}") { return 403; }
+      if ($request_uri ~* "(/[^/]+){10,}") { return 444; }
 
 
       # ============================================================
