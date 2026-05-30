@@ -101,11 +101,7 @@ metadata:
       if ($http_user_agent ~* "(Googlebot|GoogleOther|AdsBot-Google|Bingbot|BingPreview|Slurp|DuckDuckBot|Applebot|Twitterbot|FacebookExternalHit|LinkedInBot|TelegramBot|Pinterest|WhatsApp)") { 
           set $allow_good_bot 1; 
       }
-      if ($allow_good_bot = 1) { 
-          limit_req zone=good_bot_limit burst=100 nodelay;
-          # DO NOT use break - let good bots continue to other rules
-      }
-
+      
       # ============================================================
       # === SECTION 5: BAD BOT BLOCKING ===
       # ============================================================
