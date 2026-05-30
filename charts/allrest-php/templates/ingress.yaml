@@ -11,6 +11,11 @@ metadata:
     
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    
+    nginx.ingress.kubernetes.io/limit-rps: "50"
+    nginx.ingress.kubernetes.io/limit-burst-multiplier: "5"
+    nginx.ingress.kubernetes.io/limit-connections: "20"
+    nginx.ingress.kubernetes.io/limit-rps-status-code: "429"
 
     nginx.ingress.kubernetes.io/configuration-snippet: |
     
@@ -97,7 +102,8 @@ metadata:
           set $allow_good_bot 1; 
       }
       if ($allow_good_bot = 1) { 
-          break; 
+          limit_req zone=good_bot_limit burst=100 nodelay;
+          # DO NOT use break - let good bots continue to other rules
       }
 
       # ============================================================
