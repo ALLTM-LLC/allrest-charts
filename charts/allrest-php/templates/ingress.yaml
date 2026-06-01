@@ -84,10 +84,6 @@ metadata:
       if ($http_user_agent ~* "(Google-Image-Proxy|GoogleProxy|googleusercontent\.com)") {
           set $allow_google_proxy 1;
       }
-      if ($allow_google_proxy = 1) {
-          break;
-      }
-
 
       # ============================================================
       # === SECTION 4: GOOD BOTS ALLOWLIST ===
