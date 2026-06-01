@@ -115,88 +115,52 @@ metadata:
           return 403; 
       }
       
+   
       # ============================================================
-      # === SECTION 6: PAGINATION BLOCKING ===
-      # === (Only applies to NON-good bots) ===
+      # === SECTION 6: PAGINATION BLOCKING (API ONLY, FUTURE-PROOF)
       # ============================================================
       
       # -----------------------------
-      # 6.1 BASE SAFETY LIMIT (DEFAULT)
+      # 6.1 DETECT API REQUESTS
       # -----------------------------
-      set $pagination_limit 1500;
-      # default safe limit for all API requests
-      
-      # -----------------------------
-      # 6.2 API DETECTION (FUTURE-PROOF)
-      # -----------------------------
-      
       set $is_api 0;
-      # flag for all API traffic
       
       if ($request_uri ~ "^/api/") {
           set $is_api 1;
-          # any API version (v1, v2, future v3, mobile, partner, etc.)
       }
       
       # -----------------------------
-      # 6.3 SPECIAL HIGH-VOLUME ENDPOINTS
-      # -----------------------------
-      
-      # cities dropdown needs large dataset (critical UI fix)
-      if ($request_uri ~ "^/api/.*/locations/citiesfront") {
-          set $pagination_limit 5000;
-          # allow large dataset for UI dropdown stability
-      }
-      
-      # -----------------------------
-      # 6.4 PAGINATION ABUSE DETECTION
+      # 6.2 API PROTECTION (ONLY EXTREME ABUSE)
       # -----------------------------
       set $block_pagination 0;
       
-      # detect extreme page size abuse (encoded + normal)
-      if ($args ~ "page(\[size\]|%5Bsize%5D)=(5[0-9]{3,}|[6-9][0-9]{3,}|[1-9][0-9]{5,})") {
+      # BLOCK ONLY 10000+ (5 DIGITS OR MORE)
+      # safe for normal pagination (1–9999 allowed)
+      if ($args ~ "page(\[size\]|%5Bsize%5D)=[0-9]{5,}") {
           set $block_pagination 1;
-          # blocks 5000+, 6000+, 100000+ etc (scraper behavior)
       }
       
-      # -----------------------------
-      # 6.5 APPLY RULES (API ONLY)
-      # -----------------------------
-      
+      # APPLY ONLY FOR API
       if ($is_api = 1) {
-      
-          # allow special endpoint higher limit (citiesfront handled separately above)
-          if ($request_uri !~ "^/api/.*/locations/citiesfront") {
-      
-              if ($block_pagination = 1) {
-                  return 403;
-                  # global protection for all API endpoints
-              }
-          }
-      
-          # extra protection for citiesfront ONLY (safety cap)
-          if ($request_uri ~ "^/api/.*/locations/citiesfront") {
-      
-              if ($args ~ "page(\[size\]|%5Bsize%5D)=(6000|[1-9][0-9]{4,})") {
-                  return 403;
-                  # prevents extreme DB load even for dropdowns
-              }
+          if ($block_pagination = 1) {
+              return 403;
           }
       }
       
       # -----------------------------
-      # 6.6 NON-API SAFETY (OPTIONAL HARD RULE)
+      # 6.4 NON-API PROTECTION (WEBSITE SAFETY ONLY)
       # -----------------------------
-      
-      # prevent page size abuse on website (not API)
       if ($is_api = 0) {
       
-          if ($args ~ "page(\[size\]|%5Bsize%5D)=[0-9]{4,}") {
+          # BLOCK:
+          # 4-digit (1000–9999)
+          # 5-digit (10000–99999)
+          # 6+ digits
+          if ($args ~ "page(\[size\]|%5Bsize%5D)=(4[0-9]{3,}|[5-9][0-9]{3,}|[1-9][0-9]{5,})") {
               return 403;
-              # blocks pagination abuse on frontend pages
           }
       }
-
+      
       # ============================================================
       # === SECTION 7: HEADERS AND OPTIMIZATIONS ===
       # ============================================================
