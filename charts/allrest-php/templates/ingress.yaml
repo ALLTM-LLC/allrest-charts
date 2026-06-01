@@ -54,7 +54,7 @@ metadata:
       if ($request_method = HEAD) { return 403; }
       
       # === 2.2 BLOCK LARGE CITY FRONT API CALLS ===
-      if ($request_uri ~* "/api/v1/locations/citiesfront.*page%5Bsize%5D=\d{3,}") { return 403; }
+      if ($request_uri ~* "/api/*/locations/citiesfront.*page%5Bsize%5D=([5-9][0-9]{3,}|[1-9][0-9]{4,})") { return 403; }
       
       # === 2.3 BLOCK UNWANTED URI SCHEMES ===
       if ($request_uri ~* "(tel:|javascript:|data:)") { return 403; }
