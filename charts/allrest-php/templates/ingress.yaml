@@ -54,7 +54,16 @@ metadata:
       if ($request_method = HEAD) { return 403; }
       
       # === 2.2 BLOCK LARGE CITY FRONT API CALLS limitation to 10100  ===
-      if ($request_uri ~* "/api/*/locations/citiesfront.*page%5Bsize%5D=([1-9][0-9]{5,}|10[1-9][0-9]{2}|1[1-9][0-9]{3}|[2-9][0-9]{4})") { return 403; }
+      # if ($request_uri ~* "/api/*/locations/citiesfront.*page%5Bsize%5D=([1-9][0-9]{5,}|10[1-9][0-9]{2}|1[1-9][0-9]{3}|[2-9][0-9]{4})") { return 403; }
+      # citiesfront API protection (safe encoding + decoding support)
+            
+      if ($request_uri ~* "^/api/.*/locations/citiesfront") {
+      
+          # block ONLY values greater than 10100
+          if ($args ~ "(page%5Bsize%5D|page\[size\])=(1010[1-9]|101[1-9][0-9]|10[2-9][0-9]{2}|1[1-9][0-9]{3,}|[2-9][0-9]{4,})") {
+              return 403;
+          }
+      }
       
       # === 2.3 BLOCK UNWANTED URI SCHEMES ===
       if ($request_uri ~* "(tel:|javascript:|data:)") { return 403; }
