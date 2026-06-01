@@ -161,8 +161,8 @@ metadata:
       
       # === 7.4 PRELOAD MAIN LOGO ===
       if ($request_uri ~* "^/(|en/|pl/|de/|ar/|es/|ru/|tr/|fr/|pt)$") {
-        add_header Link "</img/logo.png>; rel=preload; as=image";
-      }
+        add_header Link "</img/logo.png>; rel=preload; as=image, </img/logo_400_130.png>; rel=preload; as=image";
+      } 
       
       # === 7.5 SECURITY HEADERS ===
       add_header X-Frame-Options "SAMEORIGIN" always;
