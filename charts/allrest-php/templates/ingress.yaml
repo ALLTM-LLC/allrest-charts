@@ -8,12 +8,12 @@ metadata:
       
     nginx.ingress.kubernetes.io/limit-rps-key: "$http_api_key"
     nginx.ingress.kubernetes.io/limit-whitelist: "143.198.249.29/32"
-    
+
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-    
-    nginx.ingress.kubernetes.io/limit-rps: "30"
-    nginx.ingress.kubernetes.io/limit-burst-multiplier: "5"
+
+    nginx.ingress.kubernetes.io/limit-rps: "50"
+    nginx.ingress.kubernetes.io/limit-burst-multiplier: "3"
     nginx.ingress.kubernetes.io/limit-connections: "20"
     nginx.ingress.kubernetes.io/limit-rps-status-code: "429"
 
@@ -54,7 +54,7 @@ metadata:
       if ($request_method = HEAD) { return 403; }
       
       # === 2.2 BLOCK LARGE CITY FRONT API CALLS ===
-      # if ($request_uri ~* "/api/v1/locations/citiesfront.*page%5Bsize%5D=\d{3,}") { return 403; }
+      if ($request_uri ~* "/api/v1/locations/citiesfront.*page%5Bsize%5D=\d{3,}") { return 403; }
       
       # === 2.3 BLOCK UNWANTED URI SCHEMES ===
       if ($request_uri ~* "(tel:|javascript:|data:)") { return 403; }
@@ -105,8 +105,7 @@ metadata:
       # ============================================================
       
       # === 5.1 CONSOLIDATED BAD BOT BLOCK ===
-     
-      if ($http_user_agent ~* "(SemrushBot|Hardenize|SecurityTrails|Luminati|Oxylabs|GeoSurf|NetNut|Smartproxy|Soax|ScrapingBee|ScrapingFish|ScraperAPI|Zyte|Scrapinghub|Apify|DataForSEO|MJ12bot|BLEXBot|DotBot|SeznamBot|Sogou|ZoominfoBot|Netcraft|CensysInspect|python-requests|curl|wget|Go-http-client|Java/|okhttp|aiohttp|rest-client|HTTrack|Nmap|sqlmap|masscan|acunetix|Nikto|ZAP|wpscan|GPTBot|ChatGPT|OpenAI|Anthropic|ClaudeBot|PerplexityBot|cohere-ai|YandexGPTBot|Meta-ExternalAgent|AppleBot-Extended|AmazonBot|AI2Bot|Bytespider|PyntBot|CCBot|Diffbot|Scrapy|axios|node-fetch|php|libwww-perl|httpclient|PetalBot|MegaIndex|AhrefsBot|MauiBot|Ruby|scraper|scan|zgrab|httpx|^$") { 
+      if ($http_user_agent ~* "(SemrushBot|Hardenize|SecurityTrails|Luminati|Oxylabs|GeoSurf|NetNut|Smartproxy|Soax|ScrapingBee|ScrapingFish|ScraperAPI|Zyte|Scrapinghub|Apify|DataForSEO|MJ12bot|BLEXBot|DotBot|SeznamBot|Sogou|ZoominfoBot|Netcraft|CensysInspect|python-requests|curl|wget|Go-http-client|Java/|okhttp|aiohttp|rest-client|HTTrack|Nmap|sqlmap|masscan|acunetix|Nikto|ZAP|wpscan|GPTBot|ChatGPT|OpenAI|Anthropic|ClaudeBot|PerplexityBot|cohere-ai|YandexGPTBot|Meta-ExternalAgent|AppleBot-Extended|AmazonBot|AI2Bot|Bytespider|PyntBot|CCBot|Diffbot|Scrapy|axios|node-fetch|php|libwww-perl|httpclient|PetalBot|MegaIndex|AhrefsBot|MauiBot|Ruby|scraper|scan|zgrab|httpx|^$)") { 
           return 403; 
       }
 
@@ -115,53 +114,41 @@ metadata:
       if ($http_user_agent ~* "(Chrome/(27|29|34|41|62|63|65|67|68|75|84)\.|AOLBUILD|ADG|MSIE 8\.0|Firefox/3\.8|Firefox/13\.0|Windows NT 5\.1|Brave|^-?$|null|CravingExplorer)") { 
           return 403; 
       }
-      
-   
+
       # ============================================================
-      # === SECTION 6: PAGINATION BLOCKING (API ONLY, FUTURE-PROOF)
+      # === SECTION 6: PAGINATION BLOCKING ===
+      # === (Only applies to NON-good bots) ===
       # ============================================================
       
-      # -----------------------------
-      # 6.1 DETECT API REQUESTS
-      # -----------------------------
-      set $is_api 0;
-      
-      if ($request_uri ~ "^/api/") {
-          set $is_api 1;
+      # === 6.1 DEEP PAGINATION BLOCK (blocks page 351+) ===
+      if ($arg_page ~ "^(3[6-9][0-9]|[4-9][0-9]{2,}|[1-9][0-9]{3,})$") { 
+          return 403; 
       }
       
-      # -----------------------------
-      # 6.2 API PROTECTION (ONLY EXTREME ABUSE)
-      # -----------------------------
-      set $block_pagination 0;
-      
-      # BLOCK ONLY 10000+ (5 DIGITS OR MORE)
-      # safe for normal pagination (1–9999 allowed)
-      if ($args ~ "page(\[size\]|%5Bsize%5D)=[0-9]{5,}") {
-          set $block_pagination 1;
+      # === 6.2 BLOCK page[size]=1500+ ATTACKS ===
+      set $block_bad_pagination 0;
+      if ($args ~ "page\[size\]=(1[5-9][0-9]{2}|[2-9][0-9]{3,}|[1-9][0-9]{4,})") { 
+          set $block_bad_pagination 1; 
       }
-      
-      # APPLY ONLY FOR API
-      if ($is_api = 1) {
-          if ($block_pagination = 1) {
-              return 403;
-          }
+      if ($args ~ "page%5Bsize%5D=(1[5-9][0-9]{2}|[2-9][0-9]{3,}|[1-9][0-9]{4,})") { 
+          set $block_bad_pagination 1; 
+      } 
+      if ($block_bad_pagination = 1) { 
+          return 403; 
       }
-      
-      # -----------------------------
-      # 6.4 NON-API PROTECTION (WEBSITE SAFETY ONLY)
-      # -----------------------------
-      if ($is_api = 0) {
-      
-          # BLOCK:
-          # 4-digit (1000–9999)
-          # 5-digit (10000–99999)
-          # 6+ digits
-          if ($args ~ "page(\[size\]|%5Bsize%5D)=(4[0-9]{3,}|[5-9][0-9]{3,}|[1-9][0-9]{5,})") {
-              return 403;
-          }
+     
+      # === 6.3 BLOCK SEQUENTIAL PAGE SCRAPING ===
+      set $page_abuse 0;
+      if ($args ~ "page=[^&]+.*page=") { 
+          set $page_abuse 1; 
       }
-      
+      if ($args ~ "page=[^&]+&.*page=") { 
+          set $page_abuse 1; 
+      }
+      if ($page_abuse = 1) { 
+          return 403; 
+      }
+
       # ============================================================
       # === SECTION 7: HEADERS AND OPTIMIZATIONS ===
       # ============================================================
