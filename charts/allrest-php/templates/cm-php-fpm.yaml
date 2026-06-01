@@ -21,7 +21,7 @@ data:
     pm.max_spare_servers = 15
     pm.max_requests = 1000          ; recycle workers to prevent memory leaks
     pm.process_idle_timeout = 5s  ; free idle workers faster
-    request_terminate_timeout = 60s ; max allowed time for any PHP request
+    request_terminate_timeout = 15s ; max allowed time for any PHP request
 
     ; ===============================================================
     ; === PHP CORE SETTINGS (Optimized for Performance & Stability)
