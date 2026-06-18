@@ -200,12 +200,7 @@ metadata:
       }
       
       # === 8.4 API RESPONSES - NO CACHE ===
-      if ($request_uri ~* "^/api/") {
-          add_header Cache-Control "no-cache, no-store, must-revalidate" always;
-          add_header Pragma "no-cache" always;
-          add_header Expires "0" always;
-          break;
-      }
+
       
       # === 8.5 EMAIL IMAGES ===
       if ($request_uri ~* "^/email-img/") {
