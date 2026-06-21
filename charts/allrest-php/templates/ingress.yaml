@@ -18,6 +18,7 @@ metadata:
     nginx.ingress.kubernetes.io/limit-rps-status-code: "429"
       
     nginx.ingress.kubernetes.io/configuration-snippet: |
+    nginx.ingress.kubernetes.io/configuration-snippet: |
     
       # === BLOCK ATTACKING IPS FIRST (BEFORE ANYTHING ELSE) ===
       if ($remote_addr ~* "^43\.(172|173|153|156|167|249)\.") { return 444; }
@@ -47,124 +48,114 @@ metadata:
       limit_req zone=global_limit burst=500 nodelay;
       
       # ============================================================
-      # === SECTION 2: GOOD BOTS ALLOWLIST ===
-      # === Bypass BLOCKING rules but KEEP rate limiting ===
+      # === SECTION 2: METHOD AND URI PATTERN BLOCKS ===
+
       # ============================================================
       
-      set $allow_good_bot 0;
-      set $skip_blocks 0;
+      # === 2.1 BLOCK HEAD REQUESTS ===
+      if ($request_method = HEAD) { return 403; }
       
-      # Googlebot and other major search engines
+      # === 2.2 BLOCK LARGE CITY FRONT API CALLS limitation to 10100  ===
+      if ($request_uri ~* "/api/*/locations/citiesfront.*page%5Bsize%5D=([1-9][0-9]{5,}|10[1-9][0-9]{2}|1[1-9][0-9]{3}|[2-9][0-9]{4})") { return 403; }
+      
+      
+      # citiesfront API protection (safe encoding + decoding support)
+       # if ($request_uri ~* "^/api/.*/locations/citiesfront") {
+
+
+      
+          # block ONLY values greater than 10100
+          # if ($args ~ "(page%5Bsize%5D|page\[size\])=(1010[1-9]|101[1-9][0-9]|10[2-9][0-9]{2}|1[1-9][0-9]{3,}|[2-9][0-9]{4,})") { return 403; } 
+      # }
+
+      
+      # === 2.3 BLOCK UNWANTED URI SCHEMES ===
+      if ($request_uri ~* "(tel:|javascript:|data:)") { return 403; }
+
+    
+      # === 2.4 BLOCK SUSPICIOUS PATH STRUCTURES ===
+      if ($request_uri ~* "/[a-z-]+/tel:[0-9]+") { return 403; }
+      
+      # === 2.5 BLOCK LANGUAGE-LANGUAGE PATTERNS ===
+      if ($request_uri ~* "/(de|en|pl|es|pt|tr|ru|ar|fr)-(de|en|pl|es|pt|tr|ru|ar|fr)(/|$)") { return 444; }
+      
+      # === 2.6 BLOCK REPEATED LANGUAGE LOOPS ===
+      if ($request_uri ~* "/(de|en|pl|es|pt|tr|ru|ar|fr)/\1/") { return 444; }
+     
+      # === 2.7 BLOCK EXTREMELY DEEP PATHS ===
+      if ($request_uri ~* "(/[^/]+){10,}") { return 444; }
+
+
+      # ============================================================
+      # === SECTION 3: GOOGLE IMAGE PROXY WHITELIST ===
+      # ============================================================
+      
+      # === 3.1 ALLOW GOOGLE IMAGE PROXY ===
+      set $allow_google_proxy 0;
+      if ($remote_addr ~* "(66\.249\.[0-9]+\.[0-9]+|74\.125\.[0-9]+\.[0-9]+|64\.233\.[0-9]+\.[0-9]+|173\.194\.[0-9]+\.[0-9]+)") {
+          set $allow_google_proxy 1;
+      }
+      if ($http_user_agent ~* "(Google-Image-Proxy|GoogleProxy|googleusercontent\.com)") {
+          set $allow_google_proxy 1;
+
+      }
+
+      # ============================================================
+      # === SECTION 4: GOOD BOTS ALLOWLIST ===
+      # === (MUST run BEFORE pagination block) ===
+      # ============================================================
+      
+      # === 4.1 ALLOW GOOD BOTS ===
+      set $allow_good_bot 0;
       if ($http_user_agent ~* "(Googlebot|GoogleOther|AdsBot-Google|Bingbot|BingPreview|Slurp|DuckDuckBot|Applebot|Twitterbot|FacebookExternalHit|LinkedInBot|TelegramBot|Pinterest|WhatsApp)") { 
           set $allow_good_bot 1; 
       }
       
-      # Google Image Proxy
-      if ($remote_addr ~* "(66\.249\.[0-9]+\.[0-9]+|74\.125\.[0-9]+\.[0-9]+|64\.233\.[0-9]+\.[0-9]+|173\.194\.[0-9]+\.[0-9]+)") {
-          set $allow_good_bot 1;
-      }
-      if ($http_user_agent ~* "(Google-Image-Proxy|GoogleProxy|googleusercontent\.com)") {
-          set $allow_good_bot 1;
-      }
-      
-      # === BYPASS ALL BLOCKING RULES FOR GOOD BOTS ===
-      # Rate limiting still applies from Section 1
-      if ($allow_good_bot = 1) {
-          set $skip_blocks 1;
-      }
-      
       # ============================================================
-      # === SECTION 3: METHOD AND URI PATTERN BLOCKS ===
-      # === (SKIP for good bots) ===
-      # ============================================================
-      
-      # === 3.1 BLOCK HEAD REQUESTS ===
-      if ($request_method = HEAD) { 
-          if ($skip_blocks = 1) { break; }
-          return 403; 
-      }
-      
-      # === 3.2 BLOCK LARGE CITY FRONT API CALLS limitation to 10100  ===
-      if ($request_uri ~* "/api/*/locations/citiesfront.*page%5Bsize%5D=([1-9][0-9]{5,}|10[1-9][0-9]{2}|1[1-9][0-9]{3}|[2-9][0-9]{4})") { 
-          if ($skip_blocks = 1) { break; }
-          return 403; 
-      }
-      
-      # === 3.3 BLOCK UNWANTED URI SCHEMES ===
-      if ($request_uri ~* "(tel:|javascript:|data:)") { 
-          if ($skip_blocks = 1) { break; }
-          return 403; 
-      }
-      
-      # === 3.4 BLOCK SUSPICIOUS PATH STRUCTURES ===
-      if ($request_uri ~* "/[a-z-]+/tel:[0-9]+") { 
-          if ($skip_blocks = 1) { break; }
-          return 403; 
-      }
-      
-      # === 3.5 BLOCK LANGUAGE-LANGUAGE PATTERNS ===
-      if ($request_uri ~* "/(de|en|pl|es|pt|tr|ru|ar|fr)-(de|en|pl|es|pt|tr|ru|ar|fr)(/|$)") { 
-          if ($skip_blocks = 1) { break; }
-          return 444; 
-      }
-      
-      # === 3.6 BLOCK REPEATED LANGUAGE LOOPS ===
-      if ($request_uri ~* "/(de|en|pl|es|pt|tr|ru|ar|fr)/\1/") { 
-          if ($skip_blocks = 1) { break; }
-          return 444; 
-      }
-      
-      # === 3.7 BLOCK EXTREMELY DEEP PATHS ===
-      if ($request_uri ~* "(/[^/]+){10,}") { 
-          if ($skip_blocks = 1) { break; }
-          return 444; 
-      }
+      # === SECTION 5: BAD BOT BLOCKING ===
 
       # ============================================================
-      # === SECTION 4: BAD BOT BLOCKING ===
-      # === (SKIP for good bots) ===
-      # ============================================================
       
-      # === 4.1 CONSOLIDATED BAD BOT BLOCK ===
+      # === 5.1 CONSOLIDATED BAD BOT BLOCK ===
       if ($http_user_agent ~* "(SemrushBot|Hardenize|SecurityTrails|Luminati|Oxylabs|GeoSurf|NetNut|Smartproxy|Soax|ScrapingBee|ScrapingFish|ScraperAPI|Zyte|Scrapinghub|Apify|DataForSEO|MJ12bot|BLEXBot|DotBot|SeznamBot|Sogou|ZoominfoBot|Netcraft|CensysInspect|python-requests|curl|wget|Go-http-client|Java/|okhttp|aiohttp|rest-client|HTTrack|Nmap|sqlmap|masscan|acunetix|Nikto|ZAP|wpscan|GPTBot|ChatGPT|OpenAI|Anthropic|ClaudeBot|PerplexityBot|cohere-ai|YandexGPTBot|Meta-ExternalAgent|AppleBot-Extended|AmazonBot|AI2Bot|Bytespider|PyntBot|CCBot|Diffbot|Scrapy|axios|node-fetch|php|libwww-perl|httpclient|PetalBot|MegaIndex|AhrefsBot|MauiBot|Ruby|scraper|scan|zgrab|httpx|^$)") { 
-          if ($skip_blocks = 1) { break; }
+
           return 403; 
       }
-
      
-      # === 4.2 OUTDATED/FAKE BROWSERS ===
+      # === 5.2 OUTDATED/FAKE BROWSERS ===
       if ($http_user_agent ~* "(Chrome/(27|29|34|41|62|63|65|67|68|75|84)\.|AOLBUILD|ADG|MSIE 8\.0|Firefox/3\.8|Firefox/13\.0|Windows NT 5\.1|Brave|^-?$|null|CravingExplorer)") { 
-          if ($skip_blocks = 1) { break; }
+
           return 403; 
       }
 
       # ============================================================
-      # === SECTION 5: PAGINATION BLOCKING ===
-      # === (SKIP for good bots) ===
+      # === SECTION 6: PAGINATION BLOCKING ===
+      # === (Only applies to NON-good bots) ===
       # ============================================================
       
-      # === 5.1 DEEP PAGINATION BLOCK (blocks page 351+) ===
+      # === 6.1 DEEP PAGINATION BLOCK (blocks page 351+) ===
       if ($arg_page ~ "^(3[6-9][0-9]|[4-9][0-9]{2,}|[1-9][0-9]{3,})$") { 
-          if ($skip_blocks = 1) { break; }
+
           return 403; 
       }
       
-      # === 5.2 BLOCK page[size]=1500+ ATTACKS ===
+      # === 6.2 BLOCK page[size]=1500+ ATTACKS ===
       set $block_bad_pagination 0;
       if ($args ~ "page\[size\]=(1[5-9][0-9]{2}|[2-9][0-9]{3,}|[1-9][0-9]{4,})") { 
-          if ($skip_blocks = 1) { break; }
+
           set $block_bad_pagination 1; 
       }
-      if ($block_bad_pagination = 1) { return 403; }
+      # if ($args ~ "page%5Bsize%5D=(1[5-9][0-9]{2}|[2-9][0-9]{3,}|[1-9][0-9]{4,})") { set $block_bad_pagination 1; } 
+      #if ($block_bad_pagination = 1) { return 403; }
      
-      # === 5.3 BLOCK SEQUENTIAL PAGE SCRAPING ===
+      # === 6.3 BLOCK SEQUENTIAL PAGE SCRAPING ===
       set $page_abuse 0;
       if ($args ~ "page=[^&]+.*page=") { 
-          if ($skip_blocks = 1) { break; }
+
           set $page_abuse 1; 
       }
       if ($args ~ "page=[^&]+&.*page=") { 
-          if ($skip_blocks = 1) { break; }
+
           set $page_abuse 1; 
       }
       if ($page_abuse = 1) { 
@@ -172,56 +163,56 @@ metadata:
       }
 
       # ============================================================
-      # === SECTION 6: HEADERS AND OPTIMIZATIONS ===
+      # === SECTION 7: HEADERS AND OPTIMIZATIONS ===
       # ============================================================
       
-      # === 6.1 GLOBAL VARY HEADER ===
+      # === 7.1 GLOBAL VARY HEADER ===
       add_header Vary "Accept-Encoding" always;
       
-      # === 6.2 JS PRELOAD OPTIMIZATION ===
+      # === 7.2 JS PRELOAD OPTIMIZATION ===
       if ($request_uri ~* "(main|bundle|app)\.js$") {
         add_header Link "</$request_uri>; rel=preload; as=script" always;
       }
       
-      # === 6.3 PRELOAD CRITICAL CSS FILES ON HOMEPAGE ===
+      # === 7.3 PRELOAD CRITICAL CSS FILES ON HOMEPAGE ===
       if ($request_uri = "/") {
         add_header Link "</css/vendor.css>; rel=preload; as=style";
         add_header Link "</css/app.css>; rel=preload; as=style";
       }
       
-      # === 6.4 PRELOAD MAIN LOGO ===
+      # === 7.4 PRELOAD MAIN LOGO ===
       if ($request_uri ~* "^/(|en/|pl/|de/|ar/|es/|ru/|tr/|fr/|pt)$") {
         add_header Link "</img/logo.png>; rel=preload; as=image, </img/logo_400_130.png>; rel=preload; as=image";
       } 
       
-      # === 6.5 SECURITY HEADERS ===
+      # === 7.5 SECURITY HEADERS ===
       add_header X-Frame-Options "SAMEORIGIN" always;
       add_header X-XSS-Protection "1; mode=block" always;
       add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
 
       # ============================================================
-      # === SECTION 7: CACHING RULES ===
+      # === SECTION 8: CACHING RULES ===
       # ============================================================
       
-      # === 7.1 STATIC FILE CACHING (1 year) ===
+      # === 8.1 STATIC FILE CACHING (1 year) ===
       if ($request_uri ~* "\\.(?:jpg|jpeg|png|gif|webp|ico|css|js|svg|woff|woff2|ttf|eot|mp4|webm|pdf)$") {
         add_header Cache-Control "public, max-age=7776000, immutable" always;
         add_header Expires "Thu, 31 Dec 2037 23:59:59 GMT" always;
         add_header Pragma "public" always;
         add_header Vary "Accept-Encoding" always;
       }
-      # === 7.2 HTML PAGES - SHORT CACHE (1 hour) ===
+      # === 8.2 HTML PAGES - SHORT CACHE (1 hour) ===
       if ($request_uri ~* "\\.(?:html|htm)$") {
           add_header Cache-Control "public, max-age=3600" always;
       }
       
-      # === 7.3 HOMEPAGE - VERY SHORT CACHE (10 minutes) ===
+      # === 8.3 HOMEPAGE - VERY SHORT CACHE (10 minutes) ===
       if ($request_uri = "/") {
           add_header Cache-Control "public, max-age=600" always;
           break;
       }
       
-      # === 7.4 API RESPONSES - NO CACHE ===
+      # === 8.4 API RESPONSES - NO CACHE ===
       if ($request_uri ~* "^/api/") {
           add_header Cache-Control "no-cache, no-store, must-revalidate" always;
           add_header Pragma "no-cache" always;
@@ -230,28 +221,28 @@ metadata:
       }
 
       
-      # === 7.5 EMAIL IMAGES ===
+      # === 8.5 EMAIL IMAGES ===
       if ($request_uri ~* "^/email-img/") {
           add_header Cache-Control "public, max-age=31536000, immutable" always;
           add_header Vary "Accept-Encoding" always;
           break;
       }
       
-      # === 7.6 PAGINATED PAGES CACHE ===
+      # === 8.6 PAGINATED PAGES CACHE ===
       if ($arg_page ~ "^[0-9]+$") {
         add_header Cache-Control "public, max-age=600" always;
       }
       
-      # === 7.7 BOT CRAWLER CACHE ===
+      # === 8.7 BOT CRAWLER CACHE ===
       if ($http_user_agent ~* "(bot|crawler|spider|archive|scanner|fetch|slurp)(/|;|$| )") {
         add_header Cache-Control "public, max-age=300" always;
       }
 
       # ============================================================
-      # === SECTION 8: CORS HANDLING ===
+      # === SECTION 9: CORS HANDLING ===
       # ============================================================
       
-      # === 8.1 PREFLIGHT (OPTIONS) REQUESTS ===
+      # === 9.1 PREFLIGHT (OPTIONS) REQUESTS ===
       if ($request_method = OPTIONS) {
         add_header "Access-Control-Allow-Origin" "$http_origin" always;
         add_header "Access-Control-Allow-Credentials" "true" always;
@@ -261,13 +252,14 @@ metadata:
         return 204;
       }
       
-      # === 8.2 CORS FOR ALLRESTAURANTS DOMAINS ===
+      # === 9.2 CORS FOR ALLRESTAURANTS DOMAINS ===
       if ($http_origin ~* "^https://([a-z0-9-]+\\.)*allrestaurants\\.eu$") {
         add_header "Access-Control-Allow-Origin" "$http_origin" always;
         add_header "Access-Control-Allow-Credentials" "true" always;
         add_header "Access-Control-Allow-Methods" "GET, POST, OPTIONS, PUT, DELETE" always;
         add_header "Access-Control-Allow-Headers" "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization" always;
       }
+
 
 
 spec:
