@@ -116,10 +116,10 @@ metadata:
       # ============================================================
       
       # === 5.1 CONSOLIDATED BAD BOT BLOCK ===
-      if ($http_user_agent ~* "(SemrushBot|Hardenize|SecurityTrails|Luminati|Oxylabs|GeoSurf|NetNut|Smartproxy|Soax|ScrapingBee|ScrapingFish|ScraperAPI|Zyte|Scrapinghub|Apify|DataForSEO|MJ12bot|BLEXBot|DotBot|SeznamBot|Sogou|ZoominfoBot|Netcraft|CensysInspect|python-requests|curl|wget|Go-http-client|Java/|okhttp|aiohttp|rest-client|HTTrack|Nmap|sqlmap|masscan|acunetix|Nikto|ZAP|wpscan|GPTBot|ChatGPT|OpenAI|Anthropic|ClaudeBot|PerplexityBot|cohere-ai|YandexGPTBot|Meta-ExternalAgent|AppleBot-Extended|AmazonBot|AI2Bot|Bytespider|PyntBot|CCBot|Diffbot|Scrapy|axios|node-fetch|php|libwww-perl|httpclient|PetalBot|MegaIndex|AhrefsBot|MauiBot|Ruby|scraper|scan|zgrab|httpx|^$)") { 
-
-          return 403; 
+      if ($http_user_agent ~* "(SemrushBot|Hardenize|SecurityTrails|Luminati|Oxylabs|GeoSurf|NetNut|Smartproxy|Soax|ScrapingBee|ScrapingFish|ScraperAPI|Zyte|Scrapinghub|Apify|DataForSEO|MJ12bot|BLEXBot|DotBot|SeznamBot|Sogou|ZoominfoBot|Netcraft|CensysInspect|python-requests|curl|wget|Go-http-client|Java/|okhttp|aiohttp|rest-client|HTTrack|Nmap|sqlmap|masscan|acunetix|Nikto|ZAP|wpscan|GPTBot|ChatGPT|OpenAI|Anthropic|ClaudeBot|PerplexityBot|cohere-ai|YandexGPTBot|Meta-ExternalAgent|AppleBot-Extended|AmazonBot|AI2Bot|Bytespider|PyntBot|CCBot|Diffbot|Scrapy|axios|node-fetch|php|libwww-perl|httpclient|PetalBot|MegaIndex|AhrefsBot|MauiBot|Ruby|scraper|scan|zgrab|httpx|SEOkicks|SERankingBacklinksBot|^$)") {
+        return 403;
       }
+
      
       # === 5.2 OUTDATED/FAKE BROWSERS ===
       if ($http_user_agent ~* "(Chrome/(27|29|34|41|62|63|65|67|68|75|84)\.|AOLBUILD|ADG|MSIE 8\.0|Firefox/3\.8|Firefox/13\.0|Windows NT 5\.1|Brave|^-?$|null|CravingExplorer)") { 
