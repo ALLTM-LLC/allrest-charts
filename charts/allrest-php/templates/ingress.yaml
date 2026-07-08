@@ -132,8 +132,8 @@ metadata:
       # === (Only applies to NON-good bots) ===
       # ============================================================
       
-      # === 6.1 DEEP PAGINATION BLOCK (blocks page 351+) ===
-      if ($arg_page ~ "^(3[6-9][0-9]|[4-9][0-9]{2,}|[1-9][0-9]{3,})$") { 
+      # === 6.1 DEEP PAGINATION BLOCK (blocks page 451+) ===
+      if ($arg_page ~ "^(4[6-9][0-9]|[4-9][0-9]{2,}|[1-9][0-9]{3,})$") { 
 
           return 403; 
       }
