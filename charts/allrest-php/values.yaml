@@ -17,6 +17,7 @@ wwwUrl: "s.com"
 allrest_services:
   allrest-php: 
       name: allrest-php
+      googleCredentials: true
       imagename: allrest
       repo: registry.digitalocean.com/registry-062023
       configmap: cm-php-fpm
