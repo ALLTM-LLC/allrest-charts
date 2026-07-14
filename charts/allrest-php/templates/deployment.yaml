@@ -12,28 +12,6 @@ metadata:
     {{- end }}
     {{- end }}
   name: {{ $services.name }}
-spec:
-  replicas: {{ $.Values.replicaCount }}
-  selector:
-    matchLabels:
-      app: {{ $services.name }}
-  strategy:
-    rollingUpdate:
-      maxSurge: 25%
-      maxUnavailable: 25%
-    type: RollingUpdate
-  template:
-    metadata:
-      annotations:
-        rollme: {{ randAlphaNum 5 | quote }}
-      labels:
-        app: {{ $services.name }}
-        app-id: {{ $.Chart.Name  }}
-        {{- if $services.extraLabels }}
-        {{- range $name, $value := $services.extraLabels }}
-        {{ $name }}: {{ $value }}
-        {{- end }}
-        {{- end }}
     spec:
       containers:
       - name: {{ $services.name }}
@@ -43,6 +21,10 @@ spec:
         - name: {{ $name }}
           value: {{ $value }}
         {{- end }}
+        {{- end }}
+        {{- if $services.googleCredentials }}
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /var/www/storage/app/service-account.json
         {{- end }}
         {{- if $services.envSecretName }}
         env:
@@ -75,13 +57,19 @@ spec:
         - name: mnt
           mountPath: {{ $services.mountPath }}
           subPath: {{ $services.subPath }}
+        {{- end }}
+        {{- if $services.googleCredentials }}
+        volumeMounts:
+        - name: google-credentials
+          readOnly: true
+          mountPath: /var/www/storage/app
+        {{- end }}
       volumes:
         - name: mnt
           configMap:
             name: {{ $services.configmap }}
-      {{- end }}          
-      {{- if $services.imagePullSecrets }}
-      imagePullSecrets:
-        - name: {{ $services.imagePullSecrets }}
-      {{- end }}          
-{{- end }}
+        {{- if $services.googleCredentials }}
+        - name: google-credentials
+          secret:
+            secretName: google-sitemap-key
+        {{- end }}
