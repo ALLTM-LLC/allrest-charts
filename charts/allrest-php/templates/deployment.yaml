@@ -13,64 +13,77 @@ metadata:
     {{- end }}
   name: {{ $services.name }}
 spec:
-  containers:
-  - name: {{ $services.name }}
-    {{- if $services.env }}
-    env:
-    {{- range $name, $value := $services.env }}
-    - name: {{ $name }}
-      value: {{ $value }}
-    {{- end }}
-    {{- end }}
-    {{- if $services.googleCredentials }}
-    - name: GOOGLE_APPLICATION_CREDENTIALS
-      value: /var/www/storage/app/service-account.json
-    {{- end }}
-    {{- if $services.envSecretName }}
-    env:
-    {{- range $name, $value := $services.envFrom }}
-    - name: {{ $name }}
-      valueFrom:
-        secretKeyRef:
-          key: {{ $value }}
-          name: {{ $services.envSecretName }}
-    {{- end }}
-    {{- end }}
-    {{- if $services.repo }}
-    image: {{ $services.repo }}/{{ $services.imagename }}:{{ $services.versionTag }}
-    {{- else }}
-    image: {{ $.Values.registryLocation }}/{{ $services.imagename }}:{{ $services.versionTag }}
-    {{- end }}
-    imagePullPolicy: Always
-    ports:
-    - containerPort: {{ $services.port }}
-      protocol: TCP
-    resources:
-      requests:
-        cpu: "3.5"
-        memory: "6Gi"
-      limits:
-        cpu: "6"
-        memory: "10Gi"
-    {{- if $services.configmap }}
-    volumeMounts:
-    - name: mnt
-      mountPath: {{ $services.mountPath }}
-      subPath: {{ $services.subPath }}
-    {{- end }}
-    {{- if $services.googleCredentials }}
-    volumeMounts:
-    - name: google-credentials
-      readOnly: true
-      mountPath: /var/www/storage/app
-    {{- end }}
-  volumes:
-  - name: mnt
-    configMap:
-      name: {{ $services.configmap }}
-  {{- if $services.googleCredentials }}
-  - name: google-credentials
-    secret:
-      secretName: google-sitemap-key
-  {{- end }}
+  replicas: {{ $services.replicaCount | default 1 }}
+  selector:
+    matchLabels:
+      app: {{ $services.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ $services.name }}
+    spec:
+      securityContext:
+        runAsUser: 33
+        runAsGroup: 33
+        fsGroup: 33
+      containers:
+      - name: {{ $services.name }}
+        {{- if $services.env }}
+        env:
+        {{- range $name, $value := $services.env }}
+        - name: {{ $name }}
+          value: {{ $value }}
+        {{- end }}
+        {{- end }}
+        {{- if $services.googleCredentials }}
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /var/www/storage/app/service-account.json
+        {{- end }}
+        {{- if $services.envSecretName }}
+        env:
+        {{- range $name, $value := $services.envFrom }}
+        - name: {{ $name }}
+          valueFrom:
+            secretKeyRef:
+              key: {{ $value }}
+              name: {{ $services.envSecretName }}
+        {{- end }}
+        {{- end }}
+        {{- if $services.repo }}
+        image: {{ $services.repo }}/{{ $services.imagename }}:{{ $services.versionTag }}
+        {{- else }}
+        image: {{ $.Values.registryLocation }}/{{ $services.imagename }}:{{ $services.versionTag }}
+        {{- end }}
+        imagePullPolicy: Always
+        ports:
+        - containerPort: {{ $services.port }}
+          protocol: TCP
+        resources:
+          requests:
+            cpu: "3.5"
+            memory: "6Gi"
+          limits:
+            cpu: "6"
+            memory: "10Gi"
+        {{- if $services.configmap }}
+        volumeMounts:
+        - name: mnt
+          mountPath: {{ $services.mountPath }}
+          subPath: {{ $services.subPath }}
+        {{- end }}
+        {{- if $services.googleCredentials }}
+        volumeMounts:
+        - name: google-credentials
+          readOnly: true
+          mountPath: /var/www/storage/app
+        {{- end }}
+      volumes:
+      - name: mnt
+        configMap:
+          name: {{ $services.configmap }}
+      {{- if $services.googleCredentials }}
+      - name: google-credentials
+        secret:
+          secretName: google-sitemap-key
+      {{- end }}
 {{- end }}
