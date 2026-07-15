@@ -22,10 +22,6 @@ spec:
       labels:
         app: {{ $services.name }}
     spec:
-      securityContext:
-        runAsUser: 33
-        runAsGroup: 33
-        fsGroup: 33
       containers:
       - name: {{ $services.name }}
         {{- if $services.env }}
