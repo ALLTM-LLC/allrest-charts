@@ -1,0 +1,35 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: sitemap-submitter
+  namespace: app
+spec:
+  schedule: "0 2 */3 * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: sitemap-submitter
+            image: registry.digitalocean.com/registry-062023/allrest-php:latest
+            command:
+            - /bin/sh
+            - -c
+            - |
+              cd /var/www/project
+              php artisan sitemap:submit
+            env:
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /var/www/storage/app/service-account.json
+            volumeMounts:
+            - name: google-credentials
+              readOnly: true
+              mountPath: /var/www/storage/app
+          volumes:
+          - name: google-credentials
+            secret:
+              secretName: google-sitemap-key
+          restartPolicy: OnFailure
