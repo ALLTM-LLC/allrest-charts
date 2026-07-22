@@ -14,7 +14,7 @@ spec:
         spec:
           containers:
           - name: sitemap-submitter
-            image: registry.digitalocean.com/registry-062023/allrest-php:latest
+            image: registry.digitalocean.com/registry-062023/allrest:latest
             command:
             - /bin/sh
             - -c
