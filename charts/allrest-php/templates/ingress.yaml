@@ -12,21 +12,13 @@ metadata:
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
 
-    nginx.ingress.kubernetes.io/limit-rps: "50"
-    nginx.ingress.kubernetes.io/limit-burst-multiplier: "3"
-    nginx.ingress.kubernetes.io/limit-connections: "20"
+    nginx.ingress.kubernetes.io/limit-rps: "10"
+    nginx.ingress.kubernetes.io/limit-burst-multiplier: "5"
+    nginx.ingress.kubernetes.io/limit-connections: "50"
     nginx.ingress.kubernetes.io/limit-rps-status-code: "429"
       
     nginx.ingress.kubernetes.io/configuration-snippet: |
     
-      # === BLOCK ATTACKING IPS FIRST (BEFORE ANYTHING ELSE) ===
-      if ($remote_addr ~* "^140\.99\.") { return 444; }
-      if ($remote_addr ~* "^104\.25[2-3]\.") { return 444; }
-      if ($remote_addr ~* "^82\.29\.") { return 444; }
-      if ($remote_addr ~* "^43\.(172|173|153|156|167|249)\.") { return 444; }
-      if ($remote_addr ~* "^47\.(76|82|128)\.") { return 444; }
-      if ($remote_addr ~* "^14\.(16[0-9]|17[0-9]|18[0-9]|19[0-9])") { return 444; }
-      if ($remote_addr ~* "^113\.(16[0-9]|17[0-9]|18[0-9]|19[0-9])") { return 444; }
           
       # ============================================================
       # === SECTION 1: FASTEST CHECKS (IP BLOCK & RATE LIMITING) ===
