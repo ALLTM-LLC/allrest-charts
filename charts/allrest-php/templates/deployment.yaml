@@ -22,6 +22,19 @@ spec:
       labels:
         app: {{ $services.name }}
     spec:
+      initContainers:
+      - name: fix-permissions
+        image: busybox:latest
+        command:
+        - /bin/sh
+        - -c
+        - |
+          chown -R 33:33 /var/www/project/storage || true
+          chmod -R 775 /var/www/project/storage || true
+          echo "Permissions fixed!"
+        volumeMounts:
+        - name: storage
+          mountPath: /var/www/project/storage
       containers:
       - name: {{ $services.name }}
         {{- if or $services.env $services.envSecretName }}
@@ -82,4 +95,6 @@ spec:
         secret:
           secretName: google-sitemap-key
       {{- end }}
+      - name: storage
+        emptyDir: {}
 {{- end }}
