@@ -40,13 +40,14 @@ metadata:
       # === SECTION 2: METHOD AND URI PATTERN BLOCKS ===
       # ============================================================
       # === 2.1 BLOCK EMPTY USER AGENT ===
-      # Most scanners hide identity
+      # Blocks scanners/scripts hiding their identity
       if ($http_user_agent = "") { return 403; }
            
-      # === BLOCK INVALID HTTP METHODS ===
+      # === 2.2 BLOCK INVALID HTTP METHODS ===
+      # Allow only methods used by the application
       if ($request_method !~ ^(GET|POST|PUT|DELETE|OPTIONS|PATCH)$) { return 403; }
       
-      # === 2.2 BLOCK LARGE CITY FRONT API CALLS limitation to 10100  ===
+      # === 2.3 BLOCK LARGE CITY FRONT API CALLS CITIES FRONT limitation to 10100  ===
       if ($request_uri ~* "/api/*/locations/citiesfront.*page%5Bsize%5D=([1-9][0-9]{5,}|10[1-9][0-9]{2}|1[1-9][0-9]{3}|[2-9][0-9]{4})") { return 403; }
      
       # citiesfront API protection (safe encoding + decoding support)
@@ -56,16 +57,16 @@ metadata:
       # if ($args ~ "(page%5Bsize%5D|page\[size\])=(1010[1-9]|101[1-9][0-9]|10[2-9][0-9]{2}|1[1-9][0-9]{3,}|[2-9][0-9]{4,})") { return 403; } 
       # }
       
-      # === 2.3 BLOCK UNWANTED URI SCHEMES ===
+      # === 2.4 BLOCK UNWANTED URI SCHEMES ===
       if ($request_uri ~* "(tel:|javascript:|data:)") { return 403; }
 
-      # === 2.4 BLOCK SUSPICIOUS PATH STRUCTURES ===
+      # === 2.5 BLOCK SUSPICIOUS PATH STRUCTURES ===
       if ($request_uri ~* "/[a-z-]+/tel:[0-9]+") { return 403; }
       
-      # === 2.5 BLOCK LANGUAGE-LANGUAGE PATTERNS ===
+      # === 2.6 BLOCK LANGUAGE-LANGUAGE PATTERNS ===
       if ($request_uri ~* "/(de|en|pl|es|pt|tr|ru|ar|fr)-(de|en|pl|es|pt|tr|ru|ar|fr)(/|$)") { return 444; }
       
-      # === 2.6 BLOCK REPEATED LANGUAGE LOOPS ===
+      # === REPEATED LANGUAGE LOOPS ===
       if ($request_uri ~* "/(de|en|pl|es|pt|tr|ru|ar|fr)/\1/") { return 444; }
      
       # === 2.7 BLOCK EXTREMELY DEEP PATHS ===
