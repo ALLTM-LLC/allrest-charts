@@ -41,36 +41,7 @@ metadata:
       # === 1.1 IP BLOCK (Fastest check - from ConfigMap) ===
       # if ($deny) { return 444; }
       if ($block_ip) { return 444; }
-
-      # ============================================================
-      # === NEW: STRICT RATE LIMIT FOR EXPENSIVE REQUESTS ===       # <<<<<<<< NEW SECTION START
-      # === These zones are defined in the ConfigMap ===
-      # === This MUST come BEFORE the general rate limits ===
-      # ============================================================
-      
-      # Block deep pagination (page 46+) with strict 5r/s limit
-      if ($request_uri ~* "page=([4-9][0-9]+|[1-9][0-9]{2,})") {
-          limit_req zone=expensive_limit burst=10 nodelay;
-          limit_req_status 429;
-          break;
-      }
-      
-      # Block page[size] attacks (1500+)
-      if ($request_uri ~* "page%5Bsize%5D=(1[5-9][0-9]{2}|[2-9][0-9]{3,})") {
-          limit_req zone=expensive_limit burst=5 nodelay;
-          limit_req_status 429;
-          break;
-      }
-      
-      # Block API endpoints with stricter limit (30r/s from ConfigMap)
-      if ($request_uri ~* "^/api/") {
-          limit_req zone=api_limit burst=20 nodelay;
-          limit_req_status 429;
-          break;
-      }
-      # ============================================================ # <<<<<<<< NEW SECTION END
-      
-     
+         
       # === 1.2 PER-IP RATE LIMITING ===
       #  Normal users: 100r/s (supports 122 requests per page load)
       limit_req zone=normal_limit burst=150 nodelay;
