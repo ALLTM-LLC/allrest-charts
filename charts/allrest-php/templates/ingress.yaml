@@ -12,13 +12,12 @@ metadata:
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
 
-    nginx.ingress.kubernetes.io/limit-rps: "30"
-    nginx.ingress.kubernetes.io/limit-burst-multiplier: "5"
-    nginx.ingress.kubernetes.io/limit-connections: "50"
+    nginx.ingress.kubernetes.io/limit-rps: "20"
+    nginx.ingress.kubernetes.io/limit-burst-multiplier: "1.5"
+    nginx.ingress.kubernetes.io/limit-connections: "20"
     nginx.ingress.kubernetes.io/limit-rps-status-code: "429"
       
     nginx.ingress.kubernetes.io/configuration-snippet: |
-    
       if ($remote_addr ~* "^140\.99\.") { return 444; }
       if ($remote_addr ~* "^104\.25[2-3]\.") { return 444; }
       if ($remote_addr ~* "^82\.29\.") { return 444; }
