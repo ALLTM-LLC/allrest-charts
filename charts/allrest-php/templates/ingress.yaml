@@ -135,7 +135,7 @@ metadata:
       # ============================================================
       # === 4.1 ALLOW GOOD BOTS ===
       set $allow_good_bot 0;
-      if ($http_user_agent ~* "(Googlebot|GoogleOther|AdsBot-Google|Bingbot|BingPreview|Slurp|Twitterbot|FacebookExternalHit|LinkedInBot|TelegramBot|Pinterest|WhatsApp)") { 
+      if ($http_user_agent ~* "(Googlebot|GoogleOther|AdsBot-Google|Bingbot|BingPreview|Twitterbot|FacebookExternalHit|LinkedInBot|Pinterest|WhatsApp)") { 
           set $allow_good_bot 1; 
       }
       
@@ -143,7 +143,7 @@ metadata:
       # === SECTION 5: BAD BOT BLOCKING ===
       # ============================================================
       # === 5.1 CONSOLIDATED BAD BOT BLOCK ===
-      if ($http_user_agent ~* "(SemrushBot|Hardenize|SecurityTrails|Luminati|Oxylabs|GeoSurf|NetNut|Smartproxy|Soax|ScrapingBee|ScrapingFish|ScraperAPI|Zyte|Scrapinghub|Apify|DataForSEO|MJ12bot|BLEXBot|DotBot|SeznamBot|Sogou|ZoominfoBot|Netcraft|CensysInspect|python-requests|curl|wget|Go-http-client|Java/|okhttp|aiohttp|rest-client|HTTrack|Nmap|sqlmap|masscan|acunetix|Nikto|ZAP|wpscan|GPTBot|ChatGPT|OpenAI|Anthropic|ClaudeBot|PerplexityBot|cohere-ai|YandexGPTBot|Meta-ExternalAgent|AppleBot-Extended|AmazonBot|AI2Bot|Bytespider|PyntBot|CCBot|Diffbot|Scrapy|axios|node-fetch|php|libwww-perl|httpclient|PetalBot|MegaIndex|AhrefsBot|MauiBot|Ruby|scraper|scan|zgrab|httpx|SEOkicks|SERankingBacklinksBot|^$)") {
+      if ($http_user_agent ~* "(SemrushBot|Hardenize|SecurityTrails|Luminati|Oxylabs|GeoSurf|NetNut|Smartproxy|Soax|ScrapingBee|ScrapingFish|ScraperAPI|Zyte|Scrapinghub|Apify|DataForSEO|MJ12bot|BLEXBot|DotBot|SeznamBot|Sogou|ZoominfoBot|Netcraft|CensysInspect|python-requests|curl|wget|Go-http-client|Java/|okhttp|aiohttp|rest-client|HTTrack|Nmap|sqlmap|masscan|acunetix|Nikto|ZAP|wpscan|GPTBot|ChatGPT|OpenAI|Anthropic|ClaudeBot|PerplexityBot|cohere-ai|YandexGPTBot|Meta-ExternalAgent|Applebot|AppleBot-Extended|AmazonBot|AI2Bot|Bytespider|PyntBot|CCBot|Diffbot|Scrapy|axios|node-fetch|php|libwww-perl|httpclient|PetalBot|MegaIndex|AhrefsBot|MauiBot|Ruby|scraper|scan|zgrab|httpx|SEOkicks|SERankingBacklinksBot|^$)") {
         return 403;
       }
 
