@@ -36,7 +36,7 @@ metadata:
      
       # === 1.2 PER-IP RATE LIMITING ===
       # Normal users: 20r/s with burst of 30
-      limit_req zone=normal_limit burst=30 nodelay;
+      limit_req zone=normal_limit burst=50 nodelay;
       limit_req_status 429;
       
       # Connection limit
