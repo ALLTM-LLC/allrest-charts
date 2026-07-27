@@ -22,7 +22,10 @@ metadata:
       # === SECTION 1: FASTEST CHECKS (IP BLOCK & RATE LIMITING) ===
       # ============================================================
       # === 1.1 IP BLOCK (Fastest check - from ConfigMap) ===
-      if ($deny) { return 444; }
+      # if ($deny) { return 444; }
+      if ($block_ip) { return 444; }
+      
+
       
       # === 1.2 PER-IP RATE LIMITING ===
       # Normal users: 100r/s (supports 122 requests per page load)
