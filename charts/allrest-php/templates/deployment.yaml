@@ -29,6 +29,7 @@ spec:
         - /bin/sh
         - -c
         - |
+          mkdir -p /var/www/project/storage/logs
           chown -R 33:33 /var/www/project/storage || true
           chmod -R 775 /var/www/project/storage || true
           echo "Permissions fixed!"
