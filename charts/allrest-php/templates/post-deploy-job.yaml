@@ -18,8 +18,7 @@ spec:
         - /bin/sh
         - -c
         - |
-          kubectl exec -it deployment/allrest-php -- chown -R www-data:www-data /var/www/project/storage || true
-          kubectl exec -it deployment/allrest-php -- chmod -R 775 /var/www/project/storage || true
+          kubectl exec deployment/allrest-php -- chown -R www-data:www-data /var/www/project/storage || true
+          kubectl exec deployment/allrest-php -- chmod -R 775 /var/www/project/storage || true
           echo "Permissions fixed!"
       restartPolicy: OnFailure
-      
