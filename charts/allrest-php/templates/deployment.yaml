@@ -22,6 +22,22 @@ spec:
       labels:
         app: {{ $services.name }}
     spec:      
+      # <--- ADDED THIS INIT CONTAINER BLOCK
+      initContainers:
+      - name: fix-permissions
+        image: busybox:latest
+        command:
+        - /bin/sh
+        - -c
+        - |
+          mkdir -p /var/www/project/storage/logs
+          chown -R 33:33 /var/www/project/storage || true
+          chmod -R 775 /var/www/project/storage || true
+          echo "Permissions fixed!"
+        volumeMounts:
+        - name: storage
+          mountPath: /var/www/project/storage
+      # <--- END OF INIT CONTAINER BLOCK
       containers:
       - name: {{ $services.name }}
         {{- if or $services.env $services.envSecretName }}
