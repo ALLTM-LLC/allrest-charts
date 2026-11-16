@@ -21,8 +21,14 @@ spec:
     metadata:
       labels:
         app: {{ $services.name }}
-    spec:      
-      # <--- ADDED THIS INIT CONTAINER BLOCK
+    spec:
+      # <--- THE MAGIC BULLET: Forces all files in the volume to be owned by www-data (33)
+      securityContext:
+        fsGroup: 33
+        runAsUser: 33
+        runAsGroup: 33
+      # <--- END OF MAGIC BULLET
+      
       initContainers:
       - name: fix-permissions
         image: busybox:latest
@@ -37,7 +43,6 @@ spec:
         volumeMounts:
         - name: storage
           mountPath: /var/www/project/storage
-      # <--- END OF INIT CONTAINER BLOCK
       containers:
       - name: {{ $services.name }}
         {{- if or $services.env $services.envSecretName }}
