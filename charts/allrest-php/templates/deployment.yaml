@@ -25,8 +25,7 @@ spec:
       # <--- THE MAGIC BULLET: Forces all files in the volume to be owned by www-data (33)
       securityContext:
         fsGroup: 33
-        runAsUser: 33
-        runAsGroup: 33
+
       # <--- END OF MAGIC BULLET
       
       initContainers:
